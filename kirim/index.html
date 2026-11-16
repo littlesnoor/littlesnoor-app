@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Kirim notifikasi · littles noor</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:Poppins,sans-serif;background:#FFF9F3;color:#3A3238}
+.w{max-width:520px;margin:0 auto;padding:28px 18px 60px}
+h1{font-size:24px;margin:0 0 4px;color:#9C5238}p.s{color:#857882;margin:0 0 22px;font-size:14px}
+label{display:block;font-weight:600;font-size:14px;margin:14px 0 6px}
+input,textarea{width:100%;box-sizing:border-box;border:1.5px solid #EADBD0;border-radius:14px;padding:12px 14px;font:15px Poppins,sans-serif;background:#fff}
+textarea{min-height:90px}
+small{color:#857882;font-size:12px}
+.row{display:flex;gap:10px;margin-top:20px}
+button{flex:1;border:0;border-radius:999px;padding:13px;font:600 15px Poppins,sans-serif;cursor:pointer;background:#9C5238;color:#fff}
+button.alt{background:#F4ECE6;color:#6a5d64}
+#out{margin-top:18px;padding:14px;border-radius:14px;background:#fff;border:1px solid #EADBD0;font-size:14px;display:none;white-space:pre-wrap}
+.prev{margin-top:18px;background:#fff;border-radius:18px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start;box-shadow:0 6px 18px rgba(0,0,0,.08)}
+.prev img{width:36px;height:36px;border-radius:9px}.prev b{display:block;font-size:14px}.prev span{font-size:13px;color:#5a4e55}
+</style></head><body><div class="w">
+<h1>🔔 Kirim notifikasi</h1>
+<p class="s">Halaman khusus admin littles noor. Tanpa kode admin, tidak bisa mengirim apa pun.</p>
+<label>Kode admin</label><input id="tok" type="password" autocomplete="off" placeholder="tempel kode admin"><small>Disimpan hanya di perangkat ini.</small>
+<label>Judul</label><input id="ti" value="✨ Ada pembaruan littles noor">
+<label>Isi pesan</label><textarea id="bo">Sekarang bisa isi pakai suara 🎙️ Buka aplikasinya untuk mencoba.</textarea>
+<label>Buka halaman (opsional)</label><input id="ur" value="https://app.littlesnoor.com/">
+<label>Kirim tes ke email ini saja (opsional)</label><input id="te" placeholder="kosongkan = kirim ke semua"><small>Saran: tes dulu ke emailmu sendiri.</small>
+<div class="prev"><img src="../icon-192.png" alt=""><div><b id="pt"></b><span id="pb"></span></div></div>
+<div class="row"><button id="send">Kirim</button></div>
+<div id="out"></div>
+</div>
+<script>
+const FN="https://bbldcyxwxwsqemycjgog.supabase.co/functions/v1/send-push", KEY="sb_publishable_bxSEp3nugCl9P7RnxJSwBg_JpsJBuMe";
+const $=s=>document.querySelector(s);
+try{$("#tok").value=localStorage.getItem("ln.adminTok")||""}catch(e){}
+const pv=()=>{$("#pt").textContent=$("#ti").value;$("#pb").textContent=$("#bo").value};["#ti","#bo"].forEach(s=>$(s).oninput=pv);pv();
+$("#send").onclick=async()=>{
+  const te=$("#te").value.trim(), tok=$("#tok").value.trim(), o=$("#out");
+  if(!tok){o.style.display="block";o.textContent="Isi kode admin dulu ya.";return;}
+  if(!te&&!confirmBox()) return;
+  try{localStorage.setItem("ln.adminTok",tok)}catch(e){}
+  $("#send").disabled=true;$("#send").textContent="Mengirim…";o.style.display="block";o.textContent="…";
+  try{
+    const r=await fetch(FN,{method:"POST",headers:{"Content-Type":"application/json","x-admin-token":tok,apikey:KEY},body:JSON.stringify({title:$("#ti").value,body:$("#bo").value,url:$("#ur").value||"/",test_email:te||null})});
+    const j=await r.json().catch(()=>({}));
+    o.textContent=r.ok&&j.ok?`Terkirim ✓\nPerangkat: ${j.total} · berhasil ${j.sent} · dihapus (tidak aktif) ${j.removed} · gagal ${j.failed}`:`Gagal: ${j.error||r.status}`;
+  }catch(e){o.textContent="Tidak bisa terhubung: "+e.message;}
+  $("#send").disabled=false;$("#send").textContent="Kirim";
+};
+function confirmBox(){return window.confirm("Kirim ke SEMUA pengguna yang mengaktifkan notifikasi?");}
+</script></body></html>

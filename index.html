@@ -1569,10 +1569,12 @@ function shelf(){
      ${tag?`<span class="tag" ${p.id==="saku"?'style="background:#FFE0D2;color:#782D1E"':""}>${tag==="Terkunci"?"🔒 ":""}${tag}</span>`:""}${pin&&!shelfEdit?`<span class="pinb">📌</span>`:""}
      ${shelfEdit?`<span class="sedit"><i data-mv="-1" data-p="${p.id}" ${ix===0?'class="off"':""}>‹</i><i data-pin="${p.id}" class="${pin?"on":""}">📌</i><i data-mv="1" data-p="${p.id}" ${ix===P.length-1?'class="off"':""}>›</i></span>`:""}
      <img src="covers/${p.id}.jpg" alt=""><b>${esc(p.name)}</b><span>${esc(!live?p.tagline:(own?p.tagline:"Dapatkan di lynk.id/littlesnoor"))}</span></button>`}).join("")}</div>`).join("")}
+  ${pushCard()}
   <button class="card fbcard" id="fbOpen"><span style="font-size:28px">💌</span><span style="flex:1;text-align:left"><b>Kotak saran</b><small>Punya masukan atau ide aplikasi baru? Ceritakan ke kami</small></span><span class="small">›</span></button>
   <div class="card" style="margin-top:18px;display:flex;align-items:center;gap:10px"><p class="small" style="margin:0;flex:1">Masuk sebagai <b>${esc(A.email||"")}</b></p><button class="mini" id="logoutBtn">Keluar</button></div>
   <p class="small" style="text-align:center;margin-top:16px">Butuh bantuan? DM Instagram <a href='https://instagram.com/littlesnoor' target='_blank' rel='noopener' style='color:var(--sage);font-weight:700'>@littlesnoor</a></p></div>`;
   $("#editShelf").onclick=()=>{shelfEdit=!shelfEdit;shelf();};
+  bindPushCard();
   $("#logoutTop").onclick=logout;$("#logoutBtn").onclick=logout;$("#fbOpen").onclick=feedbackSheet;
   app.querySelectorAll("[data-cat]").forEach(b=>b.onclick=()=>{shelfCat=b.dataset.cat;shelf();});
   setTimeout(()=>{const on=app.querySelector("[data-cat].on");if(on)on.scrollIntoView({inline:"center",block:"nearest"});},0);
@@ -1747,6 +1749,41 @@ const APP_VERSION=56;
   document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible") check(); });
   setInterval(check,20*60*1000);
 })();
+
+/* ===== Notifikasi push ===== */
+const PUSH_ON=false, VAPID_PUB="BDMCqYuEMIZXPnfBJpTzmqMz5oxbohgaDcaxMy5X_C4T-REkqCLJn2XEUkSyl0Uc0fbieNVFv5XyRHqW9T77F0Q";
+function pushSupported(){
+  if(!PUSH_ON||!("serviceWorker" in navigator)||!("PushManager" in window)||!("Notification" in window)) return false;
+  const ios=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+  const standalone=window.matchMedia("(display-mode: standalone)").matches||navigator.standalone;
+  return !ios||standalone;
+}
+function pushCard(){
+  if(!pushSupported()||Notification.permission!=="default") return "";
+  try{ if(localStorage.getItem("ln.pushLater")) return ""; }catch(e){}
+  return `<div class="card" id="pushCard" style="margin:16px 0 12px;border:1.5px dashed var(--pc);background:var(--pl)"><div style="display:flex;gap:12px;align-items:center"><span style="font-size:28px">🔔</span><span style="flex:1"><b style="display:block">Aktifkan notifikasi</b><small class="small">Dapat kabar saat ada fitur baru & pembaruan aplikasi</small></span></div><div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px"><button id="pushNo" style="border:0;background:transparent;color:var(--mut,#857882);font:600 14px Poppins,sans-serif;padding:9px 14px;border-radius:999px">Nanti</button><button id="pushYes" style="border:0;background:var(--sage);color:#fff;font:600 14px Poppins,sans-serif;padding:9px 20px;border-radius:999px">Aktifkan</button></div></div>`;
+}
+function b64u(s){const p="=".repeat((4-s.length%4)%4);const b=atob((s+p).replace(/-/g,"+").replace(/_/g,"/"));return Uint8Array.from(b,c=>c.charCodeAt(0));}
+async function pushSubscribe(){
+  const reg=await navigator.serviceWorker.ready;
+  let sub=await reg.pushManager.getSubscription();
+  if(!sub) sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64u(VAPID_PUB)});
+  const j=sub.toJSON();
+  const r=await rpc("save_push_sub",{p_endpoint:j.endpoint,p_p256dh:j.keys.p256dh,p_auth:j.keys.auth,p_email:(acc()||{}).email||null,p_ua:navigator.userAgent.slice(0,300)});
+  return r&&r.ok;
+}
+function bindPushCard(){
+  const y=$("#pushYes"), n=$("#pushNo"); if(!y) return;
+  n.onclick=()=>{try{localStorage.setItem("ln.pushLater","1")}catch(e){} $("#pushCard").remove();};
+  y.onclick=async()=>{ y.disabled=true; y.textContent="…";
+    try{ const p=await Notification.requestPermission();
+      if(p==="granted"){ const ok=await pushSubscribe(); $("#pushCard").innerHTML='<div style="display:flex;gap:12px;align-items:center"><span style="font-size:28px">✅</span><span style="flex:1"><b style="display:block">Notifikasi aktif</b><small class="small">'+(ok?"Kamu akan dapat kabar saat ada pembaruan":"Belum tersimpan, coba lagi nanti ya")+'</small></span></div>'; }
+      else { $("#pushCard").remove(); }
+    }catch(e){ y.disabled=false; y.textContent="Aktifkan"; }
+  };
+}
+/* perbarui langganan (mis. email berubah) setiap app dibuka */
+setTimeout(()=>{ try{ if(pushSupported()&&Notification.permission==="granted") pushSubscribe().catch(()=>{}); }catch(e){} },4000);
 </script>
 </body>
 </html>
