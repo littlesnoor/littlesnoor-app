@@ -255,6 +255,7 @@ html,body{position:fixed;inset:0;width:100%;height:100%;overflow:hidden}
 .scanbox{position:relative;border-radius:18px;overflow:hidden;background:#111;aspect-ratio:4/3;margin-top:10px}.scanbox video{width:100%;height:100%;object-fit:cover;display:block}.scanbox i{position:absolute;left:12%;right:12%;top:50%;height:2px;background:#E8C15A;box-shadow:0 0 12px #E8C15A}
 .scflash{position:absolute;left:50%;top:14px;transform:translateX(-50%) translateY(-10px);background:#2EAA64;color:#fff;font:700 14px Poppins;padding:8px 14px;border-radius:20px;opacity:0;white-space:nowrap;pointer-events:none}.scflash.on{animation:scf 1.8s ease}@keyframes scf{0%{opacity:0;transform:translateX(-50%) translateY(-10px)}12%{opacity:1;transform:translateX(-50%) translateY(0)}80%{opacity:1}100%{opacity:0}}
 .scask{position:absolute;inset:0;background:rgba(20,14,10,.82);color:#fff;display:flex;flex-direction:column;justify-content:center;padding:18px;text-align:center}.scask b{font-size:17px}.scask small{font-size:13px;opacity:.85;margin-top:4px}
+.shoplogo{width:76px;height:76px;border-radius:18px;background:#FBEFE9;border:1.5px dashed #E7B9A5;display:flex;align-items:center;justify-content:center;font-size:30px;overflow:hidden;flex:none}.shoplogo img{width:100%;height:100%;object-fit:contain;background:#fff}
 </style>
 </head>
 <body>
@@ -1291,6 +1292,8 @@ async function cuLookup(code){if(!/^\d{8,14}$/.test(code))return null;
     }catch(x){}}
   return null;}
 /* ---- nota image / pdf ---- */
+let CULOGO={src:null,img:null};function cuLogoImg(){const L=cuLoad().shop.logo;if(!L)return null;if(CULOGO.src!==L){CULOGO.src=L;CULOGO.img=new Image();CULOGO.img.src=L;}return CULOGO.img.complete&&CULOGO.img.naturalWidth?CULOGO.img:null;}
+function cuNotaReady(cb){const L=cuLoad().shop.logo;if(!L)return cb();cuLogoImg();const im=CULOGO.img;if(im.complete&&im.naturalWidth)return cb();im.onload=()=>cb();im.onerror=()=>cb();}
 function cuNotaCanvas(s,fmt){const M=cuLoad(),sh=M.shop,c=cuCust(s.cust),th=fmt==="58";
   const W=th?384:1240,pad=th?14:90,FF="Poppins,system-ui,sans-serif",PL="#8E4A30",MU="#80706A",INK="#2E2833";
   const z=th?1:2.6;const lines=[];
@@ -1299,9 +1302,14 @@ function cuNotaCanvas(s,fmt){const M=cuLoad(),sh=M.shop,c=cuCust(s.cust),th=fmt=
   const wrap=(t,sz,wt,maxw)=>{x.font=`${wt} ${sz*z}px ${FF}`;const w=String(t).split(" ");let L=[],cur="";w.forEach(v=>{const tt=(cur+" "+v).trim();if(x.measureText(tt).width>maxw&&cur){L.push(cur);cur=v;}else cur=tt;});L.push(cur);return L;};
   const hr=(dash)=>{x.strokeStyle=th?"#000":"#EBDDD6";x.lineWidth=th?1.5:3;if(dash)x.setLineDash([6,5]);x.beginPath();x.moveTo(pad,y);x.lineTo(W-pad,y);x.stroke();x.setLineDash([]);};
   if(!th){x.fillStyle="#FBEFE9";x.fillRect(0,0,W,330);x.fillStyle="#E8C15A";x.fillRect(0,330,W,10);}
-  y+=th?22:70;T(sh.n||"Toko Saya",th?20:30,700,PL,th?"center":"left");y+=th?22:62;
+  const LG=cuLogoImg();
+  if(LG){if(th){const h=70,w=Math.min(W-pad*2,h*LG.naturalWidth/LG.naturalHeight);x.drawImage(LG,(W-w)/2,y,w,h);y+=h+6;}
+    else{const h=150,w=Math.min(420,h*LG.naturalWidth/LG.naturalHeight);x.save();x.beginPath();x.roundRect?x.roundRect(pad,y+10,w,h,18):x.rect(pad,y+10,w,h);x.clip();x.drawImage(LG,pad,y+10,w,h);x.restore();}}
+  if(LG&&!th){const ox=pad+Math.min(420,150*LG.naturalWidth/LG.naturalHeight)+34;y+=70;let fz=30;const mw=W-pad-300-ox;x.font=`700 ${fz*z}px ${FF}`;while(fz>16&&x.measureText(sh.n||"Toko Saya").width>mw){fz-=1;x.font=`700 ${fz*z}px ${FF}`;}x.fillStyle=PL;x.textAlign="left";x.fillText(sh.n||"Toko Saya",ox,y);y+=62;
+    const T2=(t,sz)=>{x.font=`400 ${sz*z}px ${FF}`;x.fillStyle=MU;x.fillText(t,ox,y);};if(sh.addr){T2(sh.addr.slice(0,40),12.5);y+=40;}if(sh.wa){T2("WA "+sh.wa,12.5);y+=40;}}
+  else{y+=th?22:70;T(sh.n||"Toko Saya",th?20:30,700,PL,th?"center":"left");y+=th?22:62;
   if(sh.addr){wrap(sh.addr,th?11:12.5,400,W-pad*2).forEach(l=>{T(l,th?11:12.5,400,MU,th?"center":"left");y+=th?15:40;});}
-  if(sh.wa){T("WA "+sh.wa,th?11:12.5,400,MU,th?"center":"left");y+=th?15:40;}
+  if(sh.wa){T("WA "+sh.wa,th?11:12.5,400,MU,th?"center":"left");y+=th?15:40;}}
   if(!th){y=pad+70;T("NOTA",13,700,PL,"right");y+=58;T(cuNo(s),20,700,INK,"right");y+=50;T(fmtD(s.d),12.5,400,MU,"right");y=380;}
   else{y+=6;hr(true);y+=22;T("NOTA "+cuNo(s),12,700,INK);T(fmtD(s.d),11,400,MU,"right");y+=18;}
   T("Kepada:",th?11:12,400,MU);y+=th?16:44;T(c?c.n:"Pelanggan umum",th?12:16,700,INK);y+=th?16:48;
@@ -1391,7 +1399,7 @@ cunew(){const M=cuLoad(),D=cuDraft=cuDraft||cuNewDraft();const tot=Math.max(0,D.
     const s={id:uid(),no:M.seq,d:D.d,cust:D.cust,items:D.items.map(i=>({...i})),disc:+D.disc||0,note:D.note,pays:paid?[{d:D.d,amt:paid}]:[]};
     D.items.forEach(i=>{const p=M.prod.find(x=>x.id===i.p);if(p&&p.stock!=null)p.stock-=i.q;});
     M.sales.push(s);cuSave();cuDraft=null;cuOpen=s.id;toast("Nota tersimpan ✓ ✨");go("cunota");};},
-cunota(){const M=cuLoad(),s=M.sales.find(x=>x.id===cuOpen);if(!s){go("cusales");return;}const c=cuCust(s.cust);
+cunota(){const M=cuLoad(),s=M.sales.find(x=>x.id===cuOpen);if(!s){go("cusales");return;}if(M.shop.logo&&!cuLogoImg()){cuNotaReady(()=>{if(view==="cunota")CUV.cunota();});}const c=cuCust(s.cust);
   const prev=cuNotaCanvas(s,"a6").toDataURL("image/jpeg",0.85);
   app.innerHTML=`<div class="wrap">${cuHead("Nota "+cuNo(s),fmtD(s.d)+" · "+esc(c?c.n:"Pelanggan umum"),["cusales","Nota"])}
   <img src="${prev}" class="nprev" alt="Nota">
@@ -1465,12 +1473,19 @@ curep(){const M=cuLoad();cuMon=cuMon||ymNow();const ym=cuMon,st=cuMonthStats(ym)
   cuBind();cuBindMon("curep");},
 cushop(){const M=cuLoad(),s=M.shop;
   app.innerHTML=`<div class="wrap">${cuHead("Profil toko","Tampil di bagian atas setiap nota.",["cumore","Lainnya"])}
-  <div class="card"><label class="kl" style="margin-top:0">Nama toko / usaha</label><input type="text" id="sn" value="${esc(s.n)}" placeholder="misal: Dapur Bunda Aisyah">
+  <div class="card"><label class="kl" style="margin-top:0">Logo toko <small>(opsional)</small></label>
+  <div class="row" style="align-items:center"><div class="shoplogo" id="slP">${s.logo?`<img src="${s.logo}" alt="">`:"🏪"}</div><div style="flex:1"><label class="btn light" style="padding:10px;cursor:pointer">📷 Pilih logo<input type="file" id="slF" accept="image/*" hidden></label>${s.logo?`<button class="mini" id="slX" style="margin-top:4px">Hapus logo</button>`:""}</div></div>
+  <p class="small" style="margin:6px 0 0">Logo akan tampil di bagian atas setiap nota.</p>
+  <label class="kl">Nama toko / usaha</label><input type="text" id="sn" value="${esc(s.n)}" placeholder="misal: Dapur Bunda Aisyah">
   <label class="kl">Alamat</label><input type="text" id="sa" value="${esc(s.addr)}" placeholder="Jl. ... (opsional)">
   <label class="kl">No. WhatsApp toko</label><input type="text" inputmode="tel" id="sw" value="${esc(s.wa)}" placeholder="08xxxxxxxxxx">
   <label class="kl">Pesan di bawah nota</label><input type="text" id="sf" value="${esc(s.foot)}" placeholder="Terima kasih sudah berbelanja 🤍"></div>
   <button class="btn" id="sSave" style="margin-top:16px">✓ Simpan profil</button></div>`;
-  cuBind(["cumore","Lainnya"]);$("#sSave").onclick=()=>{Object.assign(s,{n:$("#sn").value.trim(),addr:$("#sa").value.trim(),wa:$("#sw").value.trim(),foot:$("#sf").value.trim()});cuSave();toast("Profil toko tersimpan ✓");go("cuhome");};},
+  cuBind(["cumore","Lainnya"]);
+  $("#slF").onchange=ev=>{const f=ev.target.files&&ev.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{const im=new Image();im.onload=()=>{const m=320,k=Math.min(1,m/Math.max(im.width,im.height));const cv=document.createElement("canvas");cv.width=Math.round(im.width*k);cv.height=Math.round(im.height*k);const x=cv.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,cv.width,cv.height);x.drawImage(im,0,0,cv.width,cv.height);
+    s.logo=cv.toDataURL("image/jpeg",0.88);s.n=$("#sn").value.trim()||s.n;s.addr=$("#sa").value.trim();s.wa=$("#sw").value.trim();s.foot=$("#sf").value.trim();cuSave();toast("Logo tersimpan ✓");CUV.cushop();};im.src=rd.result;};rd.readAsDataURL(f);};
+  if($("#slX"))$("#slX").onclick=()=>{delete s.logo;cuSave();CUV.cushop();};
+  $("#sSave").onclick=()=>{Object.assign(s,{n:$("#sn").value.trim(),addr:$("#sa").value.trim(),wa:$("#sw").value.trim(),foot:$("#sf").value.trim()});cuSave();toast("Profil toko tersimpan ✓");go("cuhome");};},
 cumore(){const M=cuLoad();
   const L=[["cuprod","📦","Produk",M.prod.length+" produk"],["cucust","👥","Pelanggan",M.cust.length+" pelanggan"],["cuexp","🧺","Modal & biaya","catat pengeluaran usaha"],["cupiu","⏳","Belum lunas","piutang pelanggan"],["cushop","🏪","Profil toko","nama, alamat & WA di nota"]];
   app.innerHTML=`<div class="wrap">${cuHead("Lainnya","")}
