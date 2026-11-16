@@ -1441,6 +1441,7 @@ cumore(){const M=cuLoad();
 
 function shelfGroups(P,SO){
   if(shelfCat!=="all")return [["",P.filter(p=>catOf(p)===shelfCat)]];
+  return [["",P]];
   const pins=P.filter(p=>SO.pin.includes(p.id)),rest=P.filter(p=>!SO.pin.includes(p.id));
   const used=PCATS.filter(c=>rest.some(p=>catOf(p)===c[0]));
   if(used.length<=1&&!pins.length)return [["",P]];
