@@ -311,11 +311,11 @@ function setNav(kind){if(NAVKIND===kind)return;NAVKIND=kind;
   const items=kind==="cu"?[["cuhome","home","Beranda"],["cusales","doc","Nota"],["curep","grid","Laporan"],["cumore","dots","Lainnya"]]:kind==="ck"?[["ckhome","home","Beranda"],["cktx","doc","Riwayat"],["ckstat","grid","Laporan"],["ckmore","dots","Lainnya"]]:kind==="pl"?[["plhome","home","Beranda"],["pljur","doc","Jurnal"],["plmon","grid","Bulanan"],["plmore","dots","Lainnya"]]:kind==="mj"?[["mjhome","home","Beranda"],["mjnotes","doc","Catatan"],["mjmut","check","Mutaba'ah"],["mjmore","dots","Lainnya"]]:[["home","home","Beranda"],["today","doc","Hari ini"],["journey","grid","Perjalanan"],["more","user","Aku"]];
   $("#nav").innerHTML=items.map(([v,i,l])=>`<button data-v="${v}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${NAVICON[i]}</svg>${l}</button>`).join("");}
 $("#nav").onclick=e=>{const b=e.target.closest("button");if(!b)return;const v=b.dataset.v;go(v==="today"?"day":v,v==="today"?curDay():null);};
-function theme(kind){const r=document.documentElement.style;const T=kind==="cu"?{"--sage":"#A65A3C","--sagel":"#F8E7DF","--pc":"#E7A88C","--pl":"#FBEFE9","--pd":"#7E3F27"}:kind==="ck"?{"--sage":"#0E4D3C","--sagel":"#E3F6EE","--pc":"#3FB98A","--pl":"#E3F6EE","--pd":"#0A3A2D"}:kind==="pl"?{"--sage":"#246878","--sagel":"#E1F0F2","--pc":"#6BB3C7","--pl":"#DDF0F5","--pd":"#2C7A90"}:kind==="mj"?{"--sage":"#5B4370","--sagel":"#EFE8FA","--pc":"#A98FD6","--pl":"#F3EFFB","--pd":"#6A4FA0"}:{"--sage":"#3E5B4A","--sagel":"#E8F1E2","--pc":"#7FBF95","--pl":"#E2F2E7","--pd":"#3B8456"};for(const k in T)r.setProperty(k,T[k]);}
+function theme(kind){const r=document.documentElement.style;const T=kind==="cu"?{"--sage":"#A65A3C","--sagel":"#F8E7DF","--pc":"#E7A88C","--pl":"#FBEFE9","--pd":"#7E3F27"}:kind==="hub"?{"--sage":"#9C5238","--sagel":"#F6E5DE","--pc":"#E0A48A","--pl":"#FBEFE9","--pd":"#7A3E28"}:kind==="ck"?{"--sage":"#3A5A4A","--sagel":"#E6EFE8","--pc":"#7FAF94","--pl":"#E6EFE8","--pd":"#2C4638"}:kind==="pl"?{"--sage":"#226A7A","--sagel":"#E1F0F2","--pc":"#6BB3C7","--pl":"#DDF0F5","--pd":"#2C7A90"}:kind==="mj"?{"--sage":"#4A3452","--sagel":"#EEE7F4","--pc":"#A98FD6","--pl":"#F3EFFB","--pd":"#6A4FA0"}:{"--sage":"#9A5262","--sagel":"#F6E6EA","--pc":"#D49AA8","--pl":"#F8EAED","--pd":"#7C3F4E"};for(const k in T)r.setProperty(k,T[k]);}
 
 function render(){
   const nav=$("#nav");
-  if(view==="shelf"){nav.classList.add("hidden");theme("ml");return shelf();}
+  if(view==="shelf"){nav.classList.add("hidden");theme("hub");return shelf();}
   if(view.startsWith("cu")){theme("cu");setNav("cu");nav.classList.remove("hidden");
     const sec={cusales:"cusales",cunota:"cusales",curep:"curep",cumore:"cumore",cushop:"cumore"}[view]||"cuhome";
     document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b.dataset.v===sec));
@@ -436,12 +436,12 @@ function moodChart(){
   let g="";for(let v=0;v<=4;v++)g+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="#EFE6DC"/><text x="2" y="${y(v)+5}" font-size="13">${MOODS[v][0]}</text>`;
   [1,8,15,23,30].forEach(j=>g+=`<text x="${x(j)}" y="${H-6}" font-size="9.5" fill="#857882" text-anchor="middle">${j}</text>`);
   const dots=pts.map(p=>`<circle cx="${x(p[0])}" cy="${y(p[1])}" r="4" fill="${col[p[1]+1]}" stroke="#fff" stroke-width="1.5"/>`).join("");
-  return `<div class="card"><b style="font-size:15px">Grafik perasaanku</b><svg viewBox="0 0 ${W} ${H}" style="width:100%;margin-top:8px">${g}<path d="${path}" fill="none" stroke="#3E5B4A" stroke-width="2" stroke-linejoin="round" opacity=".55"/>${dots}</svg><p class="small" style="margin:2px 0 0;text-align:center">hari ke-</p></div>`;
+  return `<div class="card"><b style="font-size:15px">Grafik perasaanku</b><svg viewBox="0 0 ${W} ${H}" style="width:100%;margin-top:8px">${g}<path d="${path}" fill="none" stroke="#9A5262" stroke-width="2" stroke-linejoin="round" opacity=".55"/>${dots}</svg><p class="small" style="margin:2px 0 0;text-align:center">hari ke-</p></div>`;
 }
 async function certCanvas(){
   try{await Promise.all([document.fonts.load("700 80px Poppins"),document.fonts.load("500 40px Poppins"),document.fonts.load("italic 400 36px Poppins")]);}catch(e){}
   const c=document.createElement("canvas");c.width=1080;c.height=1920;const x=c.getContext("2d");
-  const g=x.createLinearGradient(0,0,0,1920);g.addColorStop(0,"#3E5B4A");g.addColorStop(1,"#6E9A7E");x.fillStyle=g;x.fillRect(0,0,1080,1920);
+  const g=x.createLinearGradient(0,0,0,1920);g.addColorStop(0,"#9A5262");g.addColorStop(1,"#C78594");x.fillStyle=g;x.fillRect(0,0,1080,1920);
   x.strokeStyle="rgba(255,255,255,.10)";x.lineWidth=2;for(let i=0;i<=1080;i+=90){x.beginPath();x.moveTo(i,0);x.lineTo(i,1920);x.stroke();}for(let i=0;i<=1920;i+=90){x.beginPath();x.moveTo(0,i);x.lineTo(1080,i);x.stroke();}
   const rr=(X,Y,w,h,r)=>{x.beginPath();x.moveTo(X+r,Y);x.arcTo(X+w,Y,X+w,Y+h,r);x.arcTo(X+w,Y+h,X,Y+h,r);x.arcTo(X,Y+h,X,Y,r);x.arcTo(X,Y,X+w,Y,r);x.closePath();};
   x.fillStyle="#FFF9F3";rr(90,230,900,1460,60);x.fill();
@@ -456,7 +456,7 @@ async function certCanvas(){
   const d=S.doneAt[30]?(()=>{const[a,b,cc]=S.doneAt[30].split("-").map(Number);return new Date(a,b-1,cc);})():new Date();
   x.fillStyle="#857882";x.font="400 36px Poppins, sans-serif";x.fillText(fmtDate(d),540,1120);
   const st=[["30","hari"],[String(stepsDone()),"langkah kecil"],[words().toLocaleString("id-ID"),"kata ditulis"]];
-  st.forEach((s_,i)=>{const cx=240+i*300;x.fillStyle="#E8F1E2";rr(cx-130,1190,260,190,36);x.fill();x.fillStyle="#3E5B4A";x.font="700 70px Poppins, sans-serif";x.fillText(s_[0],cx,1290);x.fillStyle="#857882";x.font="500 30px Poppins, sans-serif";x.fillText(s_[1],cx,1345);});
+  st.forEach((s_,i)=>{const cx=240+i*300;x.fillStyle="#F6E6EA";rr(cx-130,1190,260,190,36);x.fill();x.fillStyle="#3E5B4A";x.font="700 70px Poppins, sans-serif";x.fillText(s_[0],cx,1290);x.fillStyle="#857882";x.font="500 30px Poppins, sans-serif";x.fillText(s_[1],cx,1345);});
   x.fillStyle="#9C5238";x.font="italic 400 40px Poppins, sans-serif";x.fillText("tumbuh pelan, bersinar perlahan",540,1490);
   x.fillStyle="#3E5B4A";x.font="700 36px Poppins, sans-serif";x.fillText("littles noor",540,1600);
   x.fillStyle="#FFF9F3";x.font="500 36px Poppins, sans-serif";x.fillText("@littlesnoor · app.littlesnoor.com",540,1800);
@@ -1544,6 +1544,7 @@ async function openProduct(id){
 function sheet(t,m){const e=document.createElement("div");e.className="modal";e.innerHTML=`<div class="sheet"><h3>${esc(t)}</h3><p class="small" style="font-size:14px">${m}</p><button class="btn" id="ok" style="margin-top:12px">Oke</button></div>`;
  document.body.appendChild(e);e.querySelector("#ok").onclick=()=>e.remove();e.onclick=x=>{if(x.target===e)e.remove();};}
 function lockScreen(msg){
+  theme("hub");
   $("#nav").classList.add("hidden");
   app.innerHTML=`<div class="wrap welcome"><div class="arch"></div>
   <div class="big">littles noor</div><p class="sub" style="font-size:15px">Masuk dengan email yang kamu pakai<br>saat membeli di Lynk.id</p>
