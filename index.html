@@ -458,19 +458,19 @@ async function certCanvas(){
   const rr=(X,Y,w,h,r)=>{x.beginPath();x.moveTo(X+r,Y);x.arcTo(X+w,Y,X+w,Y+h,r);x.arcTo(X+w,Y+h,X,Y+h,r);x.arcTo(X,Y+h,X,Y,r);x.arcTo(X,Y,X+w,Y,r);x.closePath();};
   x.fillStyle="#FFF9F3";rr(90,230,900,1460,60);x.fill();
   // arch
-  const ax=540,top=330,aw=220,ah=270;x.save();x.beginPath();x.moveTo(ax-aw/2,top+ah);x.lineTo(ax-aw/2,top+aw/2);x.arc(ax,top+aw/2,aw/2,Math.PI,0);x.lineTo(ax+aw/2,top+ah);x.closePath();x.fillStyle="#FCEFE6";x.fill();x.clip();
-  x.fillStyle="#F2B48A";x.beginPath();x.arc(ax,top+150,62,0,7);x.fill();x.fillStyle="#BFE0C9";x.beginPath();x.ellipse(ax,top+ah+20,190,80,0,0,7);x.fill();x.restore();
-  x.strokeStyle="#9C5238";x.lineWidth=12;x.beginPath();x.moveTo(ax-aw/2,top+ah);x.lineTo(ax-aw/2,top+aw/2);x.arc(ax,top+aw/2,aw/2,Math.PI,0);x.lineTo(ax+aw/2,top+ah);x.closePath();x.stroke();
+  const ax=540,top=330,aw=220,ah=270;x.save();x.beginPath();x.moveTo(ax-aw/2,top+ah);x.lineTo(ax-aw/2,top+aw/2);x.arc(ax,top+aw/2,aw/2,Math.PI,0);x.lineTo(ax+aw/2,top+ah);x.closePath();x.fillStyle="#FBEDEF";x.fill();x.clip();
+  x.fillStyle="#E8AEB9";x.beginPath();x.arc(ax,top+150,62,0,7);x.fill();x.fillStyle="#C9DCCB";x.beginPath();x.ellipse(ax,top+ah+20,190,80,0,0,7);x.fill();x.restore();
+  x.strokeStyle="#9A5262";x.lineWidth=12;x.beginPath();x.moveTo(ax-aw/2,top+ah);x.lineTo(ax-aw/2,top+aw/2);x.arc(ax,top+aw/2,aw/2,Math.PI,0);x.lineTo(ax+aw/2,top+ah);x.closePath();x.stroke();
   x.textAlign="center";x.fillStyle="#857882";x.font="500 40px Poppins, sans-serif";x.fillText("Alhamdulillah, aku menyelesaikan",540,720);
-  x.fillStyle="#9C5238";x.font="700 120px Poppins, sans-serif";x.fillText("Mulai Lagi",540,860);
+  x.fillStyle="#9A5262";x.font="700 120px Poppins, sans-serif";x.fillText("Mulai Lagi",540,860);
   x.fillStyle="#3A3238";x.font="500 31px Poppins, sans-serif";x.fillText("workbook 30 hari untuk bangkit pelan-pelan",540,930);
-  x.fillStyle="#3E5B4A";x.font="700 64px Poppins, sans-serif";x.fillText(S.name||"Sahabat littles noor",540,1060);
+  x.fillStyle="#7C3F4E";x.font="700 64px Poppins, sans-serif";x.fillText(S.name||"Sahabat littles noor",540,1060);
   const d=S.doneAt[30]?(()=>{const[a,b,cc]=S.doneAt[30].split("-").map(Number);return new Date(a,b-1,cc);})():new Date();
   x.fillStyle="#857882";x.font="400 36px Poppins, sans-serif";x.fillText(fmtDate(d),540,1120);
   const st=[["30","hari"],[String(stepsDone()),"langkah kecil"],[words().toLocaleString("id-ID"),"kata ditulis"]];
-  st.forEach((s_,i)=>{const cx=240+i*300;x.fillStyle="#F6E6EA";rr(cx-130,1190,260,190,36);x.fill();x.fillStyle="#3E5B4A";x.font="700 70px Poppins, sans-serif";x.fillText(s_[0],cx,1290);x.fillStyle="#857882";x.font="500 30px Poppins, sans-serif";x.fillText(s_[1],cx,1345);});
-  x.fillStyle="#9C5238";x.font="italic 400 40px Poppins, sans-serif";x.fillText("tumbuh pelan, bersinar perlahan",540,1490);
-  x.fillStyle="#3E5B4A";x.font="700 36px Poppins, sans-serif";x.fillText("littles noor",540,1600);
+  st.forEach((s_,i)=>{const cx=240+i*300;x.fillStyle="#F6E6EA";rr(cx-130,1190,260,190,36);x.fill();x.fillStyle="#7C3F4E";x.font="700 70px Poppins, sans-serif";x.fillText(s_[0],cx,1290);x.fillStyle="#857882";x.font="500 30px Poppins, sans-serif";x.fillText(s_[1],cx,1345);});
+  x.fillStyle="#9A5262";x.font="italic 400 40px Poppins, sans-serif";x.fillText("tumbuh pelan, bersinar perlahan",540,1490);
+  x.fillStyle="#9A5262";x.font="700 36px Poppins, sans-serif";x.fillText("littles noor",540,1600);
   x.fillStyle="#FFF9F3";x.font="500 36px Poppins, sans-serif";x.fillText("@littlesnoor · app.littlesnoor.com",540,1800);
   return c;
 }
