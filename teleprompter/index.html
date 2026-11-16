@@ -1,0 +1,32 @@
+<!DOCTYPE html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Teleprompter · littles noor</title><meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;700&display=swap" rel="stylesheet">
+<style>*{box-sizing:border-box;margin:0}html,body{background:#111;color:#fff;font-family:Poppins,system-ui;height:100%}
+#t{padding:45vh 7vw 80vh;font-size:var(--fs,34px);line-height:1.5;font-weight:500}
+#t p{margin-bottom:1.1em}#t .a{color:#E8C15A;font-size:.55em;font-weight:700;display:block;margin-bottom:.3em}
+.bar{position:fixed;left:0;right:0;bottom:0;display:flex;gap:8px;padding:10px;background:rgba(0,0,0,.85);justify-content:center;flex-wrap:wrap}
+.bar button{background:#333;color:#fff;border:0;border-radius:12px;padding:12px 16px;font:700 15px Poppins}.bar #go{background:#A65A3C;min-width:110px}
+.line{position:fixed;left:0;right:0;top:45vh;border-top:2px solid rgba(232,193,90,.5);pointer-events:none}
+</style></head><body><div class="line"></div><div id="t">
+<p><span class="a">Buka app.littlesnoor.com, tampilkan rak</span>Hai, aku mau tunjukin aplikasi baru dari littles noor. Namanya Catat Usaha.</p>
+<p><span class="a">Klik kartu Catat Usaha</span>Ini buku keuangan buat kamu yang punya usaha kecil. Jualan kue, frozen food, atau olshop, semuanya bisa.</p>
+<p><span class="a">Tunjuk kartu omzet</span>Di beranda langsung kelihatan omzet bulan ini, modal yang keluar, dan laba bersihnya.</p>
+<p><span class="a">Produk › Produk baru</span>Pertama, masukin produkmu dulu. Tulis harga jual, harga modal, sama stoknya kalau mau dihitung.</p>
+<p><span class="a">Tombol 📷 di kolom Barcode</span>Kalau barangnya ada barcode, tinggal di-scan aja. Nggak perlu ketik manual.</p>
+<p><span class="a">Simpan › Beranda › Nota baru</span>Nah, sekarang kita coba bikin nota.</p>
+<p><span class="a">Pilih pelanggan</span>Pilih pelanggannya dulu.</p>
+<p><span class="a">📷 Scan, scan barang 2 kali</span>Terus scan barangnya. Kalau di-scan lagi, jumlahnya nambah sendiri. Praktis banget.</p>
+<p><span class="a">Simpan & lihat nota</span>Simpan, dan notanya langsung jadi. Ada nama toko, daftar barang, sama cap lunasnya.</p>
+<p><span class="a">Scroll ke tombol cetak & WA</span>Notanya bisa dicetak, bisa buat printer kasir, atau langsung kirim ke WhatsApp pelanggan.</p>
+<p><span class="a">Klik Laporan</span>Di laporan, kelihatan produk paling laris, yang paling untung, sampai pelanggan terbaikmu.</p>
+<p><span class="a">Kembali ke beranda</span>Catat Usaha bisa dibuka di HP dan laptop. Harganya cuma dua puluh sembilan ribu, sudah dapat PDF-nya juga. Cek di link bio ya. Catat rapi, usaha makin berkah.</p>
+</div>
+<div class="bar"><button id="sl">− Lambat</button><button id="go">▶ Mulai</button><button id="fa">＋ Cepat</button><button id="sm">A−</button><button id="bg">A＋</button><button id="top">⟲ Awal</button></div>
+<script>let sp=40,run=false,fs=34,last=0;const go=document.getElementById("go");
+function tick(t){if(run){if(last)window.scrollBy(0,sp*(t-last)/1000);last=t;requestAnimationFrame(tick);}else last=0;}
+go.onclick=()=>{run=!run;go.textContent=run?"⏸ Jeda":"▶ Mulai";if(run)requestAnimationFrame(tick);};
+document.getElementById("sl").onclick=()=>sp=Math.max(10,sp-10);document.getElementById("fa").onclick=()=>sp+=10;
+document.getElementById("sm").onclick=()=>{fs=Math.max(20,fs-4);document.documentElement.style.setProperty("--fs",fs+"px")};
+document.getElementById("bg").onclick=()=>{fs+=4;document.documentElement.style.setProperty("--fs",fs+"px")};
+document.getElementById("top").onclick=()=>{window.scrollTo(0,0);};
+document.getElementById("t").onclick=()=>go.click();</script></body></html>
