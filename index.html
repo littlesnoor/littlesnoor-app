@@ -262,6 +262,14 @@ html,body{position:fixed;inset:0;width:100%;height:100%;overflow:hidden}
 .micbtn svg{width:16px;height:16px}
 .micbtn.on{background:var(--sage);color:#fff;animation:micp 1.2s infinite}
 @keyframes micp{0%,100%{box-shadow:0 0 0 0 rgba(0,0,0,.18)}50%{box-shadow:0 0 0 7px rgba(0,0,0,0)}}
+.updbar{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);opacity:0;width:min(440px,calc(100% - 28px));background:#fff;border-radius:22px;box-shadow:0 18px 50px rgba(40,20,30,.28);padding:18px 18px 16px;z-index:1000;transition:all .3s;border:1px solid #F0E4DA}
+.updbar.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.updbar h4{margin:0 0 6px;font:700 16px Poppins,sans-serif;color:var(--sage)}
+.updbar ul{margin:0 0 14px;padding-left:18px;font-size:13.5px;color:#5a4e55}
+.updbar li{margin:3px 0}
+.updbar .r{display:flex;gap:10px}
+.updbar button{flex:1;border:0;border-radius:999px;padding:11px;font:600 14px Poppins,sans-serif;cursor:pointer}
+.updbar .go{background:var(--sage);color:#fff}.updbar .later{background:#F4ECE6;color:#6a5d64;flex:0 0 auto;padding:11px 18px}
 </style>
 </head>
 <body>
@@ -1697,6 +1705,35 @@ view="shelf";boot();
   const scan=()=>document.querySelectorAll("textarea:not([data-mic])").forEach(attach);
   new MutationObserver(()=>{ if(cur&&!document.body.contains(cur.ta)) stop(); scan(); }).observe(document.body,{childList:true,subtree:true});
   document.addEventListener("DOMContentLoaded",scan); scan();
+})();
+
+/* ===== Notifikasi pembaruan ===== */
+const APP_VERSION=54;
+(function(){
+  let shown=false;
+  async function check(){
+    if(shown||!navigator.onLine) return;
+    try{
+      const r=await fetch("version.json?t="+Date.now(),{cache:"no-store"}); if(!r.ok) return;
+      const v=await r.json(); if(!(v&&v.v>APP_VERSION)) return;
+      try{ if(sessionStorage.getItem("ln.updLater")==String(v.v)) return; }catch(e){}
+      show(v);
+    }catch(e){}
+  }
+  function show(v){
+    shown=true; const d=document.createElement("div"); d.className="updbar";
+    const notes=(v.notes||[]).slice(0,4).map(n=>"<li>"+String(n).replace(/[<>&]/g,c=>({"<":"&lt;",">":"&gt;","&":"&amp;"}[c]))+"</li>").join("");
+    d.innerHTML='<h4>✨ Ada pembaruan littles noor</h4>'+(notes?'<ul>'+notes+'</ul>':'<p style="margin:0 0 14px;font-size:13.5px;color:#5a4e55">Versi terbaru sudah siap.</p>')+'<div class="r"><button class="later">Nanti</button><button class="go">Perbarui sekarang</button></div>';
+    document.body.appendChild(d); requestAnimationFrame(()=>d.classList.add("show"));
+    d.querySelector(".later").onclick=()=>{ try{sessionStorage.setItem("ln.updLater",String(v.v))}catch(e){} d.classList.remove("show"); setTimeout(()=>d.remove(),300); shown=false; };
+    d.querySelector(".go").onclick=async()=>{ d.querySelector(".go").textContent="Memperbarui…";
+      try{ const reg=await navigator.serviceWorker?.getRegistration(); if(reg) await reg.update(); }catch(e){}
+      try{ const ks=await caches.keys(); await Promise.all(ks.map(k=>caches.delete(k))); }catch(e){}
+      location.reload(); };
+  }
+  setTimeout(check,2500);
+  document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible") check(); });
+  setInterval(check,20*60*1000);
 })();
 </script>
 </body>
