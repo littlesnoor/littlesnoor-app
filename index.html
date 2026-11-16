@@ -1671,7 +1671,8 @@ view="shelf";boot();
 
 /* ===== Isi pakai suara (Web Speech API) ===== */
 (function(){
-  const SR=window.SpeechRecognition||window.webkitSpeechRecognition; if(!SR) return;
+  const IOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+  const SR=IOS?null:(window.SpeechRecognition||window.webkitSpeechRecognition); if(!SR&&!IOS) return;
   const ICON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4"/></svg>';
   let cur=null;
   function stop(){ if(cur){ cur.stopped=true; try{cur.rec&&cur.rec.stop()}catch(e){} } }
@@ -1679,6 +1680,7 @@ view="shelf";boot();
     if(ta.dataset.mic||ta.closest(".micwrap")) return; ta.dataset.mic=1;
     const w=document.createElement("span"); w.className="micwrap"; ta.parentNode.insertBefore(w,ta); w.appendChild(ta);
     const b=document.createElement("button"); b.type="button"; b.className="micbtn"; b.title="Isi pakai suara"; b.innerHTML=ICON+"<span>Suara</span>"; w.appendChild(b);
+    if(IOS){ b.onclick=()=>{ ta.focus(); const L=ta.value.length; try{ta.setSelectionRange(L,L)}catch(e){} iosTip(); }; return; }
     b.onclick=()=>{
       if(cur&&cur.ta===ta){cur.stopped=true;stop();return;}
       if(cur){cur.stopped=true;stop();}
@@ -1701,6 +1703,16 @@ view="shelf";boot();
       setTimeout(()=>{ if(cur===sess&&!sess.got) toastMic("Silakan bicara… tulisan muncul setelah jeda sebentar"); },2500);
     };
   }
+  function iosTip(){
+    let seen=0; try{seen=+(localStorage.getItem("ln.micTip")||0)}catch(e){}
+    const d=document.createElement("div");
+    d.style.cssText="position:fixed;left:50%;bottom:calc(var(--kb,0px) + 14px);transform:translateX(-50%);width:min(380px,calc(100% - 24px));background:#3A3238;color:#fff;padding:14px 16px;border-radius:18px;font:500 13.5px/1.45 Poppins,sans-serif;z-index:1001;box-shadow:0 10px 30px rgba(0,0,0,.3)";
+    d.innerHTML=seen>=3?'🎙️ Ketuk ikon <b>mikrofon</b> di pojok kanan bawah keyboard, lalu bicara.':'🎙️ <b>Ketuk ikon mikrofon</b> di pojok kanan bawah keyboard, lalu bicara. Tulisannya langsung masuk. Ketuk lagi untuk berhenti.<div style="opacity:.75;font-size:12px;margin-top:6px">Tidak ada ikonnya? Pengaturan › Umum › Papan Ketik › nyalakan <b>Aktifkan Dikte</b>.</div>';
+    document.body.appendChild(d); const pos=()=>{ const vv=window.visualViewport; if(vv){ const kb=Math.max(0,window.innerHeight-vv.height-vv.offsetTop); d.style.bottom=(kb+14)+"px"; } };
+    pos(); window.visualViewport&&window.visualViewport.addEventListener("resize",pos);
+    setTimeout(()=>{ d.style.transition="opacity .4s"; d.style.opacity="0"; setTimeout(()=>{d.remove(); window.visualViewport&&window.visualViewport.removeEventListener("resize",pos);},400); }, seen>=3?3500:7000);
+    try{localStorage.setItem("ln.micTip",seen+1)}catch(e){}
+  }
   function toastMic(m){ const t=document.createElement("div"); t.textContent=m; t.style.cssText="position:fixed;left:50%;bottom:110px;transform:translateX(-50%);background:#3A3238;color:#fff;padding:10px 16px;border-radius:999px;font:500 13px Poppins,sans-serif;z-index:999"; document.body.appendChild(t); setTimeout(()=>t.remove(),2600); }
   const scan=()=>document.querySelectorAll("textarea:not([data-mic])").forEach(attach);
   new MutationObserver(()=>{ if(cur&&!document.body.contains(cur.ta)) stop(); scan(); }).observe(document.body,{childList:true,subtree:true});
@@ -1708,7 +1720,7 @@ view="shelf";boot();
 })();
 
 /* ===== Notifikasi pembaruan ===== */
-const APP_VERSION=55;
+const APP_VERSION=56;
 (function(){
   let shown=false;
   async function check(){
