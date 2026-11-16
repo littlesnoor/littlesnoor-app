@@ -225,12 +225,12 @@ html,body{position:fixed;inset:0;width:100%;height:100%;overflow:hidden}
 .ckseg button{font-weight:600}
 .ckio b.in{color:#A8F0CD!important}.ckio b.out{color:#FFB9AF!important}
 .cust{display:inline-block;font-size:10.5px;font-weight:700;border-radius:8px;padding:2px 8px;margin-top:3px;white-space:nowrap}.cust.ok{background:#E3F6EA;color:#2E8A55}.cust.due{background:#FDE7E2;color:#C0503A}
-.cubal{background:linear-gradient(135deg,#4A3655,#6A4FA0);color:#fff}.cubal small{opacity:.85;font-size:12.5px}.cubal .ckio b{color:#fff}
-.cunudge{display:block;width:100%;text-align:left;border:1.5px dashed #C9B8E6;background:#F8F4FD;font-family:Poppins,system-ui;cursor:pointer}.cunudge b{display:block;font-size:14px;color:#4A3655}.cunudge span{font-size:12.5px;color:var(--muted)}
+.cubal{background:linear-gradient(135deg,#A65A3C,#7E3F27);color:#fff}.cubal small{opacity:.85;font-size:12.5px}.cubal .ckio b{color:#fff}
+.cunudge{display:block;width:100%;text-align:left;border:1.5px dashed #E7B9A5;background:#FDF5F1;font-family:Poppins,system-ui;cursor:pointer}.cunudge b{display:block;font-size:14px;color:#A65A3C}.cunudge span{font-size:12.5px;color:var(--muted)}
 .pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
 .pcard{position:relative;border:1.5px solid var(--line);background:#fff;border-radius:16px;padding:10px 8px;text-align:left;font-family:Poppins,system-ui;cursor:pointer;min-height:72px;color:var(--ink)}
 .pcard b{display:block;font-size:12.5px;line-height:1.3}.pcard span{display:block;font-size:12px;color:var(--sage);font-weight:600;margin-top:4px}.pcard small{font-size:10.5px;color:var(--muted)}
-.pcard.on{border-color:var(--sage);background:#F3EFFB}.pcard i{position:absolute;top:-7px;right:-5px;background:#E8C15A;color:#3A2A10;font-style:normal;font-weight:700;font-size:12px;border-radius:99px;min-width:24px;height:24px;display:flex;align-items:center;justify-content:center;padding:0 6px}
+.pcard.on{border-color:var(--sage);background:#FBEFE9}.pcard i{position:absolute;top:-7px;right:-5px;background:#E8C15A;color:#3A2A10;font-style:normal;font-weight:700;font-size:12px;border-radius:99px;min-width:24px;height:24px;display:flex;align-items:center;justify-content:center;padding:0 6px}
 .nrow{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #F1EAE4}.nsum{font-size:14px;white-space:nowrap}
 .qty{display:flex;align-items:center;gap:8px}.qty button{width:30px;height:30px;border-radius:10px;border:0;background:var(--sagel);color:var(--sage);font:700 16px Poppins;cursor:pointer}.qty b{min-width:18px;text-align:center}
 .nprev{width:100%;border-radius:18px;margin-top:14px;box-shadow:0 8px 26px rgba(60,40,80,.14);display:block}
@@ -293,7 +293,7 @@ function setNav(kind){if(NAVKIND===kind)return;NAVKIND=kind;
   const items=kind==="cu"?[["cuhome","home","Beranda"],["cusales","doc","Nota"],["curep","grid","Laporan"],["cumore","dots","Lainnya"]]:kind==="ck"?[["ckhome","home","Beranda"],["cktx","doc","Riwayat"],["ckstat","grid","Laporan"],["ckmore","dots","Lainnya"]]:kind==="pl"?[["plhome","home","Beranda"],["pljur","doc","Jurnal"],["plmon","grid","Bulanan"],["plmore","dots","Lainnya"]]:kind==="mj"?[["mjhome","home","Beranda"],["mjnotes","doc","Catatan"],["mjmut","check","Mutaba'ah"],["mjmore","dots","Lainnya"]]:[["home","home","Beranda"],["today","doc","Hari ini"],["journey","grid","Perjalanan"],["more","user","Aku"]];
   $("#nav").innerHTML=items.map(([v,i,l])=>`<button data-v="${v}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${NAVICON[i]}</svg>${l}</button>`).join("");}
 $("#nav").onclick=e=>{const b=e.target.closest("button");if(!b)return;const v=b.dataset.v;go(v==="today"?"day":v,v==="today"?curDay():null);};
-function theme(kind){const r=document.documentElement.style;const T=kind==="cu"?{"--sage":"#4A3655","--sagel":"#EEE8F7","--pc":"#A98FD6","--pl":"#F3EFFB","--pd":"#6A4FA0"}:kind==="ck"?{"--sage":"#0E4D3C","--sagel":"#E3F6EE","--pc":"#3FB98A","--pl":"#E3F6EE","--pd":"#0A3A2D"}:kind==="pl"?{"--sage":"#246878","--sagel":"#E1F0F2","--pc":"#6BB3C7","--pl":"#DDF0F5","--pd":"#2C7A90"}:kind==="mj"?{"--sage":"#5B4370","--sagel":"#EFE8FA","--pc":"#A98FD6","--pl":"#F3EFFB","--pd":"#6A4FA0"}:{"--sage":"#3E5B4A","--sagel":"#E8F1E2","--pc":"#7FBF95","--pl":"#E2F2E7","--pd":"#3B8456"};for(const k in T)r.setProperty(k,T[k]);}
+function theme(kind){const r=document.documentElement.style;const T=kind==="cu"?{"--sage":"#A65A3C","--sagel":"#F8E7DF","--pc":"#E7A88C","--pl":"#FBEFE9","--pd":"#7E3F27"}:kind==="ck"?{"--sage":"#0E4D3C","--sagel":"#E3F6EE","--pc":"#3FB98A","--pl":"#E3F6EE","--pd":"#0A3A2D"}:kind==="pl"?{"--sage":"#246878","--sagel":"#E1F0F2","--pc":"#6BB3C7","--pl":"#DDF0F5","--pd":"#2C7A90"}:kind==="mj"?{"--sage":"#5B4370","--sagel":"#EFE8FA","--pc":"#A98FD6","--pl":"#F3EFFB","--pd":"#6A4FA0"}:{"--sage":"#3E5B4A","--sagel":"#E8F1E2","--pc":"#7FBF95","--pl":"#E2F2E7","--pd":"#3B8456"};for(const k in T)r.setProperty(k,T[k]);}
 
 function render(){
   const nav=$("#nav");
@@ -1233,13 +1233,13 @@ function cuPaySheet(s){const due=cuDue(s);const e=document.createElement("div");
   e.querySelector("#ysv").onclick=()=>{const a=Math.min(parseAmt(e.querySelector("#ya").value),due);if(!a){toast("Isi nominalnya");return;}s.pays=s.pays||[];s.pays.push({d:today(),amt:a});cuSave();e.remove();toast(cuLunas(s)?"Lunas ✓":"Pembayaran dicatat ✓");render();};}
 /* ---- nota image / pdf ---- */
 function cuNotaCanvas(s,fmt){const M=cuLoad(),sh=M.shop,c=cuCust(s.cust),th=fmt==="58";
-  const W=th?384:1240,pad=th?14:90,FF="Poppins,system-ui,sans-serif",PL="#4A3655",MU="#7A6E80",INK="#2E2833";
+  const W=th?384:1240,pad=th?14:90,FF="Poppins,system-ui,sans-serif",PL="#8E4A30",MU="#80706A",INK="#2E2833";
   const z=th?1:2.6;const lines=[];
   const cv=document.createElement("canvas");cv.width=W;cv.height=th?2400:1748;const x=cv.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,W,cv.height);
   let y=pad;const T=(t,sz,wt,col,al,xx)=>{x.font=`${wt} ${sz*z}px ${FF}`;x.fillStyle=th?"#000":col;x.textAlign=al||"left";x.fillText(t,xx!=null?xx:(al==="right"?W-pad:al==="center"?W/2:pad),y);};
   const wrap=(t,sz,wt,maxw)=>{x.font=`${wt} ${sz*z}px ${FF}`;const w=String(t).split(" ");let L=[],cur="";w.forEach(v=>{const tt=(cur+" "+v).trim();if(x.measureText(tt).width>maxw&&cur){L.push(cur);cur=v;}else cur=tt;});L.push(cur);return L;};
-  const hr=(dash)=>{x.strokeStyle=th?"#000":"#E4DCEB";x.lineWidth=th?1.5:3;if(dash)x.setLineDash([6,5]);x.beginPath();x.moveTo(pad,y);x.lineTo(W-pad,y);x.stroke();x.setLineDash([]);};
-  if(!th){x.fillStyle="#F3EFFB";x.fillRect(0,0,W,330);x.fillStyle="#E8C15A";x.fillRect(0,330,W,10);}
+  const hr=(dash)=>{x.strokeStyle=th?"#000":"#EBDDD6";x.lineWidth=th?1.5:3;if(dash)x.setLineDash([6,5]);x.beginPath();x.moveTo(pad,y);x.lineTo(W-pad,y);x.stroke();x.setLineDash([]);};
+  if(!th){x.fillStyle="#FBEFE9";x.fillRect(0,0,W,330);x.fillStyle="#E8C15A";x.fillRect(0,330,W,10);}
   y+=th?22:70;T(sh.n||"Toko Saya",th?20:30,700,PL,th?"center":"left");y+=th?22:62;
   if(sh.addr){wrap(sh.addr,th?11:12.5,400,W-pad*2).forEach(l=>{T(l,th?11:12.5,400,MU,th?"center":"left");y+=th?15:40;});}
   if(sh.wa){T("WA "+sh.wa,th?11:12.5,400,MU,th?"center":"left");y+=th?15:40;}
@@ -1285,7 +1285,7 @@ const CUV={
 cuhome(){const M=cuLoad(),ym=ymNow(),st=cuMonthStats(ym),[sal]=greet(),tdS=M.sales.filter(s=>s.d===today()),td=tdS.reduce((a,s)=>a+cuTot(s),0);
   const piu=M.sales.reduce((a,s)=>a+cuDue(s),0),nPiu=M.sales.filter(s=>!cuLunas(s)).length,low=M.prod.filter(p=>p.stock!=null&&p.stock<=5);
   const rec=[...M.sales].sort((a,b)=>b.d.localeCompare(a.d)||b.no-a.no).slice(0,5);
-  const Tl=[["cuprod","📦 Produk",M.prod.length+" produk","#F3EFFB","#4A3655"],["cucust","👥 Pelanggan",M.cust.length+" pelanggan","#FBF1D2","#8A6A12"],["cuexp","🧺 Modal & biaya",rpS(st.exp)+" bulan ini","#FCE4E8","#B4566A"],["cupiu","⏳ Belum lunas",nPiu+" nota","#E6F0FB","#2F5E8C"]];
+  const Tl=[["cuprod","📦 Produk",M.prod.length+" produk","#FBEFE9","#A65A3C"],["cucust","👥 Pelanggan",M.cust.length+" pelanggan","#FBF1D2","#8A6A12"],["cuexp","🧺 Modal & biaya",rpS(st.exp)+" bulan ini","#FCE4E8","#B4566A"],["cupiu","⏳ Belum lunas",nPiu+" nota","#E6F0FB","#2F5E8C"]];
   app.innerHTML=`<div class="wrap">${cuHead(sal+(S.name?", "+esc(S.name):"")+" 🤍",M.shop.n?esc(M.shop.n)+" · semoga laris manis hari ini":"Catat rapi, usaha makin berkah dan tumbuh.")}
   ${!M.shop.n?`<button class="card cunudge" data-go="cushop"><b>🏪 Atur profil tokomu dulu</b><span>Nama toko & no. WA akan tampil di setiap nota.</span></button>`:""}
   <div class="card cubal"><small>Omzet ${ymLabel(ym)}</small><div class="big2">${rp(st.omzet)}</div>
