@@ -1666,21 +1666,31 @@ view="shelf";boot();
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition; if(!SR) return;
   const ICON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4"/></svg>';
   let cur=null;
-  function stop(){ if(cur){ try{cur.rec.stop()}catch(e){} } }
+  function stop(){ if(cur){ cur.stopped=true; try{cur.rec&&cur.rec.stop()}catch(e){} } }
   function attach(ta){
     if(ta.dataset.mic||ta.closest(".micwrap")) return; ta.dataset.mic=1;
     const w=document.createElement("span"); w.className="micwrap"; ta.parentNode.insertBefore(w,ta); w.appendChild(ta);
     const b=document.createElement("button"); b.type="button"; b.className="micbtn"; b.title="Isi pakai suara"; b.innerHTML=ICON+"<span>Suara</span>"; w.appendChild(b);
     b.onclick=()=>{
-      if(cur&&cur.ta===ta){stop();return;}
-      stop();
-      const rec=new SR(); rec.lang="id-ID"; rec.continuous=true; rec.interimResults=true;
-      const base=ta.value; let fin="";
-      rec.onresult=e=>{let interim="";for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0].transcript; if(e.results[i].isFinal) fin+=t; else interim+=t;}
-        const add=(fin+interim).trim(); ta.value=base+(base&&add&&!/\s$/.test(base)?" ":"")+add; ta.dispatchEvent(new Event("input",{bubbles:true}));};
-      rec.onerror=e=>{ if(e.error==="not-allowed"||e.error==="service-not-allowed") toastMic("Izinkan akses mikrofon dulu ya 🎙️"); else if(e.error==="no-speech") toastMic("Belum terdengar suara, coba lagi ya"); };
-      rec.onend=()=>{ b.classList.remove("on"); b.querySelector("span").textContent="Suara"; ta.dispatchEvent(new Event("change",{bubbles:true})); if(cur&&cur.rec===rec) cur=null; };
-      try{ rec.start(); cur={rec,ta}; b.classList.add("on"); b.querySelector("span").textContent="Selesai"; }catch(e){ toastMic("Fitur suara belum bisa dipakai di browser ini"); }
+      if(cur&&cur.ta===ta){cur.stopped=true;stop();return;}
+      if(cur){cur.stopped=true;stop();}
+      const iOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+      const sess={ta,stopped:false,committed:ta.value,got:false,tries:0};
+      const label=t=>{b.querySelector("span").textContent=t;};
+      const run=()=>{
+        const rec=new SR(); sess.rec=rec; rec.lang="id-ID"; rec.continuous=!iOS; rec.interimResults=true; rec.maxAlternatives=1;
+        rec.onresult=e=>{let seg="";for(let i=0;i<e.results.length;i++)seg+=e.results[i][0].transcript;seg=seg.trim(); if(!seg)return; sess.got=true;
+          const c=sess.committed; ta.value=c+(c&&!/\s$/.test(c)?" ":"")+seg; ta.dispatchEvent(new Event("input",{bubbles:true}));};
+        rec.onerror=e=>{ if(e.error==="not-allowed"||e.error==="service-not-allowed"){sess.stopped=true;toastMic(iOS?"Izinkan mikrofon & Pengenalan Ucapan di Pengaturan iPhone ya 🎙️":"Izinkan akses mikrofon dulu ya 🎙️");} else if(e.error!=="no-speech"&&e.error!=="aborted"){sess.err=e.error;} };
+        rec.onend=()=>{ sess.committed=ta.value; ta.dispatchEvent(new Event("change",{bubbles:true}));
+          if(!sess.stopped&&sess.tries<40&&document.body.contains(ta)){sess.tries++;setTimeout(()=>{if(!sess.stopped){try{run();}catch(e){finish();}}},150);return;}
+          finish(); };
+        try{rec.start();}catch(e){finish();toastMic("Fitur suara belum bisa dipakai di browser ini");}
+      };
+      const finish=()=>{ b.classList.remove("on"); label("Suara"); if(cur===sess)cur=null;
+        if(!sess.got&&!sess.silentTip){ toastMic(iOS?"Suara belum terbaca. Coba pakai ikon 🎤 di keyboard iPhone ya":"Suara belum terbaca, coba lagi ya"+(sess.err?" ("+sess.err+")":"")); } };
+      cur=sess; b.classList.add("on"); label("Selesai"); run();
+      setTimeout(()=>{ if(cur===sess&&!sess.got) toastMic("Silakan bicara… tulisan muncul setelah jeda sebentar"); },2500);
     };
   }
   function toastMic(m){ const t=document.createElement("div"); t.textContent=m; t.style.cssText="position:fixed;left:50%;bottom:110px;transform:translateX(-50%);background:#3A3238;color:#fff;padding:10px 16px;border-radius:999px;font:500 13px Poppins,sans-serif;z-index:999"; document.body.appendChild(t); setTimeout(()=>t.remove(),2600); }
