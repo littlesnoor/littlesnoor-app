@@ -252,6 +252,7 @@ html,body{position:fixed;inset:0;width:100%;height:100%;overflow:hidden}
 }
 @media (min-width:1400px){.wrap{max-width:1100px}.shelf{grid-template-columns:repeat(4,1fr)}}
 .fbcard{display:flex;align-items:center;gap:12px;width:100%;border:1.5px dashed #E7B9A5;background:#FFF8F4;font-family:Poppins,system-ui;cursor:pointer;color:var(--ink)}.fbcard b{display:block;font-size:14.5px}.fbcard small{font-size:12.5px;color:var(--muted)}
+.scanbox{position:relative;border-radius:18px;overflow:hidden;background:#111;aspect-ratio:4/3;margin-top:10px}.scanbox video{width:100%;height:100%;object-fit:cover;display:block}.scanbox i{position:absolute;left:12%;right:12%;top:50%;height:2px;background:#E8C15A;box-shadow:0 0 12px #E8C15A}
 </style>
 </head>
 <body>
@@ -1205,19 +1206,20 @@ function cuSaleRow(s){const c=cuCust(s.cust);return `<button class="txr" data-sa
 function cuBindSales(){app.querySelectorAll("[data-sale]").forEach(b=>b.onclick=()=>{cuOpen=b.dataset.sale;go("cunota");});}
 const cuMonNav=ym=>`<div class="card" style="padding:10px 12px"><div class="row" style="align-items:center"><button class="icon" id="mPrev">‹</button><b style="flex:1;text-align:center;font-size:15px">${ymLabel(ym)}</b><button class="icon" id="mNext">›</button></div></div>`;
 function cuBindMon(v){$("#mPrev").onclick=()=>{cuMon=ymShift(cuMon,-1);CUV[v]();};$("#mNext").onclick=()=>{cuMon=ymShift(cuMon,1);CUV[v]();};}
-function cuProdSheet(p){const M=cuLoad(),ed=!!p;p=p||{n:"",price:0,cost:0,unit:"pcs",stock:null,cat:""};
+function cuProdSheet(p,preset){const M=cuLoad(),ed=!!(p&&p.id);p=p||Object.assign({n:"",price:0,cost:0,unit:"pcs",stock:null,cat:""},preset||{});
   const e=document.createElement("div");e.className="modal";
   e.innerHTML=`<div class="sheet" style="max-height:88vh;overflow:auto"><h3>${ed?"Ubah produk":"Produk baru"}</h3>
   <label class="kl">Nama produk</label><input type="text" id="pn" value="${esc(p.n)}" placeholder="misal: Brownies kukus">
   <div class="row"><div style="flex:1"><label class="kl">Harga jual</label>${amtInput("pp",p.price)}</div><div style="flex:1"><label class="kl">Harga modal <small>(opsional)</small></label>${amtInput("pc",p.cost)}</div></div>
   <div class="row"><div style="flex:1"><label class="kl">Satuan</label><select id="pu">${CUUNIT.map(u=>`<option ${u===p.unit?"selected":""}>${u}</option>`).join("")}</select></div>
    <div style="flex:1"><label class="kl">Stok <small>(opsional)</small></label><input type="text" inputmode="numeric" id="ps" value="${p.stock==null?"":p.stock}" placeholder="kosongkan = tidak dihitung"></div></div>
+  <label class="kl">Barcode <small>(opsional)</small></label><div class="row"><input type="text" id="pb" inputmode="numeric" value="${esc(p.code||"")}" placeholder="scan atau ketik kode" style="flex:1;min-width:0"><button class="icon" id="pbS" type="button">📷</button></div>
   <label class="kl">Kategori <small>(opsional)</small></label><input type="text" id="pk" value="${esc(p.cat||"")}" placeholder="misal: Kue, Minuman" list="pkl"><datalist id="pkl">${[...new Set(M.prod.map(x=>x.cat).filter(Boolean))].map(c=>`<option value="${esc(c)}">`).join("")}</datalist>
   <button class="btn" id="psv" style="margin-top:16px">✓ Simpan</button>${ed?`<button class="btn ghost" id="pdl" style="margin-top:8px">Hapus produk</button>`:`<button class="btn ghost" id="px" style="margin-top:8px">Batal</button>`}</div>`;
-  document.body.appendChild(e);["#pp","#pc"].forEach(s=>bindAmt(e.querySelector(s)));e.onclick=x=>{if(x.target===e)e.remove();};
+  document.body.appendChild(e);["#pp","#pc"].forEach(s=>bindAmt(e.querySelector(s)));e.querySelector("#pbS").onclick=()=>cuScan(c=>{e.querySelector("#pb").value=c;});e.onclick=x=>{if(x.target===e)e.remove();};
   if(e.querySelector("#px"))e.querySelector("#px").onclick=()=>e.remove();
   e.querySelector("#psv").onclick=()=>{const n=e.querySelector("#pn").value.trim(),pr=parseAmt(e.querySelector("#pp").value);if(!n||!pr){toast("Isi nama & harga jual");return;}
-    const sv=e.querySelector("#ps").value.trim();const o={n,price:pr,cost:parseAmt(e.querySelector("#pc").value),unit:e.querySelector("#pu").value,stock:sv===""?null:(+sv.replace(/[^\d-]/g,"")||0),cat:e.querySelector("#pk").value.trim()};
+    const sv=e.querySelector("#ps").value.trim();const o={n,price:pr,cost:parseAmt(e.querySelector("#pc").value),unit:e.querySelector("#pu").value,stock:sv===""?null:(+sv.replace(/[^\d-]/g,"")||0),cat:e.querySelector("#pk").value.trim(),code:e.querySelector("#pb").value.trim()};
     if(ed)Object.assign(p,o);else M.prod.push(Object.assign({id:uid()},o));cuSave();e.remove();toast("Produk tersimpan ✓");render();};
   if(e.querySelector("#pdl"))e.querySelector("#pdl").onclick=()=>confirmBox("Hapus produk ini?",esc(p.n)+" · nota lama tetap aman.",()=>{M.prod=M.prod.filter(x=>x.id!==p.id);cuSave();e.remove();render();},"Hapus");}
 function cuCustSheet(c,cb){const M=cuLoad(),ed=!!c;c=c||{n:"",wa:"",addr:""};
@@ -1249,6 +1251,25 @@ function cuPaySheet(s){const due=cuDue(s);const e=document.createElement("div");
   <button class="btn" id="ysv" style="margin-top:14px">✓ Simpan pembayaran</button><button class="btn ghost" id="yx" style="margin-top:8px">Batal</button></div>`;
   document.body.appendChild(e);bindAmt(e.querySelector("#ya"));e.onclick=z=>{if(z.target===e)e.remove();};e.querySelector("#yx").onclick=()=>e.remove();
   e.querySelector("#ysv").onclick=()=>{const a=Math.min(parseAmt(e.querySelector("#ya").value),due);if(!a){toast("Isi nominalnya");return;}s.pays=s.pays||[];s.pays.push({d:today(),amt:a});cuSave();e.remove();toast(cuLunas(s)?"Lunas ✓":"Pembayaran dicatat ✓");render();};}
+
+/* ---- barcode scanner ---- */
+let _zx=null;function cuLoadZX(){if(window.ZXing)return Promise.resolve();if(_zx)return _zx;_zx=new Promise((ok,no)=>{const sc=document.createElement("script");sc.src="https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js";sc.onload=ok;sc.onerror=()=>{_zx=null;no();};document.head.appendChild(sc);});return _zx;}
+function cuScan(onCode,opts){opts=opts||{};const e=document.createElement("div");e.className="modal";
+  e.innerHTML=`<div class="sheet"><h3>📷 ${opts.title||"Scan barcode"}</h3><p class="small" id="scS">Arahkan kamera ke barcode produk…</p>
+  <div class="scanbox"><video id="scV" playsinline muted autoplay></video><i></i></div>
+  <div class="row" style="margin-top:12px"><input type="text" id="scM" inputmode="numeric" placeholder="atau ketik kodenya" style="flex:1;min-width:0"><button class="icon" id="scOk">✓</button></div>
+  <button class="btn ghost" id="scX" style="margin-top:10px">${opts.multi?"Selesai":"Batal"}</button></div>`;
+  document.body.appendChild(e);const v=e.querySelector("#scV"),st=e.querySelector("#scS");let stream=null,alive=true,reader=null,last="",lastT=0;
+  const stop=()=>{alive=false;try{reader&&reader.reset();}catch(x){}if(stream)stream.getTracks().forEach(t=>t.stop());e.remove();};
+  const hit=code=>{code=String(code).trim();if(!code)return;const now=Date.now();if(code===last&&now-lastT<1500)return;last=code;lastT=now;
+    try{navigator.vibrate&&navigator.vibrate(60);}catch(x){}const keep=onCode(code);if(!opts.multi||keep===false)stop();else st.textContent="✓ "+code+" · scan berikutnya…";};
+  e.querySelector("#scX").onclick=stop;e.querySelector("#scOk").onclick=()=>{const m=e.querySelector("#scM").value.trim();if(m){hit(m);e.querySelector("#scM").value="";}};
+  (async()=>{try{
+    if("BarcodeDetector" in window){stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}});v.srcObject=stream;await v.play();
+      const det=new BarcodeDetector();const loop=async()=>{if(!alive)return;try{const r=await det.detect(v);if(r&&r.length)hit(r[0].rawValue);}catch(x){}setTimeout(loop,250);};loop();}
+    else{st.textContent="Menyiapkan kamera…";await cuLoadZX();reader=new ZXing.BrowserMultiFormatReader();st.textContent="Arahkan kamera ke barcode produk…";
+      reader.decodeFromConstraints({video:{facingMode:"environment"}},v,(res)=>{if(res&&alive)hit(res.getText());});}
+  }catch(err){st.innerHTML="Kamera tidak bisa dibuka. Izinkan akses kamera di browser, atau ketik kodenya di bawah.";}})();}
 /* ---- nota image / pdf ---- */
 function cuNotaCanvas(s,fmt){const M=cuLoad(),sh=M.shop,c=cuCust(s.cust),th=fmt==="58";
   const W=th?384:1240,pad=th?14:90,FF="Poppins,system-ui,sans-serif",PL="#8E4A30",MU="#80706A",INK="#2E2833";
@@ -1320,7 +1341,7 @@ cunew(){const M=cuLoad(),D=cuDraft=cuDraft||cuNewDraft();const tot=Math.max(0,D.
   const cats=[...new Set(M.prod.map(p=>p.cat).filter(Boolean))];
   app.innerHTML=`<div class="wrap">${cuHead("Nota baru","Ketuk produk untuk menambahkan",["cuhome","Beranda"])}
   <label class="kl">Pelanggan</label><div class="row"><select id="nc" style="flex:1"><option value="">Pelanggan umum</option>${M.cust.map(c=>`<option value="${c.id}" ${D.cust===c.id?"selected":""}>${esc(c.n)}</option>`).join("")}</select><button class="icon" id="ncAdd" title="Pelanggan baru">＋</button></div>
-  <div class="sec"><h3>Produk</h3><button class="mini" id="nProd">＋ Produk baru</button></div>
+  <div class="sec"><h3>Produk</h3><span><button class="mini" id="nScan" style="color:var(--sage);font-weight:700">📷 Scan</button> <button class="mini" id="nProd">＋ Produk baru</button></span></div>
   ${M.prod.length?`<div class="pgrid">${M.prod.map(p=>{const it=D.items.find(i=>i.p===p.id);return `<button class="pcard ${it?"on":""}" data-add="${p.id}"><b>${esc(p.n)}</b><span>${rp(p.price)}</span>${p.stock!=null?`<small>stok ${p.stock}</small>`:""}${it?`<i>${it.q}</i>`:""}</button>`;}).join("")}</div>`:`<div class="card"><p class="small" style="margin:0">Belum ada produk. Ketuk <b>＋ Produk baru</b>, atau tambahkan barang manual di bawah.</p></div>`}
   <div class="row" style="margin-top:10px"><input type="text" id="mn" placeholder="Barang lain" style="flex:1.3;min-width:0">${amtInput("mp","","Harga").replace('class="amtw"','class="amtw sm" style="margin:0;flex:1;width:auto"')}<button class="icon" id="mAdd">＋</button></div>
   <div class="sec"><h3>Isi nota</h3></div>
@@ -1334,6 +1355,9 @@ cunew(){const M=cuLoad(),D=cuDraft=cuDraft||cuNewDraft();const tot=Math.max(0,D.
   cuBind(["cuhome","Beranda"]);const keep=()=>{D.cust=$("#nc").value;D.disc=parseAmt($("#nd").value);D.d=$("#ndt").value||today();D.note=$("#nnt").value;if($("#npd"))D.paid=parseAmt($("#npd").value);};
   bindAmt($("#mp"));bindAmt($("#nd"),()=>{keep();});if($("#npd"))bindAmt($("#npd"));
   $("#nd").onchange=()=>{keep();CUV.cunew();};
+  $("#nScan").onclick=()=>{keep();let added=0;cuScan(code=>{const p=M.prod.find(x=>(x.code||"")===code);
+    if(!p){confirmBox("Barcode belum terdaftar","Kode "+esc(code)+" belum ada di daftar produk. Tambahkan sebagai produk baru?",()=>cuProdSheet(null,{code}),"Tambah");return false;}
+    const it=D.items.find(i=>i.p===p.id);if(it)it.q++;else D.items.push({p:p.id,n:p.n,q:1,price:p.price,cost:p.cost||0,unit:p.unit});added++;toast("＋ "+p.n);CUV.cunew();return true;},{multi:true,title:"Scan produk"});};
   $("#nc").onchange=keep;$("#ncAdd").onclick=()=>{keep();cuCustSheet(null,id=>{D.cust=id;CUV.cunew();});};$("#nProd").onclick=()=>{keep();cuProdSheet();};
   app.querySelectorAll("[data-add]").forEach(b=>b.onclick=()=>{keep();const p=M.prod.find(x=>x.id===b.dataset.add);const it=D.items.find(i=>i.p===p.id);if(it)it.q++;else D.items.push({p:p.id,n:p.n,q:1,price:p.price,cost:p.cost||0,unit:p.unit});CUV.cunew();});
   app.querySelectorAll("[data-q]").forEach(b=>b.onclick=()=>{keep();const[k,d]=b.dataset.q.split(":").map(Number);D.items[k].q+=d;if(D.items[k].q<=0)D.items.splice(k,1);CUV.cunew();});
