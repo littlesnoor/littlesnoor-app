@@ -251,6 +251,7 @@ html,body{position:fixed;inset:0;width:100%;height:100%;overflow:hidden}
  .hello{font-size:30px}
 }
 @media (min-width:1400px){.wrap{max-width:1100px}.shelf{grid-template-columns:repeat(4,1fr)}}
+.fbcard{display:flex;align-items:center;gap:12px;width:100%;border:1.5px dashed #E7B9A5;background:#FFF8F4;font-family:Poppins,system-ui;cursor:pointer;color:var(--ink)}.fbcard b{display:block;font-size:14.5px}.fbcard small{font-size:12.5px;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -1439,6 +1440,22 @@ cumore(){const M=cuLoad();
     e.querySelector("#rok").onclick=()=>{try{const s=decodeURIComponent(escape(atob(e.querySelector("#rc").value.trim())));JSON.parse(s);lsSet(CUKEY,s);CU=null;cuLoad();e.remove();toast("Data sudah dipulihkan ✓");go("cuhome");}catch(err){toast("Kodenya tidak cocok");}};};}
 };
 
+
+function feedbackSheet(){const A=acc()||{};let kind="masukan";
+  const K=[["masukan","💬 Masukan aplikasi"],["usul","💡 Usul produk baru"],["masalah","🐞 Ada yang error"]];
+  const e=document.createElement("div");e.className="modal";
+  const draw=()=>{e.innerHTML=`<div class="sheet"><h3>💌 Kotak saran</h3><p class="small">Ceritakan apa saja, mau masukan untuk aplikasinya atau ide aplikasi/workbook baru yang kamu butuhkan. Semua kami baca dengan sepenuh hati 🤍</p>
+  <div class="chips" style="flex-wrap:wrap">${K.map(([k,l])=>`<button class="fchip ${kind===k?"on":""}" data-k="${k}">${l}</button>`).join("")}</div>
+  <textarea id="fbm" style="margin-top:12px;min-height:130px" placeholder="${kind==="usul"?"Misal: aku butuh jurnal untuk...":kind==="masalah"?"Ceritakan apa yang terjadi, di aplikasi mana...":"Apa yang kamu suka, apa yang bisa lebih baik..."}">${esc(e._t||"")}</textarea>
+  <button class="btn" id="fbs" style="margin-top:12px">Kirim saran</button><button class="btn ghost" id="fbx" style="margin-top:8px">Batal</button></div>`;
+  e.querySelectorAll("[data-k]").forEach(b=>b.onclick=()=>{e._t=e.querySelector("#fbm").value;kind=b.dataset.k;draw();});
+  e.querySelector("#fbx").onclick=()=>e.remove();
+  e.querySelector("#fbs").onclick=async()=>{const m=e.querySelector("#fbm").value.trim();if(m.length<3){toast("Tulis sarannya dulu ya");return;}
+    const btn=e.querySelector("#fbs");btn.disabled=true;btn.textContent="Mengirim...";
+    try{const r=await rpc("send_feedback",{p_email:A.email||"",p_kind:kind,p_msg:m.slice(0,2000),p_ctx:(view||"")+" · "+navigator.userAgent.slice(0,120)});
+      if(r&&r.ok===false)throw 0;e.remove();sheet("Terima kasih! 🤍","Saranmu sudah sampai. Doakan kami bisa terus berbenah dan membuat yang lebih bermanfaat ya.");}
+    catch(x){btn.disabled=false;btn.textContent="Kirim saran";location.href="mailto:littlesnoor@gmail.com?subject="+encodeURIComponent("Saran littles noor ("+kind+")")+"&body="+encodeURIComponent(m);}};};
+  draw();document.body.appendChild(e);e.onclick=x=>{if(x.target===e)e.remove();};}
 function shelfGroups(P,SO){
   if(shelfCat!=="all")return [["",P.filter(p=>catOf(p)===shelfCat)]];
   return [["",P]];
@@ -1469,10 +1486,11 @@ function shelf(){
      ${tag?`<span class="tag" ${p.id==="saku"?'style="background:#FFE0D2;color:#782D1E"':""}>${tag==="Terkunci"?"🔒 ":""}${tag}</span>`:""}${pin&&!shelfEdit?`<span class="pinb">📌</span>`:""}
      ${shelfEdit?`<span class="sedit"><i data-mv="-1" data-p="${p.id}" ${ix===0?'class="off"':""}>‹</i><i data-pin="${p.id}" class="${pin?"on":""}">📌</i><i data-mv="1" data-p="${p.id}" ${ix===P.length-1?'class="off"':""}>›</i></span>`:""}
      <img src="covers/${p.id}.jpg" alt=""><b>${esc(p.name)}</b><span>${esc(!live?p.tagline:(own?p.tagline:"Dapatkan di lynk.id/littlesnoor"))}</span></button>`}).join("")}</div>`).join("")}
+  <button class="card fbcard" id="fbOpen"><span style="font-size:28px">💌</span><span style="flex:1;text-align:left"><b>Kotak saran</b><small>Punya masukan atau ide aplikasi baru? Ceritakan ke kami</small></span><span class="small">›</span></button>
   <div class="card" style="margin-top:18px;display:flex;align-items:center;gap:10px"><p class="small" style="margin:0;flex:1">Masuk sebagai <b>${esc(A.email||"")}</b></p><button class="mini" id="logoutBtn">Keluar</button></div>
   <p class="small" style="text-align:center;margin-top:16px">Butuh bantuan? DM Instagram <a href='https://instagram.com/littlesnoor' target='_blank' rel='noopener' style='color:var(--sage);font-weight:700'>@littlesnoor</a></p></div>`;
   $("#editShelf").onclick=()=>{shelfEdit=!shelfEdit;shelf();};
-  $("#logoutTop").onclick=logout;$("#logoutBtn").onclick=logout;
+  $("#logoutTop").onclick=logout;$("#logoutBtn").onclick=logout;$("#fbOpen").onclick=feedbackSheet;
   app.querySelectorAll("[data-cat]").forEach(b=>b.onclick=()=>{shelfCat=b.dataset.cat;shelf();});
   setTimeout(()=>{const on=app.querySelector("[data-cat].on");if(on)on.scrollIntoView({inline:"center",block:"nearest"});},0);
   app.querySelectorAll(".prod").forEach(el=>el.onclick=e=>{
