@@ -1215,10 +1215,12 @@ function cuProdSheet(p,preset){const M=cuLoad(),ed=!!(p&&p.id);p=p||Object.assig
   <div class="row"><div style="flex:1"><label class="kl">Harga jual</label>${amtInput("pp",p.price)}</div><div style="flex:1"><label class="kl">Harga modal <small>(opsional)</small></label>${amtInput("pc",p.cost)}</div></div>
   <div class="row"><div style="flex:1"><label class="kl">Satuan</label><select id="pu">${CUUNIT.map(u=>`<option ${u===p.unit?"selected":""}>${u}</option>`).join("")}</select></div>
    <div style="flex:1"><label class="kl">Stok <small>(opsional)</small></label><input type="text" inputmode="numeric" id="ps" value="${p.stock==null?"":p.stock}" placeholder="kosongkan = tidak dihitung"></div></div>
-  <label class="kl">Barcode <small>(opsional)</small></label><div class="row"><input type="text" id="pb" inputmode="numeric" value="${esc(p.code||"")}" placeholder="scan atau ketik kode" style="flex:1;min-width:0"><button class="icon" id="pbS" type="button">📷</button></div>
+  <label class="kl">Barcode <small>(opsional)</small></label><div class="row"><input type="text" id="pb" inputmode="numeric" value="${esc(p.code||"")}" placeholder="scan atau ketik kode" style="flex:1;min-width:0"><button class="icon" id="pbS" type="button">📷</button></div><p class="small" id="pbh" style="margin:6px 0 0;min-height:0"></p>
   <label class="kl">Kategori <small>(opsional)</small></label><input type="text" id="pk" value="${esc(p.cat||"")}" placeholder="misal: Kue, Minuman" list="pkl"><datalist id="pkl">${[...new Set(M.prod.map(x=>x.cat).filter(Boolean))].map(c=>`<option value="${esc(c)}">`).join("")}</datalist>
   <button class="btn" id="psv" style="margin-top:16px">✓ Simpan</button>${ed?`<button class="btn ghost" id="pdl" style="margin-top:8px">Hapus produk</button>`:`<button class="btn ghost" id="px" style="margin-top:8px">Batal</button>`}</div>`;
-  document.body.appendChild(e);["#pp","#pc"].forEach(s=>bindAmt(e.querySelector(s)));e.querySelector("#pbS").onclick=()=>cuScan(c=>{e.querySelector("#pb").value=c;});e.onclick=x=>{if(x.target===e)e.remove();};
+  document.body.appendChild(e);["#pp","#pc"].forEach(s=>bindAmt(e.querySelector(s)));const pLook=async c=>{const pn=e.querySelector("#pn"),hint=e.querySelector("#pbh");if(!c||pn.value.trim())return;hint.textContent="🔎 Mencari nama produk…";const n=await cuLookup(c);if(n&&!pn.value.trim()){pn.value=n;hint.textContent="✓ Nama terisi otomatis dari Open Food Facts. Cek & ubah kalau perlu.";}else hint.textContent=n?"":"Nama produk tidak ditemukan, ketik manual ya.";};
+  e.querySelector("#pbS").onclick=()=>cuScan(c=>{e.querySelector("#pb").value=c;pLook(c);});e.querySelector("#pb").onchange=()=>pLook(e.querySelector("#pb").value.trim());
+  if(preset&&preset.code&&!ed)pLook(preset.code);e.onclick=x=>{if(x.target===e)e.remove();};
   if(e.querySelector("#px"))e.querySelector("#px").onclick=()=>e.remove();
   e.querySelector("#psv").onclick=()=>{const n=e.querySelector("#pn").value.trim(),pr=parseAmt(e.querySelector("#pp").value);if(!n||!pr){toast("Isi nama & harga jual");return;}
     const sv=e.querySelector("#ps").value.trim();const o={n,price:pr,cost:parseAmt(e.querySelector("#pc").value),unit:e.querySelector("#pu").value,stock:sv===""?null:(+sv.replace(/[^\d-]/g,"")||0),cat:e.querySelector("#pk").value.trim(),code:e.querySelector("#pb").value.trim()};
@@ -1278,6 +1280,16 @@ function cuScan(onCode,opts){opts=opts||{};const e=document.createElement("div")
     else{st.textContent="Menyiapkan kamera…";await cuLoadZX();reader=new ZXing.BrowserMultiFormatReader();st.textContent="Arahkan kamera ke barcode produk…";
       reader.decodeFromConstraints({video:{facingMode:"environment"}},v,(res)=>{if(res&&alive)hit(res.getText());});}
   }catch(err){st.innerHTML="Kamera tidak bisa dibuka. Izinkan akses kamera di browser, atau ketik kodenya di bawah.";}})();}
+
+async function cuLookup(code){if(!/^\d{8,14}$/.test(code))return null;
+  const fields="product_name,product_name_id,brands,quantity";
+  for(const host of ["https://world.openfoodfacts.org","https://world.openbeautyfacts.org"]){
+    try{const ctl=new AbortController();const tm=setTimeout(()=>ctl.abort(),6000);
+      const r=await fetch(host+"/api/v2/product/"+code+".json?fields="+fields,{signal:ctl.signal});clearTimeout(tm);if(!r.ok)continue;const j=await r.json();
+      if(j&&j.status===1&&j.product){const p=j.product;const nm=(p.product_name_id||p.product_name||"").trim();if(!nm)continue;
+        const br=(p.brands||"").split(",")[0].trim();let n=(br&&!nm.toLowerCase().includes(br.toLowerCase())?br+" ":"")+nm;if(p.quantity&&!n.includes(p.quantity))n+=" "+p.quantity;return n.replace(/\s+/g," ").slice(0,80);}
+    }catch(x){}}
+  return null;}
 /* ---- nota image / pdf ---- */
 function cuNotaCanvas(s,fmt){const M=cuLoad(),sh=M.shop,c=cuCust(s.cust),th=fmt==="58";
   const W=th?384:1240,pad=th?14:90,FF="Poppins,system-ui,sans-serif",PL="#8E4A30",MU="#80706A",INK="#2E2833";
