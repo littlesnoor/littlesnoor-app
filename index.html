@@ -253,6 +253,8 @@ html,body{position:fixed;inset:0;width:100%;height:100%;overflow:hidden}
 @media (min-width:1400px){.wrap{max-width:1100px}.shelf{grid-template-columns:repeat(4,1fr)}}
 .fbcard{display:flex;align-items:center;gap:12px;width:100%;border:1.5px dashed #E7B9A5;background:#FFF8F4;font-family:Poppins,system-ui;cursor:pointer;color:var(--ink)}.fbcard b{display:block;font-size:14.5px}.fbcard small{font-size:12.5px;color:var(--muted)}
 .scanbox{position:relative;border-radius:18px;overflow:hidden;background:#111;aspect-ratio:4/3;margin-top:10px}.scanbox video{width:100%;height:100%;object-fit:cover;display:block}.scanbox i{position:absolute;left:12%;right:12%;top:50%;height:2px;background:#E8C15A;box-shadow:0 0 12px #E8C15A}
+.scflash{position:absolute;left:50%;top:14px;transform:translateX(-50%) translateY(-10px);background:#2EAA64;color:#fff;font:700 14px Poppins;padding:8px 14px;border-radius:20px;opacity:0;white-space:nowrap;pointer-events:none}.scflash.on{animation:scf 1.8s ease}@keyframes scf{0%{opacity:0;transform:translateX(-50%) translateY(-10px)}12%{opacity:1;transform:translateX(-50%) translateY(0)}80%{opacity:1}100%{opacity:0}}
+.scask{position:absolute;inset:0;background:rgba(20,14,10,.82);color:#fff;display:flex;flex-direction:column;justify-content:center;padding:18px;text-align:center}.scask b{font-size:17px}.scask small{font-size:13px;opacity:.85;margin-top:4px}
 </style>
 </head>
 <body>
@@ -1256,13 +1258,19 @@ function cuPaySheet(s){const due=cuDue(s);const e=document.createElement("div");
 let _zx=null;function cuLoadZX(){if(window.ZXing)return Promise.resolve();if(_zx)return _zx;_zx=new Promise((ok,no)=>{const sc=document.createElement("script");sc.src="https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js";sc.onload=ok;sc.onerror=()=>{_zx=null;no();};document.head.appendChild(sc);});return _zx;}
 function cuScan(onCode,opts){opts=opts||{};const e=document.createElement("div");e.className="modal";
   e.innerHTML=`<div class="sheet"><h3>📷 ${opts.title||"Scan barcode"}</h3><p class="small" id="scS">Arahkan kamera ke barcode produk…</p>
-  <div class="scanbox"><video id="scV" playsinline muted autoplay></video><i></i></div>
+  <div class="scanbox"><video id="scV" playsinline muted autoplay></video><i></i><div class="scflash" id="scF"></div><div class="scask hidden" id="scA"><b id="scAt"></b><small id="scAs"></small><div class="row" style="margin-top:12px"><button class="btn ghost" id="scNo" style="background:#fff">Lewati</button><button class="btn" id="scYes">＋ Tambah 1 lagi</button></div></div></div>
   <div class="row" style="margin-top:12px"><input type="text" id="scM" inputmode="numeric" placeholder="atau ketik kodenya" style="flex:1;min-width:0"><button class="icon" id="scOk">✓</button></div>
   <button class="btn ghost" id="scX" style="margin-top:10px">${opts.multi?"Selesai":"Batal"}</button></div>`;
   document.body.appendChild(e);const v=e.querySelector("#scV"),st=e.querySelector("#scS");let stream=null,alive=true,reader=null,last="",lastT=0;
   const stop=()=>{alive=false;try{reader&&reader.reset();}catch(x){}if(stream)stream.getTracks().forEach(t=>t.stop());e.remove();};
-  const hit=code=>{code=String(code).trim();if(!code)return;const now=Date.now();if(code===last&&now-lastT<1500)return;last=code;lastT=now;
-    try{navigator.vibrate&&navigator.vibrate(60);}catch(x){}const keep=onCode(code);if(!opts.multi||keep===false)stop();else st.textContent="✓ "+code+" · scan berikutnya…";};
+  let paused=false;const flash=(t)=>{const f=e.querySelector("#scF");f.textContent=t;f.classList.remove("on");void f.offsetWidth;f.classList.add("on");};
+  const ask=(q)=>{paused=true;const A=e.querySelector("#scA");e.querySelector("#scAt").textContent=q.title;e.querySelector("#scAs").textContent=q.sub||"";A.classList.remove("hidden");
+    const done=()=>{A.classList.add("hidden");setTimeout(()=>{paused=false;lastT=Date.now();},700);};
+    e.querySelector("#scYes").onclick=()=>{done();const r=q.yes&&q.yes();if(r&&r.flash)flash(r.flash);};e.querySelector("#scNo").onclick=()=>{done();st.textContent="Dilewati · scan berikutnya…";};};
+  const hit=code=>{if(paused)return;code=String(code).trim();if(!code)return;const now=Date.now();if(code===last&&now-lastT<1500)return;last=code;lastT=now;
+    try{navigator.vibrate&&navigator.vibrate(60);}catch(x){}const keep=onCode(code);
+    if(keep&&typeof keep==="object"){if(keep.ask){ask(keep.ask);return;}if(keep.flash){flash(keep.flash);st.textContent="Scan berikutnya…";return;}}
+    if(!opts.multi||keep===false)stop();else st.textContent="✓ "+code+" · scan berikutnya…";};
   e.querySelector("#scX").onclick=stop;e.querySelector("#scOk").onclick=()=>{const m=e.querySelector("#scM").value.trim();if(m){hit(m);e.querySelector("#scM").value="";}};
   (async()=>{try{
     if("BarcodeDetector" in window){stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}});v.srcObject=stream;await v.play();
@@ -1357,7 +1365,9 @@ cunew(){const M=cuLoad(),D=cuDraft=cuDraft||cuNewDraft();const tot=Math.max(0,D.
   $("#nd").onchange=()=>{keep();CUV.cunew();};
   $("#nScan").onclick=()=>{keep();let added=0;cuScan(code=>{const p=M.prod.find(x=>(x.code||"")===code);
     if(!p){confirmBox("Barcode belum terdaftar","Kode "+esc(code)+" belum ada di daftar produk. Tambahkan sebagai produk baru?",()=>cuProdSheet(null,{code}),"Tambah");return false;}
-    const it=D.items.find(i=>i.p===p.id);if(it)it.q++;else D.items.push({p:p.id,n:p.n,q:1,price:p.price,cost:p.cost||0,unit:p.unit});added++;toast("＋ "+p.n);CUV.cunew();return true;},{multi:true,title:"Scan produk"});};
+    const it=D.items.find(i=>i.p===p.id);
+    if(it)return {ask:{title:p.n+" sudah ada di nota",sub:"Jumlah sekarang: "+it.q+". Tambah 1 lagi?",yes:()=>{it.q++;CUV.cunew();return {flash:"✓ "+p.n+" · jumlah "+it.q};}}};
+    D.items.push({p:p.id,n:p.n,q:1,price:p.price,cost:p.cost||0,unit:p.unit});added++;CUV.cunew();return {flash:"✓ "+p.n+" ditambahkan"};},{multi:true,title:"Scan produk"});};
   $("#nc").onchange=keep;$("#ncAdd").onclick=()=>{keep();cuCustSheet(null,id=>{D.cust=id;CUV.cunew();});};$("#nProd").onclick=()=>{keep();cuProdSheet();};
   app.querySelectorAll("[data-add]").forEach(b=>b.onclick=()=>{keep();const p=M.prod.find(x=>x.id===b.dataset.add);const it=D.items.find(i=>i.p===p.id);if(it)it.q++;else D.items.push({p:p.id,n:p.n,q:1,price:p.price,cost:p.cost||0,unit:p.unit});CUV.cunew();});
   app.querySelectorAll("[data-q]").forEach(b=>b.onclick=()=>{keep();const[k,d]=b.dataset.q.split(":").map(Number);D.items[k].q+=d;if(D.items[k].q<=0)D.items.splice(k,1);CUV.cunew();});
