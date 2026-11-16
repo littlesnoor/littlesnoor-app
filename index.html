@@ -1624,21 +1624,23 @@ function lockScreen(msg){
   app.innerHTML=`<div class="wrap welcome"><div class="arch"></div>
   <div class="big">littles noor</div><p class="sub" style="font-size:15px">Masuk dengan email yang kamu pakai<br>saat membeli di Lynk.id</p>
   <div class="card" style="text-align:left"><label style="font-weight:600;font-size:14px">Email pembelian</label>
-  <input type="text" id="em" inputmode="email" autocomplete="email" placeholder="nama@email.com" style="margin-top:8px" value="${esc((acc()||{}).email||"")}">
+  <input type="text" id="em" inputmode="email" autocomplete="email" placeholder="nama@email.com" style="margin-top:8px" value="${esc((acc()||{}).email||lsGetSafe("littlesnoor.lastEmail")||"")}">
   <p class="small" id="err" style="color:#B4566A;margin:10px 0 0;min-height:18px">${msg||""}</p></div>
   <button class="btn" id="unlock" style="margin-top:16px">Masuk</button>
   <a href="saku/" style="display:block;margin-top:12px;background:#FFE0D2;color:#782D1E;border-radius:16px;padding:13px;font-weight:600;text-decoration:none;text-align:center">🌙 Coba Saku gratis: kartu sakti littles noor</a>
   <p class="small" style="margin-top:14px">Belum punya? Dapatkan di <a href="https://lynk.id/littlesnoor" target="_blank" rel="noopener" style="color:var(--sage);font-weight:700">lynk.id/littlesnoor</a><br>Butuh bantuan? DM Instagram <a href="https://instagram.com/littlesnoor" target="_blank" rel="noopener" style="color:var(--sage);font-weight:700">@littlesnoor</a></p></div>`;
+  $("#em").addEventListener("keydown",e=>{if(e.key==="Enter")$("#unlock").click();});
   $("#unlock").onclick=async()=>{
     const em=$("#em").value.trim().toLowerCase(), btn=$("#unlock"), err=$("#err");
     if(!/^\S+@\S+\.\S+$/.test(em)){err.textContent="Tulis email yang lengkap ya.";return;}
     btn.disabled=true;btn.textContent="Memeriksa...";err.textContent="";
     try{const res=await login(em);
-      if(res&&res.ok){lsSet(AKEY,JSON.stringify({email:em,owned:res.owned||[],products:res.products||[],at:Date.now()}));start();return;}
+      if(res&&res.ok){lsSet(AKEY,JSON.stringify({email:em,owned:res.owned||[],products:res.products||[],at:Date.now()}));lsSet("littlesnoor.lastEmail",em);start();return;}
       err.innerHTML=res&&res.reason==="device_limit"?"Email ini sudah dipakai di batas maksimal perangkat. Hubungi <a href='https://instagram.com/littlesnoor' target='_blank' rel='noopener' style='color:var(--sage);font-weight:700'>@littlesnoor</a> untuk reset.":"Email ini belum terdaftar sebagai pembeli. Pastikan sama dengan email saat membeli, atau hubungi <a href='https://instagram.com/littlesnoor' target='_blank' rel='noopener' style='color:var(--sage);font-weight:700'>@littlesnoor</a>.";
     }catch(e){err.textContent="Tidak bisa terhubung. Cek internetmu lalu coba lagi.";}
     btn.disabled=false;btn.textContent="Masuk";};
 }
+function lsGetSafe(k){try{return localStorage.getItem(k)}catch(e){return null}}
 function deep(){return location.hostname.startsWith("mulailagi.")||location.hash==="#mulai-lagi";}
 function start(){
   const A=acc();
