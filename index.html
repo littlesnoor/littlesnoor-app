@@ -281,6 +281,7 @@ html,body{position:fixed;inset:0;width:100%;height:100%;overflow:hidden}
   <button data-v="more"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c1-4 4-6 7-6s6 2 7 6"/></svg>Aku</button>
 </nav>
 <script>
+var PUSH_ON=false, VAPID_PUB="BDMCqYuEMIZXPnfBJpTzmqMz5oxbohgaDcaxMy5X_C4T-REkqCLJn2XEUkSyl0Uc0fbieNVFv5XyRHqW9T77F0Q";
 const CONFIG={url:"https://bbldcyxwxwsqemycjgog.supabase.co",key:"sb_publishable_bxSEp3nugCl9P7RnxJSwBg_JpsJBuMe"};
 const ML="mulai-lagi-id";
 let DAYS=null;
@@ -1722,7 +1723,7 @@ view="shelf";boot();
 })();
 
 /* ===== Notifikasi pembaruan ===== */
-const APP_VERSION=56;
+const APP_VERSION=57;
 (function(){
   let shown=false;
   async function check(){
@@ -1751,7 +1752,6 @@ const APP_VERSION=56;
 })();
 
 /* ===== Notifikasi push ===== */
-const PUSH_ON=false, VAPID_PUB="BDMCqYuEMIZXPnfBJpTzmqMz5oxbohgaDcaxMy5X_C4T-REkqCLJn2XEUkSyl0Uc0fbieNVFv5XyRHqW9T77F0Q";
 function pushSupported(){
   if(!PUSH_ON||!("serviceWorker" in navigator)||!("PushManager" in window)||!("Notification" in window)) return false;
   const ios=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
