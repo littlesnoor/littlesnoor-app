@@ -256,6 +256,12 @@ html,body{position:fixed;inset:0;width:100%;height:100%;overflow:hidden}
 .scflash{position:absolute;left:50%;top:14px;transform:translateX(-50%) translateY(-10px);background:#2EAA64;color:#fff;font:700 14px Poppins;padding:8px 14px;border-radius:20px;opacity:0;white-space:nowrap;pointer-events:none}.scflash.on{animation:scf 1.8s ease}@keyframes scf{0%{opacity:0;transform:translateX(-50%) translateY(-10px)}12%{opacity:1;transform:translateX(-50%) translateY(0)}80%{opacity:1}100%{opacity:0}}
 .scask{position:absolute;inset:0;background:rgba(20,14,10,.82);color:#fff;display:flex;flex-direction:column;justify-content:center;padding:18px;text-align:center}.scask b{font-size:17px}.scask small{font-size:13px;opacity:.85;margin-top:4px}
 .shoplogo{width:76px;height:76px;border-radius:18px;background:#FBEFE9;border:1.5px dashed #E7B9A5;display:flex;align-items:center;justify-content:center;font-size:30px;overflow:hidden;flex:none}.shoplogo img{width:100%;height:100%;object-fit:contain;background:#fff}
+.micwrap{position:relative;display:block}
+.micwrap textarea{padding-bottom:46px}
+.micbtn{position:absolute;right:10px;bottom:10px;height:34px;min-width:34px;padding:0 10px;border-radius:999px;border:0;background:var(--sagel);color:var(--sage);font:600 13px Poppins,sans-serif;display:flex;align-items:center;gap:6px;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.08)}
+.micbtn svg{width:16px;height:16px}
+.micbtn.on{background:var(--sage);color:#fff;animation:micp 1.2s infinite}
+@keyframes micp{0%,100%{box-shadow:0 0 0 0 rgba(0,0,0,.18)}50%{box-shadow:0 0 0 7px rgba(0,0,0,0)}}
 </style>
 </head>
 <body>
@@ -1652,6 +1658,34 @@ async function boot(){
 }
 if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));}
 view="shelf";boot();
+
+/* ===== Isi pakai suara (Web Speech API) ===== */
+(function(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition; if(!SR) return;
+  const ICON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4"/></svg>';
+  let cur=null;
+  function stop(){ if(cur){ try{cur.rec.stop()}catch(e){} } }
+  function attach(ta){
+    if(ta.dataset.mic||ta.closest(".micwrap")) return; ta.dataset.mic=1;
+    const w=document.createElement("span"); w.className="micwrap"; ta.parentNode.insertBefore(w,ta); w.appendChild(ta);
+    const b=document.createElement("button"); b.type="button"; b.className="micbtn"; b.title="Isi pakai suara"; b.innerHTML=ICON+"<span>Suara</span>"; w.appendChild(b);
+    b.onclick=()=>{
+      if(cur&&cur.ta===ta){stop();return;}
+      stop();
+      const rec=new SR(); rec.lang="id-ID"; rec.continuous=true; rec.interimResults=true;
+      const base=ta.value; let fin="";
+      rec.onresult=e=>{let interim="";for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0].transcript; if(e.results[i].isFinal) fin+=t; else interim+=t;}
+        const add=(fin+interim).trim(); ta.value=base+(base&&add&&!/\s$/.test(base)?" ":"")+add; ta.dispatchEvent(new Event("input",{bubbles:true}));};
+      rec.onerror=e=>{ if(e.error==="not-allowed"||e.error==="service-not-allowed") toastMic("Izinkan akses mikrofon dulu ya 🎙️"); else if(e.error==="no-speech") toastMic("Belum terdengar suara, coba lagi ya"); };
+      rec.onend=()=>{ b.classList.remove("on"); b.querySelector("span").textContent="Suara"; ta.dispatchEvent(new Event("change",{bubbles:true})); if(cur&&cur.rec===rec) cur=null; };
+      try{ rec.start(); cur={rec,ta}; b.classList.add("on"); b.querySelector("span").textContent="Selesai"; }catch(e){ toastMic("Fitur suara belum bisa dipakai di browser ini"); }
+    };
+  }
+  function toastMic(m){ const t=document.createElement("div"); t.textContent=m; t.style.cssText="position:fixed;left:50%;bottom:110px;transform:translateX(-50%);background:#3A3238;color:#fff;padding:10px 16px;border-radius:999px;font:500 13px Poppins,sans-serif;z-index:999"; document.body.appendChild(t); setTimeout(()=>t.remove(),2600); }
+  const scan=()=>document.querySelectorAll("textarea:not([data-mic])").forEach(attach);
+  new MutationObserver(()=>{ if(cur&&!document.body.contains(cur.ta)) stop(); scan(); }).observe(document.body,{childList:true,subtree:true});
+  document.addEventListener("DOMContentLoaded",scan); scan();
+})();
 </script>
 </body>
 </html>
