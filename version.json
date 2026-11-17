@@ -1,6 +1,7 @@
 {
- "v": 57,
+ "v": 58,
  "notes": [
-  "Perbaikan: layar kosong saat membuka aplikasi"
+  "Catat Usaha: scan nama kemasan (kamera membaca tulisan produk)",
+  "Catat Usaha: foto produk + kotak cari cepat di nota"
  ]
 }

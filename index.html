@@ -255,6 +255,19 @@ html,body{position:fixed;inset:0;width:100%;height:100%;overflow:hidden}
 .scanbox{position:relative;border-radius:18px;overflow:hidden;background:#111;aspect-ratio:4/3;margin-top:10px}.scanbox video{width:100%;height:100%;object-fit:cover;display:block}.scanbox i{position:absolute;left:12%;right:12%;top:50%;height:2px;background:#E8C15A;box-shadow:0 0 12px #E8C15A}
 .scflash{position:absolute;left:50%;top:14px;transform:translateX(-50%) translateY(-10px);background:#2EAA64;color:#fff;font:700 14px Poppins;padding:8px 14px;border-radius:20px;opacity:0;white-space:nowrap;pointer-events:none}.scflash.on{animation:scf 1.8s ease}@keyframes scf{0%{opacity:0;transform:translateX(-50%) translateY(-10px)}12%{opacity:1;transform:translateX(-50%) translateY(0)}80%{opacity:1}100%{opacity:0}}
 .scask{position:absolute;inset:0;background:rgba(20,14,10,.82);color:#fff;display:flex;flex-direction:column;justify-content:center;padding:18px;text-align:center}.scask b{font-size:17px}.scask small{font-size:13px;opacity:.85;margin-top:4px}
+.pcard{padding:6px 6px 9px;display:flex;flex-direction:column;justify-content:flex-start}.pcard b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;padding:0 2px}.pcard span.pimg{margin:0 0 6px}.pcard>span:not(.pimg),.pcard small{padding:0 2px}
+.pimg{display:flex!important;align-items:center;justify-content:center;width:100%;aspect-ratio:1;border-radius:12px;background:#F6DCCF center/cover no-repeat;font:700 20px Poppins,system-ui!important;color:var(--pd)!important}
+.pth{width:40px;height:40px;border-radius:13px;background:var(--pl) center/cover no-repeat;display:flex;align-items:center;justify-content:center;flex:none;font:700 14px Poppins,system-ui;color:var(--pd)}
+.cusrch{position:relative;margin-top:10px}.cusrch input{padding-left:42px!important;padding-right:40px!important}.cusrch>i{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-style:normal;font-size:16px;pointer-events:none}
+.cusrch button{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:var(--pl);color:var(--pd);width:30px;height:30px;border-radius:99px;font-size:17px;cursor:pointer}
+.cuscan{padding:12px;font-size:14px}
+.pphoto{display:flex;gap:12px;align-items:center;margin-top:4px}.pphoto .pth{width:72px;height:72px;border-radius:18px;font-size:22px;border:1.5px dashed var(--pc)}
+.scguide{position:absolute;left:7%;right:7%;top:20%;bottom:20%;border:2.5px solid rgba(255,255,255,.92);border-radius:16px;box-shadow:0 0 0 999px rgba(0,0,0,.3);pointer-events:none}
+.scprog{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(20,14,10,.6);color:#fff;text-align:center;padding:16px;font-size:14px}
+.scpick{margin-top:12px;background:#fff;border:1.5px solid var(--pc);border-radius:18px;padding:12px}.scpick>b{display:block;font-size:15px;color:var(--pd);margin-bottom:6px}
+.scopt{display:flex;gap:10px;align-items:center;width:100%;border:1.5px solid var(--line);background:#fff;border-radius:14px;padding:8px;margin-bottom:8px;font-family:Poppins,system-ui;text-align:left;cursor:pointer;color:var(--ink)}
+.scopt .pth{width:46px;height:46px}.scopt b{display:block;font-size:14px}.scopt small{color:var(--sage);font-weight:600;font-size:12.5px}.scopt:active{background:var(--pl);border-color:var(--sage)}
+.scnew{margin-top:10px;display:flex;align-items:center;gap:8px;justify-content:space-between;background:var(--pl);border-radius:14px;padding:8px 12px;font-size:12.5px;color:var(--pd)}
 .shoplogo{width:76px;height:76px;border-radius:18px;background:#FBEFE9;border:1.5px dashed #E7B9A5;display:flex;align-items:center;justify-content:center;font-size:30px;overflow:hidden;flex:none}.shoplogo img{width:100%;height:100%;object-fit:contain;background:#fff}
 .micwrap{position:relative;display:block}
 .micwrap textarea{padding-bottom:46px}
@@ -1209,11 +1222,12 @@ ckmore(){const M=ckLoad();const SECT=[["ckwal","👛 Dompet","Saldo per dompet &
 function acc(){return JSON.parse(lsGet(AKEY)||"null");}
 /* ===== Catat Usaha ===== */
 const CUID="catat-usaha-id", CUKEY="catatusaha.v1";
-let CU=null, cuOpen=null, cuMon=null, cuCustOpen=null, cuFilt="all", cuDraft=null;
+let CU=null, cuOpen=null, cuMon=null, cuCustOpen=null, cuFilt="all", cuDraft=null, cuCat="";
 const CUEXP=[["bahan","🧺","Bahan baku"],["kemasan","📦","Kemasan"],["ops","⚙️","Operasional"],["sewa","🏠","Sewa tempat"],["gaji","👥","Gaji / upah"],["kirim","🛵","Ongkir & transport"],["promo","📣","Promosi"],["alat","🛠️","Alat & perlengkapan"],["lain","✨","Lainnya"]];
 const CUUNIT=["pcs","porsi","box","pack","kg","gram","liter","lusin","paket"];
 function cuLoad(){if(CU)return CU;try{CU=JSON.parse(lsGet(CUKEY)||"null");}catch(e){}
-  CU=Object.assign({shop:{n:"",addr:"",wa:"",foot:"Terima kasih sudah berbelanja 🤍"},prod:[],cust:[],sales:[],exp:[],seq:0},CU||{});return CU;}
+  CU=Object.assign({shop:{n:"",addr:"",wa:"",foot:"Terima kasih sudah berbelanja 🤍"},prod:[],cust:[],sales:[],exp:[],seq:0},CU||{});
+  if(!cuImgReady)cuImgInit().then(()=>{if(Object.keys(CUIMG).length&&/^cu/.test(view)&&!document.querySelector(".modal")&&document.activeElement.tagName!=="INPUT")render();});return CU;}
 function cuSave(){lsSet(CUKEY,JSON.stringify(CU));}
 const cuTot=s=>Math.max(0,s.items.reduce((a,i)=>a+i.q*i.price,0)-(+s.disc||0));
 const cuPaid=s=>(s.pays||[]).reduce((a,p)=>a+p.amt,0);
@@ -1232,24 +1246,32 @@ function cuSaleRow(s){const c=cuCust(s.cust);return `<button class="txr" data-sa
 function cuBindSales(){app.querySelectorAll("[data-sale]").forEach(b=>b.onclick=()=>{cuOpen=b.dataset.sale;go("cunota");});}
 const cuMonNav=ym=>`<div class="card" style="padding:10px 12px"><div class="row" style="align-items:center"><button class="icon" id="mPrev">‹</button><b style="flex:1;text-align:center;font-size:15px">${ymLabel(ym)}</b><button class="icon" id="mNext">›</button></div></div>`;
 function cuBindMon(v){$("#mPrev").onclick=()=>{cuMon=ymShift(cuMon,-1);CUV[v]();};$("#mNext").onclick=()=>{cuMon=ymShift(cuMon,1);CUV[v]();};}
-function cuProdSheet(p,preset){const M=cuLoad(),ed=!!(p&&p.id);p=p||Object.assign({n:"",price:0,cost:0,unit:"pcs",stock:null,cat:""},preset||{});
+function cuProdSheet(p,preset,cb){const M=cuLoad(),ed=!!(p&&p.id);p=p||Object.assign({n:"",price:0,cost:0,unit:"pcs",stock:null,cat:"",keys:""},preset||{});let img=ed?(CUIMG[p.id]||null):null;
   const e=document.createElement("div");e.className="modal";
   e.innerHTML=`<div class="sheet" style="max-height:88vh;overflow:auto"><h3>${ed?"Ubah produk":"Produk baru"}</h3>
+  <label class="kl">Foto produk <small>(opsional)</small></label><div class="pphoto"><span id="phT"></span><div style="flex:1"><button class="btn light" id="phB" type="button" style="padding:10px;font-size:13.5px">📷 Ambil / pilih foto</button><button class="mini hidden" id="phD" type="button" style="margin-top:4px">Hapus foto</button></div><input type="file" id="phF" accept="image/*" class="hidden"></div>
   <label class="kl">Nama produk</label><input type="text" id="pn" value="${esc(p.n)}" placeholder="misal: Brownies kukus">
   <div class="row"><div style="flex:1"><label class="kl">Harga jual</label>${amtInput("pp",p.price)}</div><div style="flex:1"><label class="kl">Harga modal <small>(opsional)</small></label>${amtInput("pc",p.cost)}</div></div>
   <div class="row"><div style="flex:1"><label class="kl">Satuan</label><select id="pu">${CUUNIT.map(u=>`<option ${u===p.unit?"selected":""}>${u}</option>`).join("")}</select></div>
    <div style="flex:1"><label class="kl">Stok <small>(opsional)</small></label><input type="text" inputmode="numeric" id="ps" value="${p.stock==null?"":p.stock}" placeholder="kosongkan = tidak dihitung"></div></div>
   <label class="kl">Barcode <small>(opsional)</small></label><div class="row"><input type="text" id="pb" inputmode="numeric" value="${esc(p.code||"")}" placeholder="scan atau ketik kode" style="flex:1;min-width:0"><button class="icon" id="pbS" type="button">📷</button></div><p class="small" id="pbh" style="margin:6px 0 0;min-height:0"></p>
+  <label class="kl">Tulisan di kemasan <small>(opsional, bantu scan nama)</small></label><div class="row"><input type="text" id="pkw" value="${esc(p.keys||"")}" placeholder="misal: indomie goreng rendang" style="flex:1;min-width:0"><button class="icon" id="pkwS" type="button" title="Baca dari kemasan">🔤</button></div><p class="small" style="margin:6px 0 0">Ketuk 🔤 lalu arahkan kamera ke kemasan, aplikasi ikut membaca tulisannya.</p>
   <label class="kl">Kategori <small>(opsional)</small></label><input type="text" id="pk" value="${esc(p.cat||"")}" placeholder="misal: Kue, Minuman" list="pkl"><datalist id="pkl">${[...new Set(M.prod.map(x=>x.cat).filter(Boolean))].map(c=>`<option value="${esc(c)}">`).join("")}</datalist>
   <button class="btn" id="psv" style="margin-top:16px">✓ Simpan</button>${ed?`<button class="btn ghost" id="pdl" style="margin-top:8px">Hapus produk</button>`:`<button class="btn ghost" id="px" style="margin-top:8px">Batal</button>`}</div>`;
   document.body.appendChild(e);["#pp","#pc"].forEach(s=>bindAmt(e.querySelector(s)));const pLook=async c=>{const pn=e.querySelector("#pn"),hint=e.querySelector("#pbh");if(!c||pn.value.trim())return;hint.textContent="🔎 Mencari nama produk…";const n=await cuLookup(c);if(n&&!pn.value.trim()){pn.value=n;hint.textContent="✓ Nama terisi otomatis dari Open Food Facts. Cek & ubah kalau perlu.";}else hint.textContent=n?"":"Nama produk tidak ditemukan, ketik manual ya.";};
   e.querySelector("#pbS").onclick=()=>cuScan(c=>{e.querySelector("#pb").value=c;pLook(c);});e.querySelector("#pb").onchange=()=>pLook(e.querySelector("#pb").value.trim());
   if(preset&&preset.code&&!ed)pLook(preset.code);e.onclick=x=>{if(x.target===e)e.remove();};
+  const phR=()=>{e.querySelector("#phT").innerHTML=img?`<span class="pth" style="background-image:url(${img})"></span>`:`<span class="pth">📷</span>`;e.querySelector("#phD").classList.toggle("hidden",!img);};phR();
+  e.querySelector("#phB").onclick=()=>e.querySelector("#phF").click();e.querySelector("#phT").onclick=()=>e.querySelector("#phF").click();
+  e.querySelector("#phF").onchange=async x=>{const d=await cuPhotoFile(x.target.files[0]);x.target.value="";if(d){img=d;phR();}};e.querySelector("#phD").onclick=()=>{img=null;phR();};
+  e.querySelector("#pkwS").onclick=()=>cuScanText(null,{learn:(sel)=>{const kw=e.querySelector("#pkw"),cur=kw.value.split(",").map(t=>t.trim()).filter(Boolean);sel.forEach(t=>{if(!cur.includes(t))cur.push(t);});kw.value=cur.join(", ");
+    const pn=e.querySelector("#pn");if(!pn.value.trim())pn.value=sel[0].split(" ").map(w=>w[0].toUpperCase()+w.slice(1)).join(" ");toast("Tulisan kemasan tersimpan di form ✓");}});
   if(e.querySelector("#px"))e.querySelector("#px").onclick=()=>e.remove();
   e.querySelector("#psv").onclick=()=>{const n=e.querySelector("#pn").value.trim(),pr=parseAmt(e.querySelector("#pp").value);if(!n||!pr){toast("Isi nama & harga jual");return;}
-    const sv=e.querySelector("#ps").value.trim();const o={n,price:pr,cost:parseAmt(e.querySelector("#pc").value),unit:e.querySelector("#pu").value,stock:sv===""?null:(+sv.replace(/[^\d-]/g,"")||0),cat:e.querySelector("#pk").value.trim(),code:e.querySelector("#pb").value.trim()};
-    if(ed)Object.assign(p,o);else M.prod.push(Object.assign({id:uid()},o));cuSave();e.remove();toast("Produk tersimpan ✓");render();};
-  if(e.querySelector("#pdl"))e.querySelector("#pdl").onclick=()=>confirmBox("Hapus produk ini?",esc(p.n)+" · nota lama tetap aman.",()=>{M.prod=M.prod.filter(x=>x.id!==p.id);cuSave();e.remove();render();},"Hapus");}
+    const sv=e.querySelector("#ps").value.trim();const o={n,price:pr,cost:parseAmt(e.querySelector("#pc").value),unit:e.querySelector("#pu").value,stock:sv===""?null:(+sv.replace(/[^\d-]/g,"")||0),cat:e.querySelector("#pk").value.trim(),code:e.querySelector("#pb").value.trim(),keys:e.querySelector("#pkw").value.trim()};
+    let obj=p;if(ed)Object.assign(p,o);else{obj=Object.assign({id:uid()},o);M.prod.push(obj);}cuSave();
+    if(img!==(CUIMG[obj.id]||null))cuImgPut(obj.id,img);e.remove();toast("Produk tersimpan ✓");if(cb)cb(obj);else render();};
+  if(e.querySelector("#pdl"))e.querySelector("#pdl").onclick=()=>confirmBox("Hapus produk ini?",esc(p.n)+" · nota lama tetap aman.",()=>{M.prod=M.prod.filter(x=>x.id!==p.id);cuSave();cuImgPut(p.id,null);e.remove();render();},"Hapus");}
 function cuCustSheet(c,cb){const M=cuLoad(),ed=!!c;c=c||{n:"",wa:"",addr:""};
   const e=document.createElement("div");e.className="modal";
   e.innerHTML=`<div class="sheet"><h3>${ed?"Ubah pelanggan":"Pelanggan baru"}</h3>
@@ -1314,6 +1336,96 @@ async function cuLookup(code){if(!/^\d{8,14}$/.test(code))return null;
         const br=(p.brands||"").split(",")[0].trim();let n=(br&&!nm.toLowerCase().includes(br.toLowerCase())?br+" ":"")+nm;if(p.quantity&&!n.includes(p.quantity))n+=" "+p.quantity;return n.replace(/\s+/g," ").slice(0,80);}
     }catch(x){}}
   return null;}
+/* ---- foto produk (IndexedDB, tetap di HP) ---- */
+let _cuDB=null;function cuDB(){if(_cuDB)return _cuDB;_cuDB=new Promise((ok,no)=>{try{const r=indexedDB.open("catatusaha",1);r.onupgradeneeded=()=>r.result.createObjectStore("img");r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error);}catch(e){no(e);}});_cuDB.catch(()=>{_cuDB=null;});return _cuDB;}
+const CUIMG={};let cuImgReady=null;
+function cuImgInit(){if(cuImgReady)return cuImgReady;cuImgReady=cuDB().then(db=>new Promise(ok=>{const rq=db.transaction("img").objectStore("img").openCursor();rq.onsuccess=()=>{const c=rq.result;if(c){CUIMG[c.key]=c.value;c.continue();}else ok(true);};rq.onerror=()=>ok(false);})).catch(()=>false);return cuImgReady;}
+function cuImgPut(id,v){if(v)CUIMG[id]=v;else delete CUIMG[id];return cuDB().then(db=>new Promise(ok=>{const t=db.transaction("img","readwrite"),st=t.objectStore("img");v?st.put(v,id):st.delete(id);t.oncomplete=()=>ok(true);t.onerror=()=>{if(v)toast("Foto gagal disimpan");ok(false);};})).catch(()=>{if(v)toast("Foto gagal disimpan");});}
+function cuPhotoFile(file){return new Promise(ok=>{if(!file)return ok(null);const u=URL.createObjectURL(file),im=new Image();
+  im.onload=()=>{const S=240,s=Math.min(im.naturalWidth,im.naturalHeight),cv=document.createElement("canvas");cv.width=cv.height=S;const x=cv.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,S,S);x.drawImage(im,(im.naturalWidth-s)/2,(im.naturalHeight-s)/2,s,s,0,0,S,S);URL.revokeObjectURL(u);ok(cv.toDataURL("image/jpeg",.78));};
+  im.onerror=()=>{URL.revokeObjectURL(u);toast("Foto tidak bisa dibaca");ok(null);};im.src=u;});}
+const CUTC=["#F6DCCF","#FBE9C7","#F3D6DC","#EFE1D3","#F8E3D2"];
+function cuThumb(p,cls){const im=CUIMG[p.id];if(im)return `<span class="${cls}" style="background-image:url(${im})"></span>`;
+  const w=String(p.n||"?").trim().split(/\s+/),ini=(w[0][0]+(w[1]?w[1][0]:"")).toUpperCase();let h=0;for(const ch of String(p.id||p.n))h=(h*31+ch.charCodeAt(0))>>>0;
+  return `<span class="${cls} ini" style="background-color:${CUTC[h%CUTC.length]}">${esc(ini)}</span>`;}
+
+/* ---- pencocokan teks kemasan ↔ daftar produk ---- */
+const cuNorm=s=>String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g," ").trim();
+const cuSkel=t=>t.replace(/0/g,"o").replace(/[1l]/g,"i").replace(/5/g,"s").replace(/8/g,"b").replace(/rn/g,"m").replace(/vv/g,"w");
+const cuToks=s=>cuNorm(s).split(" ").filter(t=>t.length>=2).map(cuSkel);
+function cuLev(a,b){if(a===b)return 0;const m=a.length,n=b.length;if(!m)return n;if(!n)return m;let p=[];for(let j=0;j<=n;j++)p[j]=j;
+  for(let i=1;i<=m;i++){const c=[i];for(let j=1;j<=n;j++)c[j]=Math.min(p[j]+1,c[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));p=c;}return p[n];}
+function cuTokSim(t,O,J){let b=0;for(const o of O){if(o===t)return 1;let s=1-cuLev(t,o)/Math.max(t.length,o.length);if(t.length>=4&&o.includes(t))s=Math.max(s,.95);if(s>b)b=s;}
+  if(b<.9&&t.length>=4&&J.includes(t))b=.9;return b;}
+function cuMatch(O){const P=cuLoad().prod;if(!P.length||!O.length)return [];const J=O.join(""),df={};
+  const PT=P.map(p=>{const n=[...new Set(cuToks(p.n))],k=[...new Set(cuToks(p.keys||""))];new Set([...n,...k]).forEach(t=>df[t]=(df[t]||0)+1);return [p,n,k];});
+  const sc=T=>{if(!T.length)return [0,0];let W=0,S=0,hit=0;T.forEach(t=>{const w=Math.min(t.length,7)/7/Math.sqrt(df[t]),s=cuTokSim(t,O,J);W+=w;const g=s>=.8?s:s>=.67?s*.5:0;S+=w*g;if(g)hit+=w;});return [S/W,hit];};
+  return PT.map(([p,n,k])=>{const a=sc(n),b=k.length?sc(k):[0,0],m=a[0]>=b[0]?a:b;return {p,s:m[0]+Math.min(m[1],3)*.01};}).filter(r=>r.s>=.2).sort((a,b)=>b.s-a.s);}
+function cuOcrToks(L){const T=[];L.forEach(l=>cuToks(l.t).forEach(t=>{if(/[a-z]/.test(t)||t.length>=3)T.push(t);}));return [...new Set(T)];}
+function cuBigLine(L){const c=L.filter(l=>(cuNorm(l.t).match(/[a-z]/g)||[]).length>=3).sort((a,b)=>b.h-a.h)[0];if(!c)return "";
+  return cuNorm(c.t).split(" ").map(w=>w[0].toUpperCase()+w.slice(1)).join(" ").slice(0,60);}
+function cuLearn(p,L){const big=cuNorm(cuBigLine(L));if(!big||big.length<3)return;const nT=new Set(cuToks(p.n)),bt=cuToks(big);if(bt.every(t=>nT.has(t)))return;
+  const ks=(p.keys||"").split(",").map(s=>s.trim()).filter(Boolean);if(ks.map(cuNorm).includes(big))return;ks.push(big);while(ks.join(", ").length>160)ks.shift();p.keys=ks.join(", ");cuSave();}
+
+/* ---- scan nama kemasan: OCR berjalan di HP (Tesseract.js, tanpa server) ---- */
+let _tess=null,_tw=null,_tProg=null;
+function cuLoadTess(){if(window.Tesseract)return Promise.resolve();if(_tess)return _tess;_tess=new Promise((ok,no)=>{const sc=document.createElement("script");sc.src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js";sc.onload=ok;sc.onerror=()=>{_tess=null;sc.remove();no();};document.head.appendChild(sc);});return _tess;}
+async function cuOcr(){if(!_tw){_tw=cuLoadTess().then(()=>Tesseract.createWorker("eng",1,{logger:m=>{if(_tProg&&m.status&&!/recogniz/i.test(m.status))_tProg(m.progress||0);}}))
+    .then(async w=>{await w.setParameters({tessedit_pageseg_mode:"11"});return w;});_tw.catch(()=>{_tw=null;});}
+  const w=await _tw;
+  return async cv=>{const {data}=await w.recognize(cv);
+    if(data.lines&&data.lines.length)return data.lines.map(l=>({t:(l.words||[]).filter(x=>x.confidence>=40).map(x=>x.text).join(" "),h:l.bbox.y1-l.bbox.y0})).filter(l=>l.t.trim());
+    return String(data.text||"").split("\n").filter(t=>t.trim()).map(t=>({t,h:10}));};}
+function cuGrab(v,inv){const vw=v.videoWidth,vh=v.videoHeight;if(!vw||!vh)return null;const sw=vw*.86,sh=vh*.6,sc=Math.min(1,1000/sw);
+  const cv=document.createElement("canvas");cv.width=Math.round(sw*sc);cv.height=Math.round(sh*sc);const x=cv.getContext("2d",{willReadFrequently:true});
+  x.drawImage(v,(vw-sw)/2,(vh-sh)/2,sw,sh,0,0,cv.width,cv.height);const id=x.getImageData(0,0,cv.width,cv.height),d=id.data;let mn=255,mx=0;
+  for(let i=0;i<d.length;i+=4){const g=(d[i]*.3+d[i+1]*.59+d[i+2]*.11)|0;d[i]=g;if(g<mn)mn=g;if(g>mx)mx=g;}const k=255/Math.max(40,mx-mn);
+  for(let i=0;i<d.length;i+=4){let g=(d[i]-mn)*k;if(inv)g=255-g;d[i]=d[i+1]=d[i+2]=g;}x.putImageData(id,0,0);return cv;}
+/* onProd(p,L) → sama seperti scan barcode: {flash}|{ask}|false. opts: {learn:fn(lines), onNew:fn(nama,teks), toBarcode:fn} */
+function cuScanText(onProd,opts){opts=opts||{};const learn=!!opts.learn;const e=document.createElement("div");e.className="modal";
+  e.innerHTML=`<div class="sheet"><div class="row" style="align-items:center"><h3 style="flex:1;margin:0">🔤 ${learn?"Baca tulisan kemasan":"Scan nama kemasan"}</h3>${opts.toBarcode?`<button class="mini" id="scBar" style="color:var(--sage);font-weight:700">▮▮ Barcode</button>`:""}</div>
+  <p class="small" id="scS" style="margin-top:6px">Menyiapkan kamera…</p>
+  <div class="scanbox"><video id="scV" playsinline muted autoplay></video><div class="scguide"></div><div class="scprog hidden" id="scG"><b></b></div><div class="scflash" id="scF"></div>
+   <div class="scask hidden" id="scA"><b id="scAt"></b><small id="scAs"></small><div class="row" style="margin-top:12px"><button class="btn ghost" id="scNo" style="background:#fff">Lewati</button><button class="btn" id="scYes">＋ Tambah 1 lagi</button></div></div></div>
+  <div class="scpick hidden" id="scP"><b>${learn?"Tulisan yang terbaca":"Maksudnya ini?"}</b><p class="small" style="margin:-4px 0 8px">${learn?"Ketuk tulisan yang ada di kemasan produk ini.":"Ketuk produk yang benar, nanti aplikasi ingat."}</p><div id="scPL"></div>
+   <div class="row" style="margin-top:4px">${learn?`<button class="btn ghost" id="scPN">Baca ulang</button><button class="btn" id="scPY">✓ Pakai</button>`:`<button class="btn ghost" id="scPN">Bukan semua · scan lagi</button>`}</div></div>
+  <div class="scnew hidden" id="scN"><span>Belum ada produk yang cocok.</span>${opts.onNew?`<button class="mini" id="scNB" style="color:var(--sage);font-weight:700">＋ Daftarkan</button>`:""}</div>
+  <button class="btn ghost" id="scX" style="margin-top:10px">${learn?"Batal":"Selesai"}</button></div>`;
+  document.body.appendChild(e);const q=s=>e.querySelector(s),v=q("#scV"),st=q("#scS");let stream=null,alive=true,paused=false,eng=null,k=0,R=[],prevTop=null,doubt=0,miss=0,lastL=[],cool={};
+  const stop=()=>{alive=false;_tProg=null;if(stream)stream.getTracks().forEach(t=>t.stop());e.remove();};
+  const sleep=ms=>new Promise(r=>setTimeout(r,ms));const flash=t=>{const f=q("#scF");f.textContent=t;f.classList.remove("on");void f.offsetWidth;f.classList.add("on");};
+  const reset=()=>{R=[];prevTop=null;doubt=0;miss=0;q("#scN").classList.add("hidden");};
+  const resume=ms=>{setTimeout(()=>{paused=false;},ms||600);};
+  const ask=a=>{paused=true;const A=q("#scA");q("#scAt").textContent=a.title;q("#scAs").textContent=a.sub||"";A.classList.remove("hidden");
+    const done=()=>{A.classList.add("hidden");reset();resume(800);};
+    q("#scYes").onclick=()=>{done();const r=a.yes&&a.yes();if(r&&r.flash)flash(r.flash);};q("#scNo").onclick=()=>{done();if(a.pid)cool[a.pid]=Date.now()+8000;st.textContent="Dilewati · arahkan ke kemasan berikutnya…";};};
+  const pick=(p,L,learnIt)=>{if(learnIt)cuLearn(p,L);cool[p.id]=Date.now()+2500;try{navigator.vibrate&&navigator.vibrate(60);}catch(x){}
+    const r=onProd(p,L);reset();if(r&&r.ask){r.ask.pid=p.id;ask(r.ask);return;}if(r===false){stop();return;}if(r&&r.flash)flash(r.flash);st.textContent="Arahkan ke kemasan berikutnya…";};
+  const showPick=(C,L)=>{paused=true;const P=q("#scP");q("#scPL").innerHTML=C.map((c,i)=>`<button class="scopt" data-i="${i}">${cuThumb(c.p,"pth")}<span><b>${esc(c.p.n)}</b><small>${rp(c.p.price)}</small></span></button>`).join("");P.classList.remove("hidden");
+    P.querySelectorAll("[data-i]").forEach(b=>b.onclick=()=>{P.classList.add("hidden");pick(C[+b.dataset.i].p,L,true);resume(900);});
+    q("#scPN").onclick=()=>{P.classList.add("hidden");C.forEach(c=>cool[c.p.id]=Date.now()+5000);reset();resume(300);st.textContent="Scan lagi… dekatkan ke nama produk";};};
+  const showLearn=L=>{paused=true;const P=q("#scP"),lines=[...L].sort((a,b)=>b.h-a.h).map(l=>cuNorm(l.t)).filter(t=>t.length>=3).filter((t,i,a)=>a.indexOf(t)===i).slice(0,8);
+    if(!lines.length){resume(200);return;}const sel=new Set([lines[0]]);
+    q("#scPL").innerHTML=`<div class="chips" style="flex-wrap:wrap">${lines.map((t,i)=>`<button class="fchip ${i?"":"on"}" data-t="${esc(t)}">${esc(t)}</button>`).join("")}</div>`;P.classList.remove("hidden");
+    P.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{const t=b.dataset.t;sel.has(t)?sel.delete(t):sel.add(t);b.classList.toggle("on",sel.has(t));});
+    q("#scPN").onclick=()=>{P.classList.add("hidden");resume(200);};q("#scPY").onclick=()=>{if(!sel.size){toast("Pilih minimal satu tulisan");return;}opts.learn([...sel],L);stop();};};
+  const handle=L=>{const O=cuOcrToks(L);if(!O.length){st.textContent="Arahkan ke tulisan nama produk di kemasan…";return;}
+    if(learn){showLearn(L);return;}lastL=L;R.push(O);if(R.length>2)R.shift();
+    const now=Date.now(),M=cuMatch([...new Set(R.flat())]).filter(r=>!(cool[r.p.id]>now));const top=M[0],gap=top?top.s-(M[1]?M[1].s:0):0;
+    if(top&&((top.s>=.9&&gap>=.25)||(top.s>=.75&&gap>=.2&&prevTop===top.p.id))){pick(top.p,L,false);return;}
+    prevTop=top?top.p.id:null;
+    if(top&&top.s>=.4){miss=0;st.textContent="Hampir ketemu… tahan sebentar";if(++doubt>=2){showPick(M.filter(r=>r.s>=.3).slice(0,3),L);}return;}
+    doubt=0;st.textContent="Membaca tulisan…";if(O.join("").length>=5&&++miss>=4){const big=cuBigLine(L);const N=q("#scN");N.classList.remove("hidden");
+      if(q("#scNB")){q("#scNB").textContent="＋ Daftarkan"+(big?" “"+big+"”":"");q("#scNB").onclick=()=>{stop();opts.onNew(big,cuNorm(cuBigLine(L)));};}}};
+  q("#scX").onclick=stop;if(q("#scBar"))q("#scBar").onclick=()=>{stop();opts.toBarcode();};
+  (async()=>{try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment",width:{ideal:1920},height:{ideal:1080}}});if(!alive){stream.getTracks().forEach(t=>t.stop());return;}
+      v.srcObject=stream;await v.play();}catch(err){st.innerHTML="Kamera tidak bisa dibuka. Izinkan akses kamera di browser, atau pakai kotak cari produk.";return;}
+    const G=q("#scG");if(!_tw){G.classList.remove("hidden");G.querySelector("b").textContent="Menyiapkan pembaca tulisan…";}
+    _tProg=p=>{G.querySelector("b").textContent="Menyiapkan pembaca tulisan… "+Math.round(p*100)+"%";};
+    try{eng=await cuOcr();}catch(err){G.classList.add("hidden");st.innerHTML="Pembaca tulisan gagal dimuat. Pastikan ada internet untuk pemakaian pertama, lalu coba lagi.";return;}
+    G.classList.add("hidden");_tProg=null;st.textContent=learn?"Arahkan ke tulisan di kemasan produk ini…":"Arahkan kamera ke nama produk di kemasan…";
+    while(alive){if(paused){await sleep(250);continue;}const cv=cuGrab(v,k++%2===1);if(!cv){await sleep(300);continue;}let L=[];try{L=await eng(cv);}catch(x){await sleep(500);}
+      if(!alive)return;if(!paused)handle(L);await sleep(120);}})();}
 /* ---- nota image / pdf ---- */
 let CULOGO={src:null,img:null};function cuLogoImg(){const L=cuLoad().shop.logo;if(!L)return null;if(CULOGO.src!==L){CULOGO.src=L;CULOGO.img=new Image();CULOGO.img.src=L;}return CULOGO.img.complete&&CULOGO.img.naturalWidth?CULOGO.img:null;}
 function cuNotaReady(cb){const L=cuLoad().shop.logo;if(!L)return cb();cuLogoImg();const im=CULOGO.img;if(im.complete&&im.naturalWidth)return cb();im.onload=()=>cb();im.onerror=()=>cb();}
@@ -1389,11 +1501,16 @@ cuhome(){const M=cuLoad(),ym=ymNow(),st=cuMonthStats(ym),[sal]=greet(),tdS=M.sal
   ${rec.length?`<div class="card" style="padding:6px 14px">${rec.map(cuSaleRow).join("")}</div>`:`<div class="card"><p class="small" style="margin:0">Belum ada nota. Tambahkan produkmu dulu, lalu buat nota pertama 🌱</p></div>`}</div>`;
   cuBind();cuBindSales();$("#cuNew").onclick=()=>{cuDraft=cuNewDraft();go("cunew");};$("#cuExp").onclick=()=>cuExpSheet();},
 cunew(){const M=cuLoad(),D=cuDraft=cuDraft||cuNewDraft();const tot=Math.max(0,D.items.reduce((a,i)=>a+i.q*i.price,0)-(+D.disc||0));
-  const cats=[...new Set(M.prod.map(p=>p.cat).filter(Boolean))];
-  app.innerHTML=`<div class="wrap">${cuHead("Nota baru","Ketuk produk untuk menambahkan",["cuhome","Beranda"])}
+  const cats=[...new Set(M.prod.map(p=>p.cat).filter(Boolean))];if(cuCat&&!cats.includes(cuCat))cuCat="";
+  const fq={};M.sales.forEach(x=>x.items.forEach(i=>{if(i.p)fq[i.p]=(fq[i.p]||0)+i.q;}));const PS=[...M.prod].sort((a,b)=>(fq[b.id]||0)-(fq[a.id]||0)||a.n.localeCompare(b.n));
+  app.innerHTML=`<div class="wrap">${cuHead("Nota baru","Scan kemasan, cari, atau ketuk produk",["cuhome","Beranda"])}
   <label class="kl">Pelanggan</label><div class="row"><select id="nc" style="flex:1"><option value="">Pelanggan umum</option>${M.cust.map(c=>`<option value="${c.id}" ${D.cust===c.id?"selected":""}>${esc(c.n)}</option>`).join("")}</select><button class="icon" id="ncAdd" title="Pelanggan baru">＋</button></div>
-  <div class="sec"><h3>Produk</h3><span><button class="mini" id="nScan" style="color:var(--sage);font-weight:700">📷 Scan</button> <button class="mini" id="nProd">＋ Produk baru</button></span></div>
-  ${M.prod.length?`<div class="pgrid">${M.prod.map(p=>{const it=D.items.find(i=>i.p===p.id);return `<button class="pcard ${it?"on":""}" data-add="${p.id}"><b>${esc(p.n)}</b><span>${rp(p.price)}</span>${p.stock!=null?`<small>stok ${p.stock}</small>`:""}${it?`<i>${it.q}</i>`:""}</button>`;}).join("")}</div>`:`<div class="card"><p class="small" style="margin:0">Belum ada produk. Ketuk <b>＋ Produk baru</b>, atau tambahkan barang manual di bawah.</p></div>`}
+  <div class="sec"><h3>Produk</h3><span><button class="mini" id="nProd">＋ Produk baru</button></span></div>
+  <div class="row"><button class="btn cuscan" id="nScanT">🔤 Scan nama kemasan</button><button class="btn light cuscan" id="nScan" style="flex:0 0 36%">▮▮ Barcode</button></div>
+  ${M.prod.length?`<div class="cusrch"><i>🔎</i><input type="text" id="nQ" inputmode="search" enterkeyhint="search" autocomplete="off" placeholder="Cari produk… ketik 2–3 huruf"><button id="nQx" class="hidden" aria-label="Hapus">×</button></div>
+  ${cats.length?`<div class="chips">${["",...cats].map(c=>`<button class="fchip ${cuCat===c?"on":""}" data-cat="${esc(c)}">${c?esc(c):"Semua"}</button>`).join("")}</div>`:""}
+  <div class="pgrid">${PS.map(p=>{const it=D.items.find(i=>i.p===p.id);return `<button class="pcard ${it?"on":""}" data-add="${p.id}" data-s="${esc(cuNorm(p.n+" "+(p.keys||"")+" "+(p.cat||"")))}" data-c="${esc(p.cat||"")}">${cuThumb(p,"pimg")}<b>${esc(p.n)}</b><span>${rp(p.price)}</span>${p.stock!=null?`<small>stok ${p.stock}</small>`:""}${it?`<i>${it.q}</i>`:""}</button>`;}).join("")}</div>
+  <div class="card hidden" id="nQe" style="margin-top:8px"><p class="small" style="margin:0">Produk tidak ketemu.</p><button class="btn light" id="nQadd" style="margin-top:10px;padding:11px;font-size:13.5px"><span>＋ Tambah “<b></b>” sebagai produk baru</span></button></div>`:`<div class="card"><p class="small" style="margin:0">Belum ada produk. Ketuk <b>＋ Produk baru</b>, atau tambahkan barang manual di bawah.</p></div>`}
   <div class="row" style="margin-top:10px"><input type="text" id="mn" placeholder="Barang lain" style="flex:1.3;min-width:0">${amtInput("mp","","Harga").replace('class="amtw"','class="amtw sm" style="margin:0;flex:1;width:auto"')}<button class="icon" id="mAdd">＋</button></div>
   <div class="sec"><h3>Isi nota</h3></div>
   <div class="card" style="padding:6px 14px">${D.items.length?D.items.map((i,k)=>`<div class="nrow"><div class="txm"><b>${esc(i.n)}</b><small>${rp(i.price)}${i.unit?" / "+i.unit:""}</small></div><div class="qty"><button data-q="${k}:-1">−</button><b>${i.q}</b><button data-q="${k}:1">＋</button></div><b class="nsum">${rp(i.q*i.price)}</b></div>`).join(""):`<p class="small" style="margin:10px 0">Belum ada barang.</p>`}
@@ -1406,11 +1523,23 @@ cunew(){const M=cuLoad(),D=cuDraft=cuDraft||cuNewDraft();const tot=Math.max(0,D.
   cuBind(["cuhome","Beranda"]);const keep=()=>{D.cust=$("#nc").value;D.disc=parseAmt($("#nd").value);D.d=$("#ndt").value||today();D.note=$("#nnt").value;if($("#npd"))D.paid=parseAmt($("#npd").value);};
   bindAmt($("#mp"));bindAmt($("#nd"),()=>{keep();});if($("#npd"))bindAmt($("#npd"));
   $("#nd").onchange=()=>{keep();CUV.cunew();};
-  $("#nScan").onclick=()=>{keep();let added=0;cuScan(code=>{const p=M.prod.find(x=>(x.code||"")===code);
-    if(!p){confirmBox("Barcode belum terdaftar","Kode "+esc(code)+" belum ada di daftar produk. Tambahkan sebagai produk baru?",()=>cuProdSheet(null,{code}),"Tambah");return false;}
-    const it=D.items.find(i=>i.p===p.id);
+  const addP=p=>{const it=D.items.find(i=>i.p===p.id);
     if(it)return {ask:{title:p.n+" sudah ada di nota",sub:"Jumlah sekarang: "+it.q+". Tambah 1 lagi?",yes:()=>{it.q++;CUV.cunew();return {flash:"✓ "+p.n+" · jumlah "+it.q};}}};
-    D.items.push({p:p.id,n:p.n,q:1,price:p.price,cost:p.cost||0,unit:p.unit});added++;CUV.cunew();return {flash:"✓ "+p.n+" ditambahkan"};},{multi:true,title:"Scan produk"});};
+    D.items.push({p:p.id,n:p.n,q:1,price:p.price,cost:p.cost||0,unit:p.unit});CUV.cunew();return {flash:"✓ "+p.n+" ditambahkan"};};
+  const addNew=p=>{D.items.push({p:p.id,n:p.n,q:1,price:p.price,cost:p.cost||0,unit:p.unit});CUV.cunew();toast("✓ "+p.n+" masuk nota");};
+  const scanBar=()=>{keep();lsSet("cu.scan","bar");cuScan(code=>{const p=M.prod.find(x=>(x.code||"")===code);
+    if(!p){confirmBox("Barcode belum terdaftar","Kode "+esc(code)+" belum ada di daftar produk. Tambahkan sebagai produk baru?",()=>cuProdSheet(null,{code},addNew),"Tambah");return false;}
+    return addP(p);},{multi:true,title:"Scan barcode"});};
+  const scanText=()=>{keep();lsSet("cu.scan","text");if(!M.prod.length){toast("Daftarkan produkmu dulu, lalu scan kemasannya");cuProdSheet(null,null,addNew);return;}
+    cuScanText(p=>addP(p),{toBarcode:scanBar,onNew:(n,kw)=>cuProdSheet(null,{n,keys:kw},addNew)});};
+  $("#nScan").onclick=scanBar;$("#nScanT").onclick=scanText;
+  if($("#nQ")){const Q=$("#nQ"),filt=()=>{const q=cuNorm(Q.value),qs=q.split(" ").filter(Boolean),qj=q.replace(/ /g,"");let n=0;
+      app.querySelectorAll(".pgrid [data-add]").forEach(b=>{const sv=b.dataset.s,ws=sv.split(" ");const ok=(!qs.length||qs.every(t=>ws.some(w=>w.startsWith(t)))||sv.replace(/ /g,"").includes(qj))&&(!cuCat||b.dataset.c===cuCat);b.classList.toggle("hidden",!ok);if(ok)n++;});
+      $("#nQx").classList.toggle("hidden",!q);$("#nQe").classList.toggle("hidden",!!n||!q);$("#nQe b").textContent=Q.value.trim();};
+    Q.oninput=filt;$("#nQx").onclick=()=>{Q.value="";filt();Q.focus();};
+    Q.onkeydown=x=>{if(x.key==="Enter"){x.preventDefault();const b=app.querySelector(".pgrid [data-add]:not(.hidden)");if(b&&Q.value.trim())b.click();}};
+    app.querySelectorAll("[data-cat]").forEach(b=>b.onclick=()=>{cuCat=b.dataset.cat;app.querySelectorAll("[data-cat]").forEach(y=>y.classList.toggle("on",y===b));filt();});
+    $("#nQadd").onclick=()=>{keep();const n=Q.value.trim();cuProdSheet(null,{n:n.charAt(0).toUpperCase()+n.slice(1),cat:cuCat},addNew);};filt();}
   $("#nc").onchange=keep;$("#ncAdd").onclick=()=>{keep();cuCustSheet(null,id=>{D.cust=id;CUV.cunew();});};$("#nProd").onclick=()=>{keep();cuProdSheet();};
   app.querySelectorAll("[data-add]").forEach(b=>b.onclick=()=>{keep();const p=M.prod.find(x=>x.id===b.dataset.add);const it=D.items.find(i=>i.p===p.id);if(it)it.q++;else D.items.push({p:p.id,n:p.n,q:1,price:p.price,cost:p.cost||0,unit:p.unit});CUV.cunew();});
   app.querySelectorAll("[data-q]").forEach(b=>b.onclick=()=>{keep();const[k,d]=b.dataset.q.split(":").map(Number);D.items[k].q+=d;if(D.items[k].q<=0)D.items.splice(k,1);CUV.cunew();});
@@ -1451,7 +1580,7 @@ cusales(){const M=cuLoad();cuMon=cuMon||ymNow();const ym=cuMon;let L=M.sales.fil
   cuBind();cuBindMon("cusales");cuBindSales();app.querySelectorAll("[data-fl]").forEach(b=>b.onclick=()=>{cuFilt=b.dataset.fl;CUV.cusales();});$("#cuNew").onclick=()=>{cuDraft=cuNewDraft();go("cunew");};},
 cuprod(){const M=cuLoad();const cats=[...new Set(M.prod.map(p=>p.cat||"Lainnya"))];
   app.innerHTML=`<div class="wrap">${cuHead("Produk","Harga & stok tersimpan, tinggal ketuk saat buat nota.",["cuhome","Beranda"])}
-  ${cats.map(c=>`<div class="sec"><h3>${esc(c)}</h3></div><div class="card" style="padding:6px 14px">${M.prod.filter(p=>(p.cat||"Lainnya")===c).map(p=>`<button class="txr" data-p="${p.id}"><span class="txe">📦</span><span class="txm"><b>${esc(p.n)}</b><small>${rp(p.price)} / ${esc(p.unit||"pcs")}${p.cost?" · untung "+rp(p.price-p.cost):""}</small></span><span class="cust ${p.stock!=null&&p.stock<=5?"due":"ok"}">${p.stock==null?"stok bebas":"stok "+p.stock}</span></button>`).join("")}</div>`).join("")||`<div class="card"><p class="small" style="margin:0">Belum ada produk. Yuk tambahkan yang paling sering kamu jual 🌱</p></div>`}
+  ${cats.map(c=>`<div class="sec"><h3>${esc(c)}</h3></div><div class="card" style="padding:6px 14px">${M.prod.filter(p=>(p.cat||"Lainnya")===c).map(p=>`<button class="txr" data-p="${p.id}">${cuThumb(p,"pth")}<span class="txm"><b>${esc(p.n)}</b><small>${rp(p.price)} / ${esc(p.unit||"pcs")}${p.cost?" · untung "+rp(p.price-p.cost):""}</small></span><span class="cust ${p.stock!=null&&p.stock<=5?"due":"ok"}">${p.stock==null?"stok bebas":"stok "+p.stock}</span></button>`).join("")}</div>`).join("")||`<div class="card"><p class="small" style="margin:0">Belum ada produk. Yuk tambahkan yang paling sering kamu jual 🌱</p></div>`}
   <button class="btn" id="pAdd" style="margin-top:16px">＋ Produk baru</button></div>`;
   cuBind(["cuhome","Beranda"]);$("#pAdd").onclick=()=>cuProdSheet();app.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>cuProdSheet(M.prod.find(p=>p.id===b.dataset.p)));},
 cucust(){const M=cuLoad();
@@ -1513,7 +1642,7 @@ cumore(){const M=cuLoad();
   const L=[["cuprod","📦","Produk",M.prod.length+" produk"],["cucust","👥","Pelanggan",M.cust.length+" pelanggan"],["cuexp","🧺","Modal & biaya","catat pengeluaran usaha"],["cupiu","⏳","Belum lunas","piutang pelanggan"],["cushop","🏪","Profil toko","nama, alamat & WA di nota"]];
   app.innerHTML=`<div class="wrap">${cuHead("Lainnya","")}
   <div class="card" style="padding:6px 14px">${L.map(([v,e,a,b])=>`<button class="txr" data-go="${v}"><span class="txe">${e}</span><span class="txm"><b>${a}</b><small>${b}</small></span><span class="small">›</span></button>`).join("")}</div>
-  <div class="sec"><h3>Cadangkan data</h3><p>Datamu tersimpan di HP ini. Simpan kode cadangan supaya aman kalau ganti HP.</p></div>
+  <div class="sec"><h3>Cadangkan data</h3><p>Datamu tersimpan di HP ini. Simpan kode cadangan supaya aman kalau ganti HP. Foto produk tidak ikut di kode cadangan.</p></div>
   <div class="row"><button class="btn light" id="bk">⬇️ Salin kode cadangan</button><button class="btn light" id="rs">⬆️ Pulihkan</button></div>
   <p class="small" style="text-align:center;margin-top:20px">Butuh bantuan? DM Instagram <a href='https://instagram.com/littlesnoor' target='_blank' rel='noopener' style='color:var(--sage);font-weight:700'>@littlesnoor</a></p></div>`;
   cuBind();
@@ -1723,7 +1852,7 @@ view="shelf";boot();
 })();
 
 /* ===== Notifikasi pembaruan ===== */
-const APP_VERSION=57;
+const APP_VERSION=58;
 (function(){
   let shown=false;
   async function check(){
