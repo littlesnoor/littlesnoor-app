@@ -1,7 +1,8 @@
 {
- "v": 58,
+ "v": 59,
  "notes": [
-  "Catat Usaha: scan nama kemasan (kamera membaca tulisan produk)",
-  "Catat Usaha: foto produk + kotak cari cepat di nota"
+  "Catat Usaha: scan nama kemasan — kamera membaca tulisan produk, langsung masuk nota",
+  "Catat Usaha: foto produk + kotak cari cepat (ketik 2–3 huruf)",
+  "Scan barcode tetap ada sebagai pilihan"
  ]
 }

@@ -1852,7 +1852,7 @@ view="shelf";boot();
 })();
 
 /* ===== Notifikasi pembaruan ===== */
-const APP_VERSION=58;
+const APP_VERSION=59;
 (function(){
   let shown=false;
   async function check(){
@@ -1875,7 +1875,23 @@ const APP_VERSION=58;
       try{ const ks=await caches.keys(); await Promise.all(ks.map(k=>caches.delete(k))); }catch(e){}
       location.reload(); };
   }
-  setTimeout(check,2500);
+  /* info "yang baru" sekali setelah aplikasi diperbarui otomatis */
+  async function news(){
+    let seen=null; try{ seen=localStorage.getItem("ln.seenV"); }catch(e){}
+    const mark=()=>{ try{ localStorage.setItem("ln.seenV",String(APP_VERSION)); }catch(e){} };
+    if(seen===null){ let a=null; try{ a=acc(); }catch(e){} if(!a){ mark(); return; } seen="0"; }
+    if(+seen>=APP_VERSION||shown) return;
+    try{
+      const r=await fetch("version.json?t="+Date.now(),{cache:"no-store"}); if(!r.ok) return;
+      const v=await r.json(); if(!v||v.v!==APP_VERSION){ mark(); return; }
+      shown=true; const d=document.createElement("div"); d.className="updbar";
+      const notes=(v.notes||[]).slice(0,4).map(n=>"<li>"+String(n).replace(/[<>&]/g,c=>({"<":"&lt;",">":"&gt;","&":"&amp;"}[c]))+"</li>").join("");
+      d.innerHTML='<h4>✨ Ada yang baru di littles noor!</h4>'+(notes?'<ul>'+notes+'</ul>':'')+'<div class="r"><button class="go">Oke, mengerti</button></div>';
+      document.body.appendChild(d); requestAnimationFrame(()=>d.classList.add("show"));
+      d.querySelector(".go").onclick=()=>{ mark(); d.classList.remove("show"); setTimeout(()=>d.remove(),300); shown=false; };
+    }catch(e){}
+  }
+  setTimeout(()=>{ news().then(check); },2500);
   document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible") check(); });
   setInterval(check,20*60*1000);
 })();
