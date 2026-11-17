@@ -1,8 +1,7 @@
 {
- "v": 59,
+ "v": 60,
  "notes": [
-  "Catat Usaha: scan nama kemasan — kamera membaca tulisan produk, langsung masuk nota",
-  "Catat Usaha: foto produk + kotak cari cepat (ketik 2–3 huruf)",
-  "Scan barcode tetap ada sebagai pilihan"
+  "Menu bawah lebih ke bawah, tidak menutupi isian",
+  "Menu bawah otomatis sembunyi saat mengetik jurnal"
  ]
 }
