@@ -284,6 +284,8 @@ html,body{position:fixed;inset:0;width:100%;height:100%;overflow:hidden}
 .updbar .r{display:flex;gap:10px}
 .updbar button{flex:1;border:0;border-radius:999px;padding:11px;font:600 14px Poppins,sans-serif;cursor:pointer}
 .updbar .go{background:var(--sage);color:#fff}.updbar .later{background:#F4ECE6;color:#6a5d64;flex:0 0 auto;padding:11px 18px}
+.lnsync{display:block;width:100%;margin-top:10px;font:inherit;font-size:12.5px;line-height:1.4;padding:8px 12px;border-radius:12px;background:rgba(0,0,0,.045);color:inherit;border:0;text-align:left}
+.lnsync.warn{background:#FFE0D2;color:#782D1E;font-weight:600;cursor:pointer}
 </style>
 </head>
 <body>
@@ -301,15 +303,17 @@ const ML="mulai-lagi-id";
 let DAYS=null;
 const AKEY="littlesnoor.access", CKEY="littlesnoor.content."+ML;
 function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
-function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}if(window.LNS)LNS.touch(k);}
 function lsDel(k){try{localStorage.removeItem(k)}catch(e){}}
 function deviceId(){let d=lsGet("mulailagi.device");if(!d){d=(crypto.randomUUID?crypto.randomUUID():Date.now()+"-"+Math.random().toString(36).slice(2));lsSet("mulailagi.device",d);}return d;}
-async function rpc(fn,body){
-  const r=await fetch(CONFIG.url+"/rest/v1/rpc/"+fn,{method:"POST",headers:{"Content-Type":"application/json",apikey:CONFIG.key},body:JSON.stringify(body)});
+async function rpc(fn,body,auth){
+  const h={"Content-Type":"application/json",apikey:CONFIG.key};
+  if(auth){const t=await LNS.token();if(!t)throw new Error("auth");h.Authorization="Bearer "+t;}
+  const r=await fetch(CONFIG.url+"/rest/v1/rpc/"+fn,{method:"POST",headers:h,body:JSON.stringify(body)});
   if(!r.ok) throw new Error("net"); return await r.json();
 }
 const login=email=>rpc("login",{p_email:email,p_device:deviceId()});
-const getContent=(email,p)=>rpc("get_content",{p_email:email,p_device:deviceId(),p_product:p});
+const getContent=(email,p)=>LNS.has()?rpc("my_content",{p_device:deviceId(),p_product:p},true):rpc("get_content",{p_email:email,p_device:deviceId(),p_product:p});
 
 const PARTS=[{n:"Berhenti Sejenak",d:"Mengenali apa yang sedang kamu rasakan dan bawa.",c:"#E58F9E",l:"#FCE4E8",k:"#B4566A",r:[1,7]},
 {n:"Berdamai",d:"Menerima, memaafkan, dan tetap bersyukur.",c:"#6BB3C7",l:"#DDF0F5",k:"#2C7A90",r:[8,14]},
@@ -320,7 +324,7 @@ const KEY="mulailagi.v1";
 let S={name:"",ans:{},done:{},step:{},dots:{},mood:{},doneAt:{}};
 let mem=null;
 function load(){try{const r=localStorage.getItem(KEY);if(r)S=Object.assign(S,JSON.parse(r));}catch(e){if(mem)S=mem;}}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){mem=JSON.parse(JSON.stringify(S));}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){mem=JSON.parse(JSON.stringify(S));}if(window.LNS)LNS.touch(KEY);}
 load();
 const $=s=>document.querySelector(s), app=$("#app");
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -1343,7 +1347,7 @@ async function cuLookup(code){if(!/^\d{8,14}$/.test(code))return null;
 let _cuDB=null;function cuDB(){if(_cuDB)return _cuDB;_cuDB=new Promise((ok,no)=>{try{const r=indexedDB.open("catatusaha",1);r.onupgradeneeded=()=>r.result.createObjectStore("img");r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error);}catch(e){no(e);}});_cuDB.catch(()=>{_cuDB=null;});return _cuDB;}
 const CUIMG={};let cuImgReady=null;
 function cuImgInit(){if(cuImgReady)return cuImgReady;cuImgReady=cuDB().then(db=>new Promise(ok=>{const rq=db.transaction("img").objectStore("img").openCursor();rq.onsuccess=()=>{const c=rq.result;if(c){CUIMG[c.key]=c.value;c.continue();}else ok(true);};rq.onerror=()=>ok(false);})).catch(()=>false);return cuImgReady;}
-function cuImgPut(id,v){if(v)CUIMG[id]=v;else delete CUIMG[id];return cuDB().then(db=>new Promise(ok=>{const t=db.transaction("img","readwrite"),st=t.objectStore("img");v?st.put(v,id):st.delete(id);t.oncomplete=()=>ok(true);t.onerror=()=>{if(v)toast("Foto gagal disimpan");ok(false);};})).catch(()=>{if(v)toast("Foto gagal disimpan");});}
+function cuImgPut(id,v,silent){if(v)CUIMG[id]=v;else delete CUIMG[id];if(!silent&&window.LNS)LNS.photoChanged(id,v);return cuDB().then(db=>new Promise(ok=>{const t=db.transaction("img","readwrite"),st=t.objectStore("img");v?st.put(v,id):st.delete(id);t.oncomplete=()=>ok(true);t.onerror=()=>{if(v)toast("Foto gagal disimpan");ok(false);};})).catch(()=>{if(v)toast("Foto gagal disimpan");});}
 function cuPhotoFile(file){return new Promise(ok=>{if(!file)return ok(null);const u=URL.createObjectURL(file),im=new Image();
   im.onload=()=>{const S=240,s=Math.min(im.naturalWidth,im.naturalHeight),cv=document.createElement("canvas");cv.width=cv.height=S;const x=cv.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,S,S);x.drawImage(im,(im.naturalWidth-s)/2,(im.naturalHeight-s)/2,s,s,0,0,S,S);URL.revokeObjectURL(u);ok(cv.toDataURL("image/jpeg",.78));};
   im.onerror=()=>{URL.revokeObjectURL(u);toast("Foto tidak bisa dibaca");ok(null);};im.src=u;});}
@@ -1645,7 +1649,7 @@ cumore(){const M=cuLoad();
   const L=[["cuprod","📦","Produk",M.prod.length+" produk"],["cucust","👥","Pelanggan",M.cust.length+" pelanggan"],["cuexp","🧺","Modal & biaya","catat pengeluaran usaha"],["cupiu","⏳","Belum lunas","piutang pelanggan"],["cushop","🏪","Profil toko","nama, alamat & WA di nota"]];
   app.innerHTML=`<div class="wrap">${cuHead("Lainnya","")}
   <div class="card" style="padding:6px 14px">${L.map(([v,e,a,b])=>`<button class="txr" data-go="${v}"><span class="txe">${e}</span><span class="txm"><b>${a}</b><small>${b}</small></span><span class="small">›</span></button>`).join("")}</div>
-  <div class="sec"><h3>Cadangkan data</h3><p>Datamu tersimpan di HP ini. Simpan kode cadangan supaya aman kalau ganti HP. Foto produk tidak ikut di kode cadangan.</p></div>
+  <div class="sec"><h3>Cadangkan data</h3><p>Datamu tersimpan di HP ini dan ikut tersimpan di akunmu saat online (termasuk foto produk). Kode cadangan tetap bisa dipakai sebagai jaga-jaga; foto produk tidak ikut di kode cadangan.</p></div>
   <div class="row"><button class="btn light" id="bk">⬇️ Salin kode cadangan</button><button class="btn light" id="rs">⬆️ Pulihkan</button></div>
   <p class="small" style="text-align:center;margin-top:20px">Butuh bantuan? DM Instagram <a href='https://instagram.com/littlesnoor' target='_blank' rel='noopener' style='color:var(--sage);font-weight:700'>@littlesnoor</a></p></div>`;
   cuBind();
@@ -1688,7 +1692,7 @@ function shelf(){
   const P=[...P0].sort((a,b)=>rank(a)-rank(b));
   const saveSO=()=>lsSet("littlesnoor.shelf",JSON.stringify(SO));
   app.innerHTML=`<div class="wrap">
-  <div class="brand"><b>littles noor</b><button class="back" id="logoutTop">Keluar ⎋</button></div>
+  <div class="brand"><b>littles noor</b><button class="back" id="logoutTop">Keluar ⎋</button></div>${LNS.badge()}
   <div class="hello">${sal}${S.name?", "+esc(S.name):""} ${sal==="Masih terjaga"?"🌙":"🤍"}</div>
   <div class="sub">${gsub?gsub+"<br>":""}Kamu semangat terus ya, jangan menyerah. Biarlah Allah menjadi sebaik-baik saksi atas setiap hal yang kamu usahakan 😊</div>
   <div class="row" style="justify-content:flex-end;margin-top:10px"><button class="mini" id="editShelf">${shelfEdit?"✓ Selesai":"⇅ Atur rak"}</button></div>
@@ -1724,7 +1728,8 @@ const PCATS=[["jurnal","📔","Workbook & Jurnal"],["planner","🗓️","Planner
 const SAKU={id:"saku",name:"Saku",tagline:"Kartu sakti littles noor",color:"#F2795A",live:true,category:"saku"};
 const PCAT_DEF={"mulai-lagi-id":"jurnal","catatan-majelis-id":"jurnal","planner-2027-id":"planner","cukup-id":"keuangan","catat-usaha-id":"keuangan"};
 const catOf=p=>p.category||PCAT_DEF[p.id]||"jurnal";
-function logout(){confirmBox("Keluar dari akun?","Tulisan dan catatanmu tetap tersimpan di HP ini. Masuk lagi kapan saja dengan email yang sama.",()=>{lsDel(AKEY);Object.keys(localStorage).filter(k=>k.startsWith("littlesnoor.content.")).forEach(k=>lsDel(k));lockScreen();},"Keluar");}
+function logout(){confirmBox("Keluar dari akun?","Tulisan dan catatanmu tetap tersimpan di perangkat ini dan di akunmu. Masuk lagi di perangkat ini cukup dengan email yang sama, tanpa kode.",async()=>{const e=document.createElement("div");e.className="toast";e.textContent="Menyimpan & keluar...";document.body.appendChild(e);
+  try{await LNS.signOut();}catch(x){}e.remove();lsDel(AKEY);Object.keys(localStorage).filter(k=>k.startsWith("littlesnoor.content.")).forEach(k=>lsDel(k));lockScreen();},"Keluar");}
 async function openProduct(id){
   if(id==="saku"){location.href="saku/?app=1";return;}
   const A=acc()||{}, p=(A.products||[]).find(x=>x.id===id)||{};
@@ -1766,22 +1771,10 @@ function lockScreen(msg){
   $("#nav").classList.add("hidden");
   app.innerHTML=`<div class="wrap welcome"><div class="arch"></div>
   <div class="big">littles noor</div><p class="sub" style="font-size:15px">Masuk dengan email yang kamu pakai<br>saat membeli di Lynk.id</p>
-  <div class="card" style="text-align:left"><label style="font-weight:600;font-size:14px">Email pembelian</label>
-  <input type="text" id="em" inputmode="email" autocomplete="email" placeholder="nama@email.com" style="margin-top:8px" value="${esc((acc()||{}).email||lsGetSafe("littlesnoor.lastEmail")||"")}">
-  <p class="small" id="err" style="color:#B4566A;margin:10px 0 0;min-height:18px">${msg||""}</p></div>
-  <button class="btn" id="unlock" style="margin-top:16px">Masuk</button>
+  <div class="card" style="text-align:left" id="authBox"></div>
   <a href="saku/" style="display:block;margin-top:12px;background:#FFE0D2;color:#782D1E;border-radius:16px;padding:13px;font-weight:600;text-decoration:none;text-align:center">🌙 Coba Saku gratis: kartu sakti littles noor</a>
   <p class="small" style="margin-top:14px">Belum punya? Dapatkan di <a href="https://lynk.id/littlesnoor" target="_blank" rel="noopener" style="color:var(--sage);font-weight:700">lynk.id/littlesnoor</a><br>Butuh bantuan? DM Instagram <a href="https://instagram.com/littlesnoor" target="_blank" rel="noopener" style="color:var(--sage);font-weight:700">@littlesnoor</a></p></div>`;
-  $("#em").addEventListener("keydown",e=>{if(e.key==="Enter")$("#unlock").click();});
-  $("#unlock").onclick=async()=>{
-    const em=$("#em").value.trim().toLowerCase(), btn=$("#unlock"), err=$("#err");
-    if(!/^\S+@\S+\.\S+$/.test(em)){err.textContent="Tulis email yang lengkap ya.";return;}
-    btn.disabled=true;btn.textContent="Memeriksa...";err.textContent="";
-    try{const res=await login(em);
-      if(res&&res.ok){lsSet(AKEY,JSON.stringify({email:em,owned:res.owned||[],products:res.products||[],at:Date.now()}));lsSet("littlesnoor.lastEmail",em);start();return;}
-      err.innerHTML=res&&res.reason==="device_limit"?"Email ini sudah dipakai di batas maksimal perangkat. Hubungi <a href='https://instagram.com/littlesnoor' target='_blank' rel='noopener' style='color:var(--sage);font-weight:700'>@littlesnoor</a> untuk reset.":"Email ini belum terdaftar sebagai pembeli. Pastikan sama dengan email saat membeli, atau hubungi <a href='https://instagram.com/littlesnoor' target='_blank' rel='noopener' style='color:var(--sage);font-weight:700'>@littlesnoor</a>.";
-    }catch(e){err.textContent="Tidak bisa terhubung. Cek internetmu lalu coba lagi.";}
-    btn.disabled=false;btn.textContent="Masuk";};
+  LNS.authFlow($("#authBox"),(acc()||{}).email||lsGetSafe("littlesnoor.lastEmail")||"",()=>{start();refreshContent((acc()||{}).owned||[]);},msg);
 }
 function lsGetSafe(k){try{return localStorage.getItem(k)}catch(e){return null}}
 function deep(){return location.hostname.startsWith("mulailagi.")||location.hash==="#mulai-lagi";}
@@ -1789,18 +1782,278 @@ function start(){
   const A=acc();
   go("shelf");
 }
+async function refreshContent(owned){
+  const A=acc()||{};
+  for(const [id,ck] of [[ML,CKEY],[MJID,MJCKEY],[PLID,PLCKEY],[CKID,CKCKEY]])
+    if((owned||[]).includes(id)){try{const r=await getContent(A.email,id);if(r&&r.ok&&r.data){lsSet(ck,JSON.stringify(r.data));}}catch(e){}}
+}
 async function boot(){
   const A=acc();
   if(!A){lockScreen();return;}
   start();
-  if(navigator.onLine!==false){try{const res=await login(A.email);
+  if(navigator.onLine===false)return;
+  try{const res=LNS.has()?await rpc("me",{p_device:deviceId()},true):await login(A.email);
     if(res&&res.ok){lsSet(AKEY,JSON.stringify(Object.assign(A,{owned:res.owned||[],products:res.products||[],at:Date.now()})));if(view==="shelf")shelf();
-      if((res.owned||[]).includes(ML)){try{const r=await getContent(A.email,ML);if(r&&r.ok&&r.data){lsSet(CKEY,JSON.stringify(r.data));}}catch(e){}}
-      if((res.owned||[]).includes(MJID)){try{const r=await getContent(A.email,MJID);if(r&&r.ok&&r.data){lsSet(MJCKEY,JSON.stringify(r.data));}}catch(e){}}
-      if((res.owned||[]).includes(PLID)){try{const r=await getContent(A.email,PLID);if(r&&r.ok&&r.data){lsSet(PLCKEY,JSON.stringify(r.data));}}catch(e){}}
-      if((res.owned||[]).includes(CKID)){try{const r=await getContent(A.email,CKID);if(r&&r.ok&&r.data){lsSet(CKCKEY,JSON.stringify(r.data));}}catch(e){}}}
-    else if(res&&!res.ok){lsDel(AKEY);lsDel(CKEY);lockScreen(res.reason==="device_limit"?"Perangkat ini sudah tidak terdaftar. Hubungi <a href='https://instagram.com/littlesnoor' target='_blank' rel='noopener' style='color:var(--sage);font-weight:700'>@littlesnoor</a>.":"Akses untuk email ini sudah tidak aktif.");}}catch(e){}}
+      refreshContent(res.owned||[]);if(LNS.has())LNS.run();}
+    else if(res&&!res.ok&&res.reason!=="auth"){lsDel(AKEY);lsDel(CKEY);lockScreen(res.reason==="device_limit"?"Perangkat ini sudah tidak terdaftar. Hubungi <a href='https://instagram.com/littlesnoor' target='_blank' rel='noopener' style='color:var(--sage);font-weight:700'>@littlesnoor</a>.":"Akses untuk email ini sudah tidak aktif.");}}catch(e){}
 }
+/* ===== Akun aman (kode OTP) + sinkron antar-perangkat =====
+   Tambah aplikasi baru? Daftarkan key localStorage-nya di LNS_KEYS supaya ikut tersimpan di akun pembeli. */
+var LNS_KEYS=["mulailagi.v1","majelis.v1","planner.v1","cukup.v1","catatusaha.v1","saku.fav","littlesnoor.shelf"];
+var LNS=(function(){
+const KEYS=LNS_KEYS, SK="ln.sess", TK="ln.trust", OWN="ln.owner", MT="ln.mt", PEND="ln.otp", IMGQ="cu.imgq", SEEN="cu.imgseen";
+const J=JSON.stringify;
+const jget=(k,d)=>{try{const v=JSON.parse(localStorage.getItem(k)||"null");return v==null?d:v;}catch(e){return d;}};
+const jset=(k,v)=>{try{localStorage.setItem(k,J(v));}catch(e){}};
+let sess=jget(SK,null), lastOk=0, applying=false, running=false, again=false, timer=null;
+function setSess(s){sess=s;if(s)jset(SK,s);else{try{localStorage.removeItem(SK)}catch(e){}}}
+
+/* ---- auth (Supabase Auth REST, tanpa library) ---- */
+async function authFetch(path,body){
+  const r=await fetch(CONFIG.url+"/auth/v1/"+path,{method:"POST",headers:{"Content-Type":"application/json",apikey:CONFIG.key},body:J(body)});
+  let j={};try{j=await r.json();}catch(e){}
+  if(!r.ok){const er=new Error(j.msg||j.error_description||j.message||("http "+r.status));er.status=r.status;er.code=j.error_code||j.code||"";throw er;}
+  return j;}
+const fromAuth=j=>({at:j.access_token,rt:j.refresh_token,exp:Date.now()+((j.expires_in||3600)-90)*1000,uid:j.user&&j.user.id,email:String(j.user&&j.user.email||"").toLowerCase()});
+let refreshing=null;
+async function token(){
+  if(!sess)return null;
+  if(Date.now()<sess.exp)return sess.at;
+  if(!refreshing)refreshing=(async()=>{try{const j=await authFetch("token?grant_type=refresh_token",{refresh_token:sess.rt});setSess(fromAuth(j));return sess.at;}
+    catch(e){if(e.status>=400&&e.status<500){setSess(null);status();}throw e;}finally{refreshing=null;}})();
+  return refreshing;}
+async function finishLogin(){
+  const res=await rpc("me",{p_device:deviceId()},true);
+  if(!res||!res.ok){setSess(null);return res||{ok:false};}
+  claimDevice(sess.uid);
+  lsSet(AKEY,J({email:res.email,owned:res.owned||[],products:res.products||[],at:Date.now()}));lsSet("littlesnoor.lastEmail",res.email);
+  const T=jget(TK,{});delete T[res.email];jset(TK,T);
+  try{localStorage.removeItem(PEND)}catch(e){}
+  soon(300);return res;}
+// perangkat ini sudah pernah memakai kode untuk email ini → masuk tanpa kode
+async function trusted(email){
+  const t=jget(TK,{})[email];if(!t)return null;
+  try{const j=await authFetch("token?grant_type=refresh_token",{refresh_token:t.rt});setSess(fromAuth(j));}
+  catch(e){if(e.status>=400&&e.status<500){const T=jget(TK,{});delete T[email];jset(TK,T);return null;}throw e;}
+  return finishLogin();}
+async function sendCode(email){
+  const b=await rpc("buyer_status",{p_email:email});
+  if(!b||!b.ok)return {ok:false,reason:"not_buyer"};
+  await authFetch("otp",{email,create_user:true});
+  jset(PEND,{email,at:Date.now()});return {ok:true};}
+async function verify(email,code){
+  const j=await authFetch("verify",{type:"email",email,token:code});
+  setSess(fromAuth(j));return finishLogin();}
+// keluar: data tetap di HP; kunci perangkat disimpan supaya masuk lagi di HP ini tidak perlu kode
+async function signOut(){
+  if(sess){try{flush();await Promise.race([run(),new Promise(r=>setTimeout(r,4000))]);}catch(e){}
+    if(sess){const T=jget(TK,{});T[sess.email]={rt:sess.rt};jset(TK,T);}}
+  setSess(null);}
+
+/* ---- pemilik data di perangkat ini ---- */
+function claimDevice(uid){
+  const owner=localStorage.getItem(OWN);
+  if(owner&&owner!==uid){ // akun lain pernah masuk di HP ini: simpan datanya terpisah, jangan dicampur
+    KEYS.forEach(k=>{const v=lsGet(k);if(v!=null)localStorage.setItem("ln.stash."+owner+"."+k,v);localStorage.removeItem(k);
+      const s=localStorage.getItem("ln.stash."+uid+"."+k);if(s!=null){localStorage.setItem(k,s);localStorage.removeItem("ln.stash."+uid+"."+k);}});
+    jset(MT,{});jset(IMGQ,{});jset(SEEN,{});
+    KEYS.forEach(reloadMem);}
+  localStorage.setItem(OWN,uid);}
+
+/* ---- penyimpanan versi terakhir yang sama dengan server (IndexedDB, cadangan localStorage) ---- */
+let _db=null;
+function db(){if(_db)return _db;_db=new Promise((ok,no)=>{try{const r=indexedDB.open("lnsync",1);r.onupgradeneeded=()=>{r.result.createObjectStore("base");r.result.createObjectStore("backup");};r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error);}catch(e){no(e);}});_db.catch(()=>{_db=null;});return _db;}
+function idb(store,mode,fn){return db().then(d=>new Promise((ok,no)=>{const t=d.transaction(store,mode),s=t.objectStore(store),r=fn(s);t.oncomplete=()=>ok(r&&r.result);t.onerror=()=>no(t.error);}));}
+let B=null,Buid=null;
+async function baseLoad(uid){if(B&&Buid===uid)return B;Buid=uid;
+  try{B=(await idb("base","readonly",s=>s.get(uid)))||{};}catch(e){B=jget("ln.base."+uid,{});}return B;}
+async function baseSet(uid,k,v){B[k]=v;try{await idb("base","readwrite",s=>s.put(B,uid));}catch(e){jset("ln.base."+uid,B);}}
+function keepBackup(k,str){idb("backup","readwrite",s=>s.put(str,k+"|"+new Date().toISOString())).catch(()=>{});}
+
+/* ---- gabung dua versi (3 arah: versi dasar, HP ini, server) ---- */
+let conflicted=false;
+const isO=v=>v!==null&&typeof v==="object"&&!Array.isArray(v);
+const idArr=a=>Array.isArray(a)&&a.every(x=>isO(x)&&x.id!=null);
+const strSet=a=>Array.isArray(a)&&a.every(x=>typeof x==="string")&&new Set(a).size===a.length;
+function m3(o,a,b,p,key){
+  if(a===undefined)return b;if(b===undefined)return a;
+  const ja=J(a),jb=J(b);if(ja===jb)return a;
+  if(o!==undefined){const jo=J(o);if(ja===jo)return b;if(jb===jo)return a;}
+  if(key==="seq"&&typeof a==="number"&&typeof b==="number")return Math.max(a,b);
+  if(isO(a)&&isO(b)){const oo=isO(o)?o:{},out={},F=p==="a"?a:b,Sx=p==="a"?b:a;
+    for(const k of [...new Set([...Object.keys(F),...Object.keys(Sx)])]){
+      const inA=k in a,inB=k in b,ok=oo[k];
+      if(inA&&inB){out[k]=m3(ok,a[k],b[k],p,k);continue;}
+      const v=inA?a[k]:b[k];
+      if(ok!==undefined&&J(v)===J(ok))continue; // dihapus di sisi lain
+      if(ok!==undefined)conflicted=true;
+      out[k]=v;}
+    return out;}
+  if(Array.isArray(a)&&Array.isArray(b)&&idArr(a)&&idArr(b)){
+    const M=x=>new Map(x.map(i=>[String(i.id),i])),A=M(a),Bm=M(b),O=idArr(o)?M(o):new Map();
+    const first=p==="a"?a:b,second=p==="a"?b:a,Fm=p==="a"?A:Bm,Sm=p==="a"?Bm:A,res=[];
+    for(const x of first){const id=String(x.id),ox=O.get(id);
+      if(Sm.has(id)){res.push(m3(ox,A.get(id),Bm.get(id),p));continue;}
+      if(ox!==undefined&&J(x)===J(ox))continue;
+      if(ox!==undefined)conflicted=true;res.push(x);}
+    second.forEach((x,i)=>{const id=String(x.id);if(Fm.has(id))return;const ox=O.get(id);
+      if(ox!==undefined&&J(x)===J(ox))return;if(ox!==undefined)conflicted=true;res.splice(Math.min(i,res.length),0,x);});
+    return res;}
+  if(strSet(a)&&strSet(b)){const os=new Set(Array.isArray(o)?o:[]),as=new Set(a),bs=new Set(b);
+    const first=p==="a"?a:b,second=p==="a"?b:a,ss=p==="a"?bs:as;
+    const res=first.filter(x=>ss.has(x)||!os.has(x)),rs=new Set(res);
+    second.forEach(x=>{if(!rs.has(x)&&!os.has(x)){res.push(x);rs.add(x);}});return res;}
+  conflicted=true;return p==="a"?a:b;}
+
+/* ---- memori aplikasi ---- */
+function memLoaded(k){
+  if(k==="mulailagi.v1")return true;
+  if(k==="majelis.v1")return !!MJ;if(k==="planner.v1")return !!PL;if(k==="cukup.v1")return !!CK;if(k==="catatusaha.v1")return !!CU;return false;}
+function reloadMem(k){
+  if(k==="mulailagi.v1"){S={name:"",ans:{},done:{},step:{},dots:{},mood:{},doneAt:{}};load();}
+  if(k==="majelis.v1")MJ=null;if(k==="planner.v1")PL=null;if(k==="cukup.v1")CK=null;if(k==="catatusaha.v1")CU=null;}
+// simpan dulu isian yang masih di memori (belum sempat tersimpan) sebelum dibandingkan
+function flush(){const chk=(o,k,f)=>{if(o&&J(o)!==lsGet(k))f();};
+  try{chk(MJ,MJKEY,mjSave);chk(PL,PLKEY,plSave);chk(CK,CKKEY,ckSave);chk(CU,CUKEY,cuSave);
+    if(lsGet(KEY)!=null||S.name||Object.keys(S.ans||{}).length)chk(S,KEY,save);}catch(e){}}
+function busy(){const a=document.activeElement;return !!(document.querySelector(".modal")||(a&&(/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)||a.isContentEditable)));}
+function writeLocal(k,str){applying=true;try{lsSet(k,str);}finally{applying=false;}reloadMem(k);}
+
+/* ---- sinkron ---- */
+function touch(k){if(applying||KEYS.indexOf(k)<0)return;const m=jget(MT,{});m[k]=Date.now();jset(MT,m);if(sess)soon();}
+function soon(ms){clearTimeout(timer);timer=setTimeout(()=>run(),ms||2500);}
+async function put(k,data,base){return rpc("sync_put",{p_k:k,p_data:data,p_base:base},true);}
+async function integrate(k,b,g,uid){
+  const locS=lsGet(k),remS=J(g.data);
+  if(locS==null||(b&&locS===b.str)){ // HP ini tidak berubah → ambil versi server
+    if(locS!==remS){if(memLoaded(k)&&busy()){soon(4000);return false;}writeLocal(k,remS);}
+    await baseSet(uid,k,{rev:g.rev,str:remS});return locS!==remS;}
+  let loc;try{loc=JSON.parse(locS);}catch(e){loc=null;}
+  if(loc==null){writeLocal(k,remS);await baseSet(uid,k,{rev:g.rev,str:remS});return true;}
+  let o;try{o=b?JSON.parse(b.str):undefined;}catch(e){}
+  const lm=jget(MT,{})[k]||0,rm=Date.parse(g.at)||0,pref=lm>rm?"a":"b";
+  conflicted=false;const merged=m3(o,loc,g.data,pref),mS=J(merged);
+  if(mS!==locS&&memLoaded(k)&&busy()){soon(4000);return false;}
+  if(conflicted)keepBackup(k,pref==="a"?remS:locS);
+  if(mS!==locS)writeLocal(k,mS);
+  if(mS===remS){await baseSet(uid,k,{rev:g.rev,str:remS});return mS!==locS;}
+  const r=await put(k,merged,g.rev);
+  if(r&&r.ok)await baseSet(uid,k,{rev:r.rev,str:mS});
+  else if(r&&r.reason==="conflict"){await baseSet(uid,k,{rev:g.rev,str:remS});soon(800);}
+  return mS!==locS;}
+async function run(){
+  if(!sess||navigator.onLine===false){status();return;}
+  if(running){again=true;return;}running=true;
+  try{
+    flush();await token();if(!sess)return;
+    const uid=sess.uid,revs=(await rpc("sync_revs",{},true))||{},base=await baseLoad(uid),need=[];let applied=false;
+    for(const k of KEYS){const b=base[k],loc=lsGet(k),rr=revs[k]?revs[k].rev:0,br=b?b.rev:0;
+      if(rr>br||(rr&&!b)){need.push(k);continue;}
+      if(loc!=null&&(!b||loc!==b.str||!rr)){let obj;try{obj=JSON.parse(loc);}catch(e){continue;}if(obj==null)continue;
+        const r=await put(k,obj,rr);
+        if(r&&r.ok)await baseSet(uid,k,{rev:r.rev,str:loc});
+        else if(r&&r.reason==="conflict")applied=(await integrate(k,b,{rev:r.rev,at:r.at,data:r.data},uid))||applied;}}
+    if(need.length){const got=(await rpc("sync_get",{p_keys:need},true))||{};
+      for(const k of need)if(got[k])applied=(await integrate(k,base[k],got[k],uid))||applied;}
+    try{applied=(await photos(uid))||applied;}catch(e){}
+    if(applied&&!busy()){try{render();}catch(e){}}
+    lastOk=Date.now();
+  }catch(e){}
+  finally{running=false;status();if(again){again=false;soon(1000);}}}
+
+/* ---- foto produk Catat Usaha (Supabase Storage, folder per pembeli) ---- */
+const hashS=s=>{let h=2166136261;for(let i=0;i<s.length;i+=3)h=Math.imul(h^s.charCodeAt(i),16777619);return (h>>>0).toString(36)+"."+s.length.toString(36);};
+const SURL=p=>CONFIG.url+"/storage/v1/object/"+p;
+async function sHead(){return {apikey:CONFIG.key,Authorization:"Bearer "+(await token())};}
+async function up(uid,id,dataUrl){const blob=await (await fetch(dataUrl)).blob();
+  const r=await fetch(SURL("foto-produk/"+uid+"/"+id+".jpg"),{method:"POST",headers:Object.assign(await sHead(),{"Content-Type":"image/jpeg","x-upsert":"true"}),body:blob});return r.ok;}
+async function del(uid,id){const r=await fetch(SURL("foto-produk/"+uid+"/"+id+".jpg"),{method:"DELETE",headers:await sHead()});return r.ok||r.status===404||r.status===400;}
+async function down(uid,id){const r=await fetch(SURL("authenticated/foto-produk/"+uid+"/"+id+".jpg"),{headers:await sHead()});if(!r.ok)return null;
+  const blob=await r.blob();return new Promise(ok=>{const f=new FileReader();f.onload=()=>ok(String(f.result).replace(/^data:[^;,]*/,"data:image/jpeg"));f.onerror=()=>ok(null);f.readAsDataURL(blob);});}
+function photoChanged(id,v){const q=jget(IMGQ,{});q[id]=1;jset(IMGQ,q);
+  if(CU){const p=CU.prod.find(x=>x.id===id);if(p){if(v)p.ph=hashS(v);else delete p.ph;cuSave();}}}
+async function photos(uid){
+  if(lsGet(CUKEY)==null)return false;
+  await cuImgInit();const M=cuLoad(),q=jget(IMGQ,{}),seen=jget(SEEN,{}),ids=new Set();let dirty=false,shown=false;
+  for(const p of M.prod){const id=p.id,im=CUIMG[id];ids.add(id);
+    if(q[id]||(im&&!p.ph&&!seen[id])){ // ada perubahan di HP ini (atau foto lama yang belum pernah diunggah)
+      if(im){const h=hashS(im);if(p.ph!==h){p.ph=h;dirty=true;}if(await up(uid,id,im)){seen[id]=h;delete q[id];}}
+      else{if(p.ph){delete p.ph;dirty=true;}if(await del(uid,id)){delete seen[id];delete q[id];}}
+      continue;}
+    if(p.ph&&seen[id]!==p.ph){const d=await down(uid,id);if(d){await cuImgPut(id,d,true);seen[id]=p.ph;shown=true;}}
+    else if(!p.ph&&seen[id]){if(im){await cuImgPut(id,null,true);shown=true;}delete seen[id];}}
+  for(const id of Object.keys(seen))if(!ids.has(id)){if(await del(uid,id)){delete seen[id];if(CUIMG[id])await cuImgPut(id,null,true);}}
+  for(const id of Object.keys(q))if(!ids.has(id)){await del(uid,id);delete q[id];}
+  jset(IMGQ,q);jset(SEEN,seen);if(dirty)cuSave();
+  return shown&&/^cu/.test(view);}
+
+/* ---- tampilan status di Rak ---- */
+function badge(){
+  if(!acc())return "";
+  if(!sess)return `<button id="lnUp" class="lnsync warn">🔒 Amankan & sinkronkan datamu · ketuk untuk masuk sekali pakai kode dari email</button>`;
+  const t=lastOk?new Date(lastOk).toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit"}):"";
+  return `<div id="lnSt" class="lnsync">${navigator.onLine===false?"📴 Sedang offline · tersimpan di perangkat ini, akan disinkron saat online":t?"☁️ Tersimpan di akunmu · sinkron "+t:"☁️ Menyinkronkan..."}</div>`;}
+function status(){const e=document.getElementById("lnSt")||document.getElementById("lnUp");if(e){const h=badge();if(h)e.outerHTML=h;}}
+
+/* ---- tampilan masuk (email → kode) ---- */
+const ERRC="color:#B4566A;margin:10px 0 0;min-height:18px";
+const IG="<a href='https://instagram.com/littlesnoor' target='_blank' rel='noopener' style='color:var(--sage);font-weight:700'>@littlesnoor</a>";
+function resMsg(res){return res&&res.reason==="device_limit"?"Email ini sudah dipakai di batas maksimal perangkat. Hubungi "+IG+" untuk reset."
+  :"Email ini belum terdaftar sebagai pembeli. Pastikan sama dengan email saat membeli, atau hubungi "+IG+".";}
+function errMsg(e){if(!e||!e.status)return "Tidak bisa terhubung. Cek internetmu lalu coba lagi.";
+  if(e.status===429||/rate/i.test(e.code))return "Terlalu sering minta kode. Tunggu sekitar 1 menit, lalu coba lagi ya.";
+  if(/belum terdaftar|not.?allowed|signup/i.test(e.message))return resMsg({reason:"not_buyer"});
+  return "Ada kendala (" + esc(e.message) + "). Coba lagi sebentar lagi, atau hubungi "+IG+".";}
+function authFlow(box,email0,done,msg){
+  const pend=jget(PEND,null);
+  if(pend&&Date.now()-pend.at<15*60e3&&(!email0||pend.email===email0))return codeStep(box,pend.email,done);
+  box.innerHTML=`<label style="font-weight:600;font-size:14px">Email pembelian</label>
+  <input type="text" id="em" inputmode="email" autocomplete="email" placeholder="nama@email.com" style="margin-top:8px" value="${esc(email0||"")}">
+  <p class="small" id="err" style="${ERRC}">${msg||""}</p>
+  <button class="btn" id="unlock" style="margin-top:10px">Masuk</button>
+  <p class="small" style="margin:10px 0 0">Pertama kali di perangkat ini? Kami kirim kode ke emailmu. Setelah itu, cukup email saja.</p>`;
+  const em=box.querySelector("#em"),btn=box.querySelector("#unlock"),err=box.querySelector("#err");
+  em.addEventListener("keydown",e=>{if(e.key==="Enter")btn.click();});
+  btn.onclick=async()=>{const v=em.value.trim().toLowerCase();
+    if(!/^\S+@\S+\.\S+$/.test(v)){err.textContent="Tulis email yang lengkap ya.";return;}
+    if(navigator.onLine===false){err.textContent="Butuh internet untuk masuk. Sambungkan dulu, lalu coba lagi.";return;}
+    btn.disabled=true;btn.textContent="Memeriksa...";err.textContent="";
+    try{const t=await trusted(v);
+      if(t&&t.ok){done();return;}
+      if(t&&!t.ok){err.innerHTML=resMsg(t);}
+      else{const s=await sendCode(v);if(s.ok){codeStep(box,v,done);return;}err.innerHTML=resMsg(s);}
+    }catch(e){err.innerHTML=errMsg(e);}
+    btn.disabled=false;btn.textContent="Masuk";};}
+function codeStep(box,email,done){
+  box.innerHTML=`<label style="font-weight:600;font-size:14px">Kode masuk</label>
+  <p class="small" style="margin:6px 0 0">Kode sudah dikirim ke <b>${esc(email)}</b>. Belum ada? Cek folder Spam atau Promosi ya.</p>
+  <input type="text" id="otp" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="••••••" style="margin-top:10px;text-align:center;letter-spacing:6px;font-size:22px;font-weight:700">
+  <p class="small" id="err" style="${ERRC}"></p>
+  <button class="btn" id="vok" style="margin-top:10px">Masuk</button>
+  <div class="row" style="margin-top:10px"><button class="mini" id="chg" type="button">‹ Ganti email</button><button class="mini" id="rsd" type="button">Kirim ulang kode</button></div>`;
+  const o=box.querySelector("#otp"),btn=box.querySelector("#vok"),err=box.querySelector("#err"),rs=box.querySelector("#rsd");
+  setTimeout(()=>o.focus(),50);
+  o.addEventListener("input",()=>{o.value=o.value.replace(/\D/g,"");});
+  o.addEventListener("keydown",e=>{if(e.key==="Enter")btn.click();});
+  box.querySelector("#chg").onclick=()=>{try{localStorage.removeItem(PEND)}catch(e){}authFlow(box,email,done);};
+  rs.onclick=async()=>{rs.disabled=true;err.textContent="";try{await sendCode(email);toast("Kode baru sudah dikirim ✓");}catch(e){err.innerHTML=errMsg(e);}setTimeout(()=>rs.disabled=false,60000);};
+  btn.onclick=async()=>{const c=o.value.trim();if(c.length<6){err.textContent="Masukkan kode dari email.";return;}
+    btn.disabled=true;btn.textContent="Memeriksa...";err.textContent="";
+    try{const res=await verify(email,c);if(res&&res.ok){done();return;}err.innerHTML=resMsg(res);}
+    catch(e){err.innerHTML=e.status===403||e.status===400||/expired|invalid/i.test(e.message)?"Kodenya salah atau sudah kedaluwarsa. Coba lagi, atau ketuk Kirim ulang kode.":errMsg(e);}
+    btn.disabled=false;btn.textContent="Masuk";};}
+function upgrade(){const A=acc()||{},e=document.createElement("div");e.className="modal";
+  e.innerHTML=`<div class="sheet"><h3>Amankan akunmu</h3><p class="small">Masuk sekali pakai kode dari email. Setelah itu tulisan & catatanmu tersimpan di akun, jadi bisa dibuka di HP atau laptop lain. Data di perangkat ini tetap aman dan ikut tersimpan.</p><div id="af" style="margin-top:12px"></div><button class="btn ghost" id="ax" style="margin-top:8px">Nanti saja</button></div>`;
+  document.body.appendChild(e);e.querySelector("#ax").onclick=()=>e.remove();
+  authFlow(e.querySelector("#af"),A.email,()=>{e.remove();toast("Akunmu sudah aman & tersinkron ✓");try{render();}catch(x){}run();});}
+document.addEventListener("click",e=>{if(e.target&&e.target.closest&&e.target.closest("#lnUp"))upgrade();});
+document.addEventListener("visibilitychange",()=>{if(sess)soon(document.visibilityState==="visible"?300:50);});
+window.addEventListener("online",()=>{status();if(sess)soon(500);});
+window.addEventListener("offline",status);
+setInterval(()=>{if(sess&&document.visibilityState==="visible")run();},90000);
+
+return {has:()=>!!sess,token,run,soon,touch,flush,signOut,authFlow,badge,status,photoChanged,_m3:m3};
+})();
 if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));}
 view="shelf";boot();
 
@@ -1855,7 +2108,7 @@ view="shelf";boot();
 })();
 
 /* ===== Notifikasi pembaruan ===== */
-const APP_VERSION=60;
+const APP_VERSION=61;
 (function(){
   let shown=false;
   async function check(){

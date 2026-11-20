@@ -1,7 +1,9 @@
 {
- "v": 60,
+ "v": 61,
  "notes": [
-  "Menu bawah lebih ke bawah, tidak menutupi isian",
-  "Menu bawah otomatis sembunyi saat mengetik jurnal"
+  "Akunmu sekarang lebih aman: masuk pakai kode dari email (cukup sekali di tiap HP/laptop)",
+  "Tulisan & catatanmu tersimpan di akun, jadi bisa dibuka di HP atau laptop lain",
+  "Tetap bisa dipakai offline, nanti tersinkron sendiri saat online",
+  "Foto produk Catat Usaha ikut tersimpan di akun"
  ]
 }
