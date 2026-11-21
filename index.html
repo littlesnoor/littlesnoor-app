@@ -391,7 +391,7 @@ function welcome(){
   <div class="card" style="text-align:left"><label style="font-weight:600;font-size:14px">Boleh aku panggil siapa?</label>
   <input type="text" id="nm" placeholder="Nama panggilanmu" style="margin-top:8px"></div>
   <button class="btn" id="go" style="margin-top:16px">Mulai perjalanan 🌿</button>
-  <p class="small" style="margin-top:14px">Semua tulisanmu tersimpan di perangkat ini saja.</p></div>`;
+  <p class="small" style="margin-top:14px">Tulisanmu tersimpan di HP ini dan ikut tersimpan di akunmu saat online.</p></div>`;
   $("#go").onclick=()=>{S.name=$("#nm").value.trim();S.started=1;save();go("home");};
   $("#toShelf").onclick=()=>go("shelf");
 }
@@ -570,7 +570,7 @@ function more(){
   <div class="card"><div class="row"><div style="flex:1"><div class="sub">Hari selesai</div><div class="hello">${doneCount()}</div></div>
   <div style="flex:1"><div class="sub">Langkah kecil</div><div class="hello">${Object.values(S.step).filter(Boolean).length}</div></div>
   <div style="flex:1"><div class="sub">Rata-rata rasa</div><div class="hello">${avg===null?"–":MOODS[Math.round(avg)][0]}</div></div></div></div>
-  <div class="card"><h3 style="font-size:16px">Cadangan tulisanmu</h3><p class="small">Tulisanmu hanya tersimpan di perangkat ini. Salin kodenya dan simpan di Notes atau WhatsApp, lalu tempel di perangkat lain untuk memindahkan.</p>
+  <div class="card"><h3 style="font-size:16px">Cadangan tulisanmu</h3><p class="small">Tulisanmu tersimpan di HP ini dan ikut tersimpan di akunmu saat online, jadi bisa dibuka di perangkat lain. Kode cadangan tetap bisa dipakai sebagai jaga-jaga.</p>
   <div class="row"><button class="btn light" id="cp">Salin cadangan</button><button class="btn light" id="rs">Pulihkan</button></div>
   <textarea id="bk" class="hidden" rows="4" placeholder="Tempel kode cadangan di sini, lalu ketuk Pulihkan lagi" style="margin-top:10px"></textarea></div>
   <div class="card"><p class="small" style="margin:0 0 10px">Masuk sebagai <b>${esc((acc()||{}).email||"")}</b></p><button class="btn ghost" id="rst">Mulai dari awal (hapus semua)</button></div>
@@ -777,7 +777,7 @@ mjmore(){const SECT=[["mjhal","🤝 Rekap Halaqah","Kehadiran, materi & tugas"],
   app.innerHTML=`<div class="wrap">${mjHead("Lainnya","")}
   ${SECT.map(([v,t,s])=>`<button class="mjcard" data-v="${v}"><b>${t}</b><span>${s}</span></button>`).join("")}
   ${mjRemCard()}
-  <div class="card"><h3 style="font-size:16px">Cadangan Catatan Majelis</h3><p class="small">Catatanmu hanya tersimpan di perangkat ini. Salin kodenya dan simpan di tempat aman untuk pindah perangkat.</p>
+  <div class="card"><h3 style="font-size:16px">Cadangan Catatan Majelis</h3><p class="small">Catatanmu tersimpan di HP ini dan ikut tersimpan di akunmu saat online, jadi bisa dibuka di perangkat lain. Kode cadangan tetap bisa dipakai sebagai jaga-jaga.</p>
   <div class="row"><button class="btn light" id="cp">Salin cadangan</button><button class="btn light" id="rs">Pulihkan</button></div>
   <textarea id="bk" class="hidden" rows="4" placeholder="Tempel kode cadangan di sini, lalu ketuk Pulihkan lagi" style="margin-top:10px"></textarea></div></div>`;
   mjBind();mjBindRem();app.querySelectorAll(".mjcard[data-v]").forEach(b=>b.onclick=()=>go(b.dataset.v));
@@ -1000,7 +1000,7 @@ plmore(){const SECT=[["plref","🌙 Refleksi 2026","Melihat kembali tahun ini"],
   app.innerHTML=`<div class="wrap">${plHead("Lainnya","")}
   ${SECT.map(([v,t,s])=>`<button class="mjcard" data-v="${v}"><b>${t}</b><span>${s}</span></button>`).join("")}
   ${plRemCard()}
-  <div class="card"><h3 style="font-size:16px">Cadangan Planner</h3><p class="small">Isi planner hanya tersimpan di perangkat ini. Salin kodenya dan simpan di tempat aman untuk pindah perangkat.</p>
+  <div class="card"><h3 style="font-size:16px">Cadangan Planner</h3><p class="small">Isi planner tersimpan di HP ini dan ikut tersimpan di akunmu saat online, jadi bisa dibuka di perangkat lain. Kode cadangan tetap bisa dipakai sebagai jaga-jaga.</p>
   <div class="row"><button class="btn light" id="cp">Salin cadangan</button><button class="btn light" id="rs">Pulihkan</button></div>
   <textarea id="bk" class="hidden" rows="4" placeholder="Tempel kode cadangan di sini, lalu ketuk Pulihkan lagi" style="margin-top:10px"></textarea></div></div>`;
   plBind();plBindRem();app.querySelectorAll(".mjcard[data-v]").forEach(b=>b.onclick=()=>go(b.dataset.v));
@@ -1210,7 +1210,7 @@ ckmore(){const M=ckLoad();const SECT=[["ckwal","👛 Dompet","Saldo per dompet &
   <div class="row"><input type="text" id="xe" value="🏷️" style="width:58px;flex:none;text-align:center;font-size:20px"><input type="text" id="xn" placeholder="misal: Kucing" style="flex:1;min-width:0"><button class="back" id="xAdd">＋</button></div>
   <div class="chips" style="flex-wrap:wrap">${["out","in"].flatMap(t=>(M.xcat[t]||[]).map(c=>`<button class="fchip" data-xd="${t}:${c[0]}">${c[1]} ${esc(c[2])} ✕</button>`)).join("")}</div></div>
   <div class="card"><h3 style="font-size:16px">Unduh data</h3><p class="small">Semua catatan dalam format CSV, bisa dibuka di Excel atau Google Sheets.</p><button class="btn light" id="csv">⬇️ Unduh CSV</button></div>
-  <div class="card"><h3 style="font-size:16px">Cadangan</h3><p class="small">Data keuanganmu hanya tersimpan di perangkat ini, tidak dikirim ke mana pun. Salin kodenya untuk pindah perangkat.</p>
+  <div class="card"><h3 style="font-size:16px">Cadangan</h3><p class="small">Data keuanganmu tersimpan di HP ini dan ikut tersimpan di akunmu saat online, jadi bisa dibuka di perangkat lain. Kode cadangan tetap bisa dipakai sebagai jaga-jaga.</p>
   <div class="row"><button class="btn light" id="cp">Salin cadangan</button><button class="btn light" id="rs">Pulihkan</button></div>
   <textarea id="bk" class="hidden" rows="4" placeholder="Tempel kode cadangan di sini, lalu ketuk Pulihkan lagi" style="margin-top:10px"></textarea></div></div>`;
   ckBind();app.querySelectorAll(".mjcard[data-v]").forEach(b=>b.onclick=()=>go(b.dataset.v));
@@ -2119,7 +2119,7 @@ view="shelf";boot();
 })();
 
 /* ===== Notifikasi pembaruan ===== */
-const APP_VERSION=62;
+const APP_VERSION=63;
 (function(){
   let shown=false;
   async function check(){
