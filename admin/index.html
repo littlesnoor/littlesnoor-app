@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="id"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#FFF9F3">
+<title>Dashboard admin · littles noor</title>
+<link rel="icon" href="../icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#FFF9F3;--ink:#2E2433;--soft:#7B6F80;--line:#EFE4DA;--card:#fff;--tc:#A65A3C;--sage:#3A5A4A;--rose:#9A5262;--teal:#226A7A;--plum:#4A3452}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 14px/1.5 Poppins,system-ui,sans-serif;
+ background-image:linear-gradient(rgba(166,90,60,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(166,90,60,.05) 1px,transparent 1px);background-size:28px 28px}
+.wrap{max-width:980px;margin:0 auto;padding:20px 16px 60px}
+header{display:flex;align-items:center;gap:12px;justify-content:space-between;flex-wrap:wrap}
+header img{height:34px}
+h1{font-size:22px;margin:14px 0 2px}
+.sub{color:var(--soft);font-size:12.5px;margin:0}
+button{font:600 13px Poppins,system-ui;border:0;border-radius:14px;padding:9px 14px;cursor:pointer;background:var(--ink);color:#fff}
+button.light{background:#fff;color:var(--ink);box-shadow:0 1px 6px rgba(0,0,0,.06)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:18px 0}
+.tile{background:var(--card);border-radius:18px;padding:14px 16px;box-shadow:0 2px 12px rgba(46,36,51,.05)}
+.tile b{display:block;font-size:26px;line-height:1.2}
+.tile span{font-size:12.5px;color:var(--soft)}
+.tile small{display:block;font-size:11.5px;color:var(--soft);margin-top:2px}
+h2{font-size:16px;margin:26px 0 10px}
+.prods{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+.prod{background:var(--card);border-radius:20px;padding:16px;box-shadow:0 2px 12px rgba(46,36,51,.05);border-top:5px solid var(--c)}
+.prod h3{margin:0 0 8px;font-size:15px;color:var(--c)}
+.kv{display:flex;justify-content:space-between;font-size:13px;padding:3px 0;border-bottom:1px dashed var(--line)}
+.kv:last-of-type{border-bottom:0}
+.kv b{font-weight:600}
+.hist{display:flex;align-items:flex-end;gap:6px;height:90px;margin-top:12px}
+.hist div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;font-size:11px;color:var(--soft)}
+.hist i{display:block;width:100%;background:var(--c);opacity:.85;border-radius:6px 6px 2px 2px;min-height:2px}
+.hist em{font-style:normal;font-weight:600;color:var(--ink);font-size:11.5px}
+.hcap{font-size:11.5px;color:var(--soft);margin:6px 0 0}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 12px}
+.chip{background:#fff;color:var(--ink);border:1.5px solid var(--line);border-radius:999px;padding:6px 12px;font-weight:500}
+.chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+input[type=search]{width:100%;border:1.5px solid var(--line);border-radius:14px;padding:10px 12px;font:500 14px Poppins,system-ui;background:#fff;color:var(--ink)}
+.user{background:var(--card);border-radius:18px;padding:12px 14px;margin-bottom:8px;box-shadow:0 1px 8px rgba(46,36,51,.04)}
+.urow{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.em{font-weight:600;word-break:break-all}
+.when{font-size:12px;color:var(--soft);white-space:nowrap;text-align:right}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.ps{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.p{font-size:12px;border-radius:10px;padding:4px 9px;background:color-mix(in srgb,var(--c) 12%,#fff);color:var(--c);font-weight:500}
+.p.off{background:#F4EFEA;color:var(--soft)}
+.msg{background:#fff;border-radius:18px;padding:22px;margin-top:20px;box-shadow:0 2px 12px rgba(46,36,51,.05)}
+.note{font-size:12px;color:var(--soft);margin-top:22px}
+.copy{background:none;color:var(--soft);padding:0 0 0 6px;font-weight:500;font-size:12px;text-decoration:underline}
+</style></head>
+<body><div class="wrap">
+<header><img src="../saku/logo.png" alt="littles noor"><div style="display:flex;gap:8px"><button class="light" id="rf">↻ Muat ulang</button><button class="light" id="lo" style="display:none">Keluar</button></div></header>
+<h1>Dashboard admin</h1>
+<p class="sub" id="upd">Memuat data...</p>
+<div id="out"></div>
+</div>
+<script>
+const CONFIG={url:"https://bbldcyxwxwsqemycjgog.supabase.co",key:"sb_publishable_bxSEp3nugCl9P7RnxJSwBg_JpsJBuMe"};
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const SK="ln.admin.sess";  // sesi admin terpisah dari sesi aplikasi
+const jget=(k,d)=>{try{const v=JSON.parse(localStorage.getItem(k)||"null");return v==null?d:v;}catch(e){return d;}};
+// Produk: kunci data di aplikasi → id produk, nama, warna, angka progres yang ditampilkan
+const P=[
+ {k:"mulailagi.v1",id:"mulai-lagi-id",name:"Mulai Lagi",c:"#9A5262",main:"hari",lab:n=>`hari ${n.hari}/30`},
+ {k:"planner.v1",id:"planner-2027-id",name:"Planner 2027",c:"#226A7A",main:"jurnal",lab:n=>`${n.jurnal} hari jurnal${n.juz?" · "+n.juz+" juz":""}`},
+ {k:"majelis.v1",id:"catatan-majelis-id",name:"Catatan Majelis",c:"#4A3452",main:"catatan",lab:n=>`${n.catatan} catatan · ${n.mutabaah} hari mutaba'ah`},
+ {k:"cukup.v1",id:"cukup-id",name:"Cukup",c:"#3A5A4A",main:"transaksi",lab:n=>`${n.transaksi} transaksi`},
+ {k:"catatusaha.v1",id:"catat-usaha-id",name:"Catat Usaha",c:"#A65A3C",main:"nota",lab:n=>`${n.nota} nota · ${n.produk} produk`}
+];
+const DAY=864e5;
+const ago=t=>{if(!t)return null;return (Date.now()-Date.parse(t))/DAY;};
+const agoTxt=t=>{const d=ago(t);if(d==null)return "belum pernah";if(d<1/24)return "baru saja";if(d<1)return Math.round(d*24)+" jam lalu";if(d<2)return "kemarin";return Math.round(d)+" hari lalu";};
+const avg=a=>a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length*10)/10:0;
+
+async function authFetch(path,body){
+  const r=await fetch(CONFIG.url+"/auth/v1/"+path,{method:"POST",headers:{"Content-Type":"application/json",apikey:CONFIG.key},body:JSON.stringify(body)});
+  let j={};try{j=await r.json();}catch(e){}
+  if(!r.ok){const er=new Error(j.msg||j.error_description||j.message||("http "+r.status));er.status=r.status;throw er;}
+  return j;}
+const saveSess=j=>{const n={at:j.access_token,rt:j.refresh_token,exp:Date.now()+((j.expires_in||3600)-90)*1000,email:String(j.user&&j.user.email||"").toLowerCase()};try{localStorage.setItem(SK,JSON.stringify(n));}catch(e){}return n;};
+async function token(){
+  const s=jget(SK,null);if(!s)return null;
+  if(Date.now()<s.exp)return s.at;
+  try{return saveSess(await authFetch("token?grant_type=refresh_token",{refresh_token:s.rt})).at;}
+  catch(e){try{localStorage.removeItem(SK);}catch(_){}return null;}}
+function logout(){try{localStorage.removeItem(SK);}catch(e){}DATA=null;$("#lo").style.display="none";load();}
+
+function loginForm(err){
+  $("#upd").textContent="";$("#lo").style.display="none";
+  $("#out").innerHTML=`<div class="msg" style="max-width:420px">
+   <b style="font-size:17px">Masuk sebagai admin</b>
+   <p class="sub" style="margin:4px 0 14px">Kode masuk akan dikirim ke email admin.</p>
+   <div id="st1"><input id="em" type="email" placeholder="email admin" autocomplete="email" style="width:100%;border:1.5px solid var(--line);border-radius:14px;padding:11px 12px;font:500 15px Poppins,system-ui">
+    <button id="snd" style="width:100%;margin-top:10px;padding:12px">Kirim kode</button></div>
+   <div id="st2" style="display:none"><input id="cd" inputmode="numeric" maxlength="8" placeholder="kode dari email" autocomplete="one-time-code" style="width:100%;border:1.5px solid var(--line);border-radius:14px;padding:11px 12px;font:600 18px Poppins,system-ui;letter-spacing:4px;text-align:center">
+    <button id="vf" style="width:100%;margin-top:10px;padding:12px">Masuk</button><p class="sub" style="margin-top:8px"><a href="#" id="bk">‹ ganti email</a></p></div>
+   <p id="er" style="color:#B4566A;font-size:13px;margin:10px 0 0">${err?esc(err):""}</p></div>`;
+  let email="";
+  $("#snd").onclick=async()=>{email=$("#em").value.trim().toLowerCase();if(!email)return;$("#snd").disabled=true;$("#snd").textContent="Mengirim...";$("#er").textContent="";
+    try{await authFetch("otp",{email,create_user:true});$("#st1").style.display="none";$("#st2").style.display="block";$("#cd").focus();}
+    catch(e){$("#er").textContent="Kode tidak bisa dikirim ke email ini.";}
+    $("#snd").disabled=false;$("#snd").textContent="Kirim kode";};
+  $("#vf").onclick=async()=>{const code=$("#cd").value.trim();if(!code)return;$("#vf").disabled=true;$("#vf").textContent="Memeriksa...";
+    try{saveSess(await authFetch("verify",{type:"email",email,token:code}));load();}
+    catch(e){$("#er").textContent="Kodenya salah atau sudah kedaluwarsa.";$("#vf").disabled=false;$("#vf").textContent="Masuk";}};
+  $("#bk").onclick=e=>{e.preventDefault();loginForm();};
+}
+
+function msg(html){$("#out").innerHTML=`<div class="msg">${html}</div>`;}
+
+async function load(){
+  $("#upd").textContent="Memuat data...";
+  let t=null;try{t=await token();}catch(e){}
+  if(!t)return loginForm();
+  let r;
+  try{const res=await fetch(CONFIG.url+"/rest/v1/rpc/admin_dashboard",{method:"POST",headers:{"Content-Type":"application/json",apikey:CONFIG.key,Authorization:"Bearer "+t},body:"{}"});
+    if(res.status===404){$("#upd").textContent="";return msg(`<b>Fungsi dashboard belum dipasang</b><p>Jalankan file <code>supabase/03-dashboard-admin.sql</code> di Supabase → SQL Editor.</p>`);}
+    r=await res.json();}
+  catch(e){$("#upd").textContent="";return msg("<b>Gagal memuat.</b> Periksa koneksi internet lalu muat ulang.");}
+  if(!r||!r.ok){const em=(jget(SK,{})||{}).email||"";try{localStorage.removeItem(SK);}catch(e){}return loginForm(em+" bukan email admin.");}
+  $("#lo").style.display="";
+  draw(r);
+}
+
+let DATA=null, FILTER="semua", Q="";
+function draw(r){
+  DATA=r;const U=r.users;
+  $("#upd").textContent="Diperbarui "+new Date(r.now).toLocaleString("id-ID",{dateStyle:"medium",timeStyle:"short"})+" · hanya angka progres, bukan isi tulisan pembeli";
+  const akun=U.filter(u=>u.akun).length, a7=U.filter(u=>ago(u.aktif_terakhir)!=null&&ago(u.aktif_terakhir)<=7).length,
+        a30=U.filter(u=>ago(u.aktif_terakhir)!=null&&ago(u.aktif_terakhir)<=30).length, never=U.filter(u=>!u.aktif_terakhir).length;
+  const pct=n=>U.length?Math.round(n/U.length*100)+"% pembeli":"";
+  let h=`<div class="tiles">
+   <div class="tile"><b>${U.length}</b><span>Pembeli</span><small>email unik</small></div>
+   <div class="tile"><b>${akun}</b><span>Sudah login</span><small>${pct(akun)}</small></div>
+   <div class="tile"><b>${a7}</b><span>Aktif 7 hari</span><small>${pct(a7)}</small></div>
+   <div class="tile"><b>${a30}</b><span>Aktif 30 hari</span><small>${pct(a30)}</small></div>
+   <div class="tile"><b>${never}</b><span>Belum pernah dipakai</span><small>${pct(never)}</small></div></div>`;
+  h+=`<h2>Per produk</h2><div class="prods">`;
+  for(const p of P){
+    const buy=U.filter(u=>(u.owned||[]).includes(p.id));
+    const used=buy.filter(u=>u.progres&&u.progres[p.k]);
+    const act=used.filter(u=>ago(u.progres[p.k].at)<=7);
+    const vals=used.map(u=>u.progres[p.k].n[p.main]||0);
+    h+=`<div class="prod" style="--c:${p.c}"><h3>${p.name}</h3>
+     <div class="kv"><span>Dibeli</span><b>${buy.length}</b></div>
+     <div class="kv"><span>Sudah dipakai</span><b>${used.length}</b></div>
+     <div class="kv"><span>Dipakai 7 hari terakhir</span><b>${act.length}</b></div>`;
+    if(p.k==="mulailagi.v1"){
+      const fin=vals.filter(v=>v>=30).length;
+      h+=`<div class="kv"><span>Rata-rata sampai hari</span><b>${avg(vals)}</b></div><div class="kv"><span>Selesai 30 hari</span><b>${fin}</b></div>`;
+      const B=[["0",v=>v===0],["1–7",v=>v>=1&&v<=7],["8–14",v=>v>=8&&v<=14],["15–21",v=>v>=15&&v<=21],["22–29",v=>v>=22&&v<=29],["30",v=>v>=30]];
+      const cnt=B.map(([l,f])=>vals.filter(f).length),mx=Math.max(1,...cnt);
+      h+=`<div class="hist">${B.map(([l],i)=>`<div><em>${cnt[i]}</em><i style="height:${Math.round(cnt[i]/mx*62)+2}px"></i>${l}</div>`).join("")}</div><p class="hcap">Jumlah pembeli menurut hari terakhir yang diselesaikan. Batang yang tinggi di tengah = banyak yang berhenti di situ.</p>`;
+    }else{
+      const lbl={jurnal:"Rata-rata hari jurnal",catatan:"Rata-rata catatan",transaksi:"Rata-rata transaksi",nota:"Rata-rata nota"}[p.main];
+      h+=`<div class="kv"><span>${lbl}</span><b>${avg(vals)}</b></div><div class="kv"><span>Terbanyak</span><b>${vals.length?Math.max(...vals):0}</b></div>`;
+    }
+    h+=`</div>`;
+  }
+  h+=`</div><h2>Pembeli</h2>
+   <input type="search" id="q" placeholder="Cari email..." value="${esc(Q)}">
+   <div class="chips">${[["semua","Semua"],["aktif","Aktif 7 hari"],["diam","Tidak aktif > 14 hari"],["belum","Belum pernah dipakai"]].map(([k,l])=>`<button class="chip ${FILTER===k?"on":""}" data-f="${k}">${l}</button>`).join("")}</div>
+   <div id="list"></div>
+   <p class="note">"Sudah login" = sudah masuk dengan kode email (sejak versi 61). Pembeli yang hanya memakai cara masuk lama tercatat dari jumlah perangkat, tapi progresnya baru terlihat setelah mereka masuk dengan kode. Saku tidak dihitung karena tidak menyimpan progres.</p>`;
+  $("#out").innerHTML=h;
+  $("#q").oninput=e=>{Q=e.target.value.trim().toLowerCase();list();};
+  document.querySelectorAll("[data-f]").forEach(b=>b.onclick=()=>{FILTER=b.dataset.f;document.querySelectorAll("[data-f]").forEach(x=>x.classList.toggle("on",x===b));list();});
+  list();
+}
+function list(){
+  let U=DATA.users;
+  if(FILTER==="aktif")U=U.filter(u=>ago(u.aktif_terakhir)!=null&&ago(u.aktif_terakhir)<=7);
+  if(FILTER==="diam")U=U.filter(u=>u.aktif_terakhir&&ago(u.aktif_terakhir)>14);
+  if(FILTER==="belum")U=U.filter(u=>!u.aktif_terakhir);
+  if(Q)U=U.filter(u=>u.email.includes(Q));
+  $("#list").innerHTML=U.length?U.map(u=>{
+    const d=ago(u.aktif_terakhir),col=d==null?"#C9BFC4":d<=7?"#3B8456":d<=14?"#E0A12E":"#C0392B";
+    const ps=P.filter(p=>(u.owned||[]).includes(p.id)).map(p=>{const g=u.progres&&u.progres[p.k];
+      return g?`<span class="p" style="--c:${p.c}">${p.name}: ${esc(p.lab(g.n))}</span>`:`<span class="p off">${p.name}: belum dibuka</span>`;}).join("");
+    const saku=(u.owned||[]).includes("saku")?`<span class="p off">Saku</span>`:"";
+    return `<div class="user"><div class="urow"><div><span class="dot" style="background:${col}"></span><span class="em">${esc(u.email)}</span><button class="copy" data-cp="${esc(u.email)}">salin</button></div>
+      <div class="when">aktif ${agoTxt(u.aktif_terakhir)}<br>${u.akun?"login "+agoTxt(u.login_terakhir):(u.perangkat?"login cara lama":"belum login")}</div></div>
+      <div class="ps">${ps}${saku}</div></div>`;}).join(""):`<p class="sub">Tidak ada pembeli di filter ini.</p>`;
+  document.querySelectorAll("[data-cp]").forEach(b=>b.onclick=async()=>{try{await navigator.clipboard.writeText(b.dataset.cp);b.textContent="tersalin ✓";}catch(e){}});
+}
+$("#rf").onclick=load;$("#lo").onclick=logout;
+load();
+</script>
+</body></html>
