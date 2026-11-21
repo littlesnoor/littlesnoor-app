@@ -1099,11 +1099,13 @@ ckhome(){const M=ckLoad(),ym=ymNow(),inn=ckSum(ym,"in"),out=ckSum(ym,"out"),[sal
   <div class="card" style="display:flex;gap:12px;align-items:center"><div style="font-size:26px">☀️</div><div style="flex:1"><b style="font-size:14px">Hari ini: ${rp(td)}</b><p class="small" style="margin:2px 0 0">${esc(tip)}</p></div></div>
   ${dueBills.map(([b,k])=>`<div class="card" style="display:flex;gap:12px;align-items:center;background:#FDEBDC"><div style="font-size:26px">🧾</div><div style="flex:1"><b style="font-size:14px">${esc(b.n)} · ${rp(b.amt)}</b><p class="small" style="margin:2px 0 0">Jatuh tempo ${k===0?"hari ini":k+" hari lagi"}</p></div><button class="back" data-go="ckbill">Lihat</button></div>`).join("")}
   ${warn.map(([c,s,v])=>{const k=ckCatOf("out",c);return `<div class="card" style="display:flex;gap:12px;align-items:center;background:#FFF4E5"><div style="font-size:26px">${k[1]}</div><div style="flex:1"><b style="font-size:14px">${esc(k[2])} ${s>v?"melewati":"hampir habis"}</b><p class="small" style="margin:2px 0 0">${rp(s)} dari anggaran ${rp(v)}</p></div></div>`;}).join("")}
+  ${!M.rem.d?`<div class="card" style="display:flex;gap:12px;align-items:center"><div style="font-size:30px">⏰</div><div style="flex:1"><b style="font-size:14px">Pasang pengingat</b><p class="small" style="margin:2px 0 0">Supaya rutin mencatat keuangan.</p></div><button class="back" id="toRemind">Atur</button></div>`:""}
   <div class="tiles">${T.map(([v,a,b,bg,fg])=>`<button class="mtile" data-v="${v}" style="background:${bg};color:${fg}"><b>${a}</b><span>${b}</span></button>`).join("")}</div>
   <div class="sec"><h3>Catatan terakhir</h3>${rec.length?`<button class="mini" data-go="cktx">Semua</button>`:""}</div>
   ${rec.length?`<div class="card" style="padding:6px 14px">${rec.map(ckTxRow).join("")}</div>`:`<div class="card"><p class="small" style="margin:0">Belum ada catatan. Mulai dari yang kecil: jajan hari ini pun boleh 🌱</p></div>`}</div>`;
   ckBind();$("#addOut").onclick=()=>ckEntry(null,{t:"out"});$("#addIn").onclick=()=>ckEntry(null,{t:"in"});
-  app.querySelectorAll("[data-v],[data-go]").forEach(b=>b.onclick=()=>go(b.dataset.v||b.dataset.go));ckBindTx();},
+  app.querySelectorAll("[data-v],[data-go]").forEach(b=>b.onclick=()=>go(b.dataset.v||b.dataset.go));ckBindTx();
+  if($("#toRemind"))$("#toRemind").onclick=()=>{go("ckmore");setTimeout(()=>{const r=$("#remind");if(r)r.scrollIntoView({behavior:"smooth",block:"center"});},50);};},
 cktx(){const M=ckLoad();ckMon=ckMon||ymNow();const ym=ckMon;let L=M.tx.filter(x=>ymOf(x.d)===ym);const cats=[...new Set(L.map(x=>x.t+":"+x.cat))];if(ckCat&&!cats.includes(ckCat))ckCat="";if(ckCat)L=L.filter(x=>x.t+":"+x.cat===ckCat);
   L.sort((a,b)=>b.d.localeCompare(a.d));const days=[...new Set(L.map(x=>x.d))];
   app.innerHTML=`<div class="wrap">${ckHead("Riwayat","")}${ckMonNav(ym)}
@@ -1235,6 +1237,10 @@ const CUUNIT=["pcs","porsi","box","pack","kg","gram","liter","lusin","paket"];
 function cuLoad(){if(CU)return CU;try{CU=JSON.parse(lsGet(CUKEY)||"null");}catch(e){}
   CU=Object.assign({shop:{n:"",addr:"",wa:"",foot:"Terima kasih sudah berbelanja 🤍"},prod:[],cust:[],sales:[],exp:[],seq:0},CU||{});
   if(!cuImgReady)cuImgInit().then(()=>{if(Object.keys(CUIMG).length&&/^cu/.test(view)&&!document.querySelector(".modal")&&document.activeElement.tagName!=="INPUT")render();});return CU;}
+function cuRemCard(){const M=cuLoad(),r=(M.rem||{});return `<div class="card" id="remind"><b style="font-size:15px">⏰ Pengingat mencatat</b><p class="small" style="margin:6px 0 4px">Pilih jam, lalu tambahkan ke kalender HP.</p>
+  <input type="time" id="curt" value="${r.d||"20:00"}" style="width:100%;border:1.5px solid var(--line);border-radius:14px;padding:10px 12px;font:600 16px Poppins,system-ui;color:var(--ink);background:#fff;margin-top:8px">
+  <div class="row" style="margin-top:8px"><button class="btn" id="cuics" style="padding:11px;font-size:13.5px">📅 Kalender</button><button class="btn light" id="cugc" style="padding:11px;font-size:13.5px">Google Calendar</button></div>
+  ${r.d?`<p class="small" style="margin:6px 0 0">Terakhir diatur: <b>${esc(r.d)}</b> ✓</p>`:""}</div>`;}
 function cuSave(){lsSet(CUKEY,JSON.stringify(CU));}
 const cuTot=s=>Math.max(0,s.items.reduce((a,i)=>a+i.q*i.price,0)-(+s.disc||0));
 const cuPaid=s=>(s.pays||[]).reduce((a,p)=>a+p.amt,0);
@@ -1503,10 +1509,12 @@ cuhome(){const M=cuLoad(),ym=ymNow(),st=cuMonthStats(ym),[sal]=greet(),tdS=M.sal
   <div class="row" style="margin-top:12px"><button class="btn" id="cuNew">＋ Nota baru</button><button class="btn light" id="cuExp">－ Modal / biaya</button></div>
   <div class="card" style="display:flex;gap:12px;align-items:center"><div style="font-size:26px">☀️</div><div style="flex:1"><b style="font-size:14px">Hari ini: ${rp(td)}</b><p class="small" style="margin:2px 0 0">${tdS.length} nota terjual hari ini</p></div></div>
   ${low.length?`<div class="card" style="display:flex;gap:12px;align-items:center;background:#FFF4E5"><div style="font-size:26px">⚠️</div><div style="flex:1"><b style="font-size:14px">Stok hampir habis</b><p class="small" style="margin:2px 0 0">${low.slice(0,3).map(p=>esc(p.n)+" ("+p.stock+")").join(", ")}</p></div><button class="back" data-go="cuprod">Lihat</button></div>`:""}
+  ${!(M.rem&&M.rem.d)?`<div class="card" style="display:flex;gap:12px;align-items:center"><div style="font-size:30px">⏰</div><div style="flex:1"><b style="font-size:14px">Pasang pengingat</b><p class="small" style="margin:2px 0 0">Supaya rutin mencatat penjualan.</p></div><button class="back" id="toRemind">Atur</button></div>`:""}
   <div class="tiles">${Tl.map(([v,a,b,bg,fg])=>`<button class="mtile" data-go="${v}" style="background:${bg};color:${fg}"><b>${a}</b><span>${b}</span></button>`).join("")}</div>
   <div class="sec"><h3>Nota terakhir</h3>${rec.length?`<button class="mini" data-go="cusales">Semua</button>`:""}</div>
   ${rec.length?`<div class="card" style="padding:6px 14px">${rec.map(cuSaleRow).join("")}</div>`:`<div class="card"><p class="small" style="margin:0">Belum ada nota. Tambahkan produkmu dulu, lalu buat nota pertama 🌱</p></div>`}</div>`;
-  cuBind();cuBindSales();$("#cuNew").onclick=()=>{cuDraft=cuNewDraft();go("cunew");};$("#cuExp").onclick=()=>cuExpSheet();},
+  cuBind();cuBindSales();$("#cuNew").onclick=()=>{cuDraft=cuNewDraft();go("cunew");};$("#cuExp").onclick=()=>cuExpSheet();
+  if($("#toRemind"))$("#toRemind").onclick=()=>{go("cumore");setTimeout(()=>{const r=$("#remind");if(r)r.scrollIntoView({behavior:"smooth",block:"center"});},50);};},
 cunew(){const M=cuLoad(),D=cuDraft=cuDraft||cuNewDraft();const tot=Math.max(0,D.items.reduce((a,i)=>a+i.q*i.price,0)-(+D.disc||0));
   const cats=[...new Set(M.prod.map(p=>p.cat).filter(Boolean))];if(cuCat&&!cats.includes(cuCat))cuCat="";
   const fq={};M.sales.forEach(x=>x.items.forEach(i=>{if(i.p)fq[i.p]=(fq[i.p]||0)+i.q;}));const PS=[...M.prod].sort((a,b)=>(fq[b.id]||0)-(fq[a.id]||0)||a.n.localeCompare(b.n));
@@ -1649,10 +1657,13 @@ cumore(){const M=cuLoad();
   const L=[["cuprod","📦","Produk",M.prod.length+" produk"],["cucust","👥","Pelanggan",M.cust.length+" pelanggan"],["cuexp","🧺","Modal & biaya","catat pengeluaran usaha"],["cupiu","⏳","Belum lunas","piutang pelanggan"],["cushop","🏪","Profil toko","nama, alamat & WA di nota"]];
   app.innerHTML=`<div class="wrap">${cuHead("Lainnya","")}
   <div class="card" style="padding:6px 14px">${L.map(([v,e,a,b])=>`<button class="txr" data-go="${v}"><span class="txe">${e}</span><span class="txm"><b>${a}</b><small>${b}</small></span><span class="small">›</span></button>`).join("")}</div>
+  ${cuRemCard()}
   <div class="sec"><h3>Cadangkan data</h3><p>Datamu tersimpan di HP ini dan ikut tersimpan di akunmu saat online (termasuk foto produk). Kode cadangan tetap bisa dipakai sebagai jaga-jaga; foto produk tidak ikut di kode cadangan.</p></div>
   <div class="row"><button class="btn light" id="bk">⬇️ Salin kode cadangan</button><button class="btn light" id="rs">⬆️ Pulihkan</button></div>
   <p class="small" style="text-align:center;margin-top:20px">Butuh bantuan? DM Instagram <a href='https://instagram.com/littlesnoor' target='_blank' rel='noopener' style='color:var(--sage);font-weight:700'>@littlesnoor</a></p></div>`;
   cuBind();
+  {const get=()=>{const M=cuLoad();M.rem=M.rem||{};const hm=$("#curt").value||"20:00";M.rem.d=hm;cuSave();return hm;};const T="🧾 Catat penjualan hari ini",D="Rekap nota & biaya hari ini di Catat Usaha";
+   $("#cuics").onclick=()=>dlICS(icsFor(get(),T,D),"pengingat-catat-usaha.ics");$("#cugc").onclick=()=>window.open(gcalUrl(get(),T,D),"_blank");}
   $("#bk").onclick=async()=>{const code=btoa(unescape(encodeURIComponent(JSON.stringify(cuLoad()))));
     try{await navigator.clipboard.writeText(code);toast("Kode cadangan disalin ✓ Simpan di Notes/WA");}catch(e){const f=new File([code],"catat-usaha-cadangan.txt",{type:"text/plain"});cuShareFile(f,"catat-usaha-cadangan.txt");}};
   $("#rs").onclick=()=>{const e=document.createElement("div");e.className="modal";e.innerHTML=`<div class="sheet"><h3>Pulihkan data</h3><p class="small">Tempel kode cadangan. Data di HP ini akan diganti.</p><textarea id="rc" style="min-height:120px"></textarea><button class="btn" id="rok" style="margin-top:12px">Pulihkan</button><button class="btn ghost" id="rx" style="margin-top:8px">Batal</button></div>`;
@@ -2108,7 +2119,7 @@ view="shelf";boot();
 })();
 
 /* ===== Notifikasi pembaruan ===== */
-const APP_VERSION=61;
+const APP_VERSION=62;
 (function(){
   let shown=false;
   async function check(){

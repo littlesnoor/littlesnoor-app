@@ -57,6 +57,10 @@ footer a{color:inherit}
 <p class="how">Tips: pasang di <b>lock screen</b>, jadi kalimatnya selalu terlihat setiap kali kamu buka HP. Simpan juga halaman ini ke layar utama supaya bisa dibuka seperti aplikasi.</p>
 <h2>Koleksi wallpaper</h2><p class="hint">30 kartu. Ketuk untuk melihat, menyimpan, atau membagikan. ♥ = favoritmu.</p>
 <div class="grid" id="grid"></div>
+<div class="cta" id="remind"><b>⏰ Kartu penguat tiap hari</b><p>Pilih jam, lalu pasang pengingat di kalender HP. Saat waktunya tiba, buka Saku dan ambil satu kartu untuk hari ini.</p>
+<input type="time" id="rt" value="07:00" style="width:100%;box-sizing:border-box;border:1.5px solid #E6DCD3;border-radius:14px;padding:10px 12px;font:600 16px Poppins,system-ui;color:#3A3238;background:#fff;margin-bottom:10px">
+<div class="row" style="display:flex;gap:10px"><button class="btn" id="rIcs" style="background:#3A3238;color:#fff">📅 Kalender</button><button class="btn" id="rGc">Google Calendar</button></div>
+<p id="rLast" style="margin:10px 0 0;font-size:12.5px"></p></div>
 <div class="cta"><b>Mau tumbuh lebih jauh?</b><p>Workbook & planner littles noor: PDF + aplikasi di HP. Mulai Lagi, Catatan Majelis, Planner Muslimah 2027, dan Cukup.</p><a href="https://lynk.id/littlesnoor">Lihat di lynk.id/littlesnoor</a></div>
 <footer>littles noor · Tumbuh pelan, bersinar perlahan<br><a href="https://app.littlesnoor.com">app.littlesnoor.com</a> · <a href="https://instagram.com/littlesnoor">@littlesnoor</a></footer>
 </div><div class="toast" id="toast"></div>
@@ -70,6 +74,15 @@ let favs=[];try{favs=JSON.parse(ls.get("saku.fav")||"[]")}catch(e){}
 const doy=()=>{const n=new Date(),s=new Date(n.getFullYear(),0,0);return Math.floor((n-s)/864e5)};
 const T=(doy()-1)%Q.length; let i=T;
 const pad=n=>String(n+1).padStart(2,"0"); const wp=n=>"wp/saku-"+pad(n)+".jpg";
+function remWhen(hm){const[h,m]=hm.split(":").map(Number),d=new Date();d.setDate(d.getDate()+(d.getHours()*60+d.getMinutes()>=h*60+m?1:0));d.setHours(h,m,0,0);const e=new Date(d);e.setMinutes(e.getMinutes()+15);return[d,e];}
+function remF(x){const p=n=>String(n).padStart(2,"0");return`${x.getFullYear()}${p(x.getMonth()+1)}${p(x.getDate())}T${p(x.getHours())}${p(x.getMinutes())}00`;}
+const REM_T="✨ Kartu penguat hari ini",REM_D="Ambil satu kartu dari Saku littles noor";
+function remInit(){const t=$("#rt");if(!t)return;const last=ls.get("saku.rem");if(last){t.value=last;$("#rLast").textContent="Terakhir diatur: "+last+" ✓";}
+ const get=()=>{const v=t.value||"07:00";ls.set("saku.rem",v);$("#rLast").textContent="Terakhir diatur: "+v+" ✓";return v;};
+ $("#rIcs").onclick=()=>{const[a,b]=remWhen(get()),now=new Date().toISOString().replace(/[-:]/g,"").split(".")[0]+"Z";
+  const ics=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//littles noor//saku//ID","CALSCALE:GREGORIAN","BEGIN:VEVENT","UID:saku-"+Date.now()+"@littlesnoor.com","DTSTAMP:"+now,"DTSTART:"+remF(a),"DTEND:"+remF(b),"RRULE:FREQ=DAILY","SUMMARY:"+REM_T,"DESCRIPTION:"+REM_D+"\\nBuka: https://app.littlesnoor.com/saku/","URL:https://app.littlesnoor.com/saku/","BEGIN:VALARM","TRIGGER:PT0M","ACTION:DISPLAY","DESCRIPTION:"+REM_T,"END:VALARM","END:VEVENT","END:VCALENDAR"].join("\r\n");
+  const u=URL.createObjectURL(new Blob([ics],{type:"text/calendar"})),l=document.createElement("a");l.href=u;l.download="pengingat-saku.ics";document.body.appendChild(l);l.click();l.remove();toast("Buka file-nya lalu ketuk Tambahkan ✓");};
+ $("#rGc").onclick=()=>{const[a,b]=remWhen(get());window.open("https://calendar.google.com/calendar/render?action=TEMPLATE&text="+encodeURIComponent(REM_T)+"&dates="+remF(a)+"/"+remF(b)+"&recur="+encodeURIComponent("RRULE:FREQ=DAILY")+"&details="+encodeURIComponent(REM_D+"\nhttps://app.littlesnoor.com/saku/"),"_blank");};}
 function toast(t){const e=$("#toast");e.textContent=t;e.classList.add("on");clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove("on"),1800)}
 function show(){const [bg,ink,acc]=PAL[i%PAL.length],c=$("#card");c.style.background=bg;c.style.color=ink;$("#bar").style.background=acc;$("#star").style.color=acc;$("#no").style.color=acc;
  $("#t1").textContent=Q[i][0];$("#t2").textContent=Q[i][1];$("#no").textContent="Saku #"+pad(i);$("#lbl").textContent=i===T?"Kartu hari ini":"Saku #"+pad(i)+" dari 30";
@@ -89,4 +102,5 @@ function openWp(){const s=document.createElement("div");s.className="sheet";s.in
 $("#wpBtn").onclick=openWp;
 if(/[?&]app=1/.test(location.search)){const h=$("#hdr");h.textContent="‹ Rak";h.href="../";h.style.cssText="background:#fff;padding:7px 14px;border-radius:20px;box-shadow:0 2px 8px rgba(0,0,0,.08)";}
 show();
+remInit();
 </script></body></html>

@@ -1,4 +1,4 @@
-const C="littlesnoor-v61";
+const C="littlesnoor-v62";
 const FILES=["./","index.html","manifest.webmanifest","icon-192.png","icon-512.png","icon-180.png","covers/mulai-lagi-id.jpg","covers/catatan-majelis-id.jpg","covers/planner-2027-id.jpg"];
 self.addEventListener("install",e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(FILES)));self.skipWaiting();});
 self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))));self.clients.claim();});

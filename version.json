@@ -1,9 +1,7 @@
 {
- "v": 61,
+ "v": 62,
  "notes": [
-  "Akunmu sekarang lebih aman: masuk pakai kode dari email (cukup sekali di tiap HP/laptop)",
-  "Tulisan & catatanmu tersimpan di akun, jadi bisa dibuka di HP atau laptop lain",
-  "Tetap bisa dipakai offline, nanti tersinkron sendiri saat online",
-  "Foto produk Catat Usaha ikut tersimpan di akun"
+  "Tombol pengingat kini ada di semua produk, termasuk Catat Usaha dan Saku",
+  "Pasang pengingat harian langsung ke kalender HP atau Google Calendar"
  ]
 }
