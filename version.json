@@ -1,6 +1,7 @@
 {
- "v": 63,
+ "v": 64,
  "notes": [
-  "Keterangan penyimpanan data diperbarui: tulisanmu tersimpan di HP dan di akunmu"
+  "Sinkron antar HP & laptop lebih stabil: catatan tidak lagi hilang-muncul",
+  "Kalau aplikasi terbuka di dua tab/jendela, isinya tetap sama dan tidak saling menimpa"
  ]
 }

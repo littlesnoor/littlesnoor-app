@@ -590,7 +590,7 @@ function confirmBox(t,m,ok,lab){const e=document.createElement("div");e.classNam
 const MJID="catatan-majelis-id", MJCKEY="littlesnoor.content."+MJID, MJKEY="majelis.v1";
 let MJT=null, MJ=null, mjOpen=null, mjQ="", mjF="", mjDate=null;
 function mjLoad(){if(MJ)return MJ;try{MJ=JSON.parse(lsGet(MJKEY)||"null");}catch(e){}MJ=Object.assign({notes:[],mut:{},amalExtra:[],hal:[],haf:[],baca:[],doa:[],tanya:[]},MJ||{});return MJ;}
-function mjSave(){lsSet(MJKEY,JSON.stringify(MJ));}
+function mjSave(){if(MJ)lsSet(MJKEY,JSON.stringify(MJ));}
 let mjT;function mjFlash(){const e=$("#sv");if(e)e.textContent="Menyimpan...";clearTimeout(mjT);mjT=setTimeout(()=>{mjSave();if($("#sv"))$("#sv").textContent="Tersimpan otomatis ✓";},400);}
 const today=()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");};
 const fmtD=s=>{if(!s)return"";const[y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d).toLocaleDateString("id-ID",{day:"numeric",month:"short",year:"numeric"});};
@@ -814,7 +814,7 @@ listView("mjtanya","tanya","Pertanyaan untuk Ustadzah","Simpan pertanyaanmu sebe
 const PLID="planner-2027-id", PLCKEY="littlesnoor.content."+PLID, PLKEY="planner.v1";
 let PLT=null, PL=null, plDate=null, plMon=null, plSub="cal", plRam="prep", plTgt="dunia", plCatOpen=null;
 function plLoad(){if(PL)return PL;try{PL=JSON.parse(lsGet(PLKEY)||"null");}catch(e){}PL=Object.assign({jur:{},ref:{},visi:{},word:"",tgt:{},mon:{},hab:{},muh:{},ram:{},cat:[],rem:{}},PL||{});return PL;}
-function plSave(){lsSet(PLKEY,JSON.stringify(PL));}
+function plSave(){if(PL)lsSet(PLKEY,JSON.stringify(PL));}
 let plT;function plFlash(){const e=$("#sv");if(e)e.textContent="Menyimpan...";clearTimeout(plT);plT=setTimeout(()=>{plSave();if($("#sv"))$("#sv").textContent="Tersimpan otomatis ✓";},400);}
 const BLN=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
 const pad2=n=>String(n).padStart(2,"0");
@@ -1022,7 +1022,7 @@ let CKT=null, CK=null, ckMon=null, ckCat="", ckGoalOpen=null;
 function ckLoad(){if(CK)return CK;try{CK=JSON.parse(lsGet(CKKEY)||"null");}catch(e){}
   CK=Object.assign({tx:[],wal:null,bud:{},goals:[],bills:[],paid:{},refl:{},rem:{},xcat:{out:[],in:[]}},CK||{});
   if(!CK.wal)CK.wal=CKT.wal.map(([id,e,n])=>({id,e,n,init:0}));return CK;}
-function ckSave(){lsSet(CKKEY,JSON.stringify(CK));}
+function ckSave(){if(CK)lsSet(CKKEY,JSON.stringify(CK));}
 let ckT;function ckFlash(){const e=$("#sv");if(e)e.textContent="Menyimpan...";clearTimeout(ckT);ckT=setTimeout(()=>{ckSave();if($("#sv"))$("#sv").textContent="Tersimpan otomatis ✓";},400);}
 const rp=n=>(n<0?"-":"")+"Rp"+Math.round(Math.abs(n)).toLocaleString("id-ID");
 const rpS=n=>rp(n);
@@ -1241,7 +1241,7 @@ function cuRemCard(){const M=cuLoad(),r=(M.rem||{});return `<div class="card" id
   <input type="time" id="curt" value="${r.d||"20:00"}" style="width:100%;border:1.5px solid var(--line);border-radius:14px;padding:10px 12px;font:600 16px Poppins,system-ui;color:var(--ink);background:#fff;margin-top:8px">
   <div class="row" style="margin-top:8px"><button class="btn" id="cuics" style="padding:11px;font-size:13.5px">📅 Kalender</button><button class="btn light" id="cugc" style="padding:11px;font-size:13.5px">Google Calendar</button></div>
   ${r.d?`<p class="small" style="margin:6px 0 0">Terakhir diatur: <b>${esc(r.d)}</b> ✓</p>`:""}</div>`;}
-function cuSave(){lsSet(CUKEY,JSON.stringify(CU));}
+function cuSave(){if(CU)lsSet(CUKEY,JSON.stringify(CU));}
 const cuTot=s=>Math.max(0,s.items.reduce((a,i)=>a+i.q*i.price,0)-(+s.disc||0));
 const cuPaid=s=>(s.pays||[]).reduce((a,p)=>a+p.amt,0);
 const cuDue=s=>Math.max(0,cuTot(s)-cuPaid(s));
@@ -1828,6 +1828,7 @@ async function authFetch(path,body){
 const fromAuth=j=>({at:j.access_token,rt:j.refresh_token,exp:Date.now()+((j.expires_in||3600)-90)*1000,uid:j.user&&j.user.id,email:String(j.user&&j.user.email||"").toLowerCase()});
 let refreshing=null;
 async function token(){
+  sess=jget(SK,null);
   if(!sess)return null;
   if(Date.now()<sess.exp)return sess.at;
   if(!refreshing)refreshing=(async()=>{try{const j=await authFetch("token?grant_type=refresh_token",{refresh_token:sess.rt});setSess(fromAuth(j));return sess.at;}
@@ -1857,7 +1858,7 @@ async function verify(email,code){
   setSess(fromAuth(j));return finishLogin();}
 // keluar: data tetap di HP; kunci perangkat disimpan supaya masuk lagi di HP ini tidak perlu kode
 async function signOut(){
-  if(sess){try{flush();await Promise.race([run(),new Promise(r=>setTimeout(r,4000))]);}catch(e){}
+  if(sess){try{await new Promise(r=>setTimeout(r,600));await Promise.race([run(),new Promise(r=>setTimeout(r,4000))]);}catch(e){}
     if(sess){const T=jget(TK,{});T[sess.email]={rt:sess.rt};jset(TK,T);}}
   setSess(null);}
 
@@ -1922,11 +1923,7 @@ function memLoaded(k){
   if(k==="majelis.v1")return !!MJ;if(k==="planner.v1")return !!PL;if(k==="cukup.v1")return !!CK;if(k==="catatusaha.v1")return !!CU;return false;}
 function reloadMem(k){
   if(k==="mulailagi.v1"){S={name:"",ans:{},done:{},step:{},dots:{},mood:{},doneAt:{}};load();}
-  if(k==="majelis.v1")MJ=null;if(k==="planner.v1")PL=null;if(k==="cukup.v1")CK=null;if(k==="catatusaha.v1")CU=null;}
-// simpan dulu isian yang masih di memori (belum sempat tersimpan) sebelum dibandingkan
-function flush(){const chk=(o,k,f)=>{if(o&&J(o)!==lsGet(k))f();};
-  try{chk(MJ,MJKEY,mjSave);chk(PL,PLKEY,plSave);chk(CK,CKKEY,ckSave);chk(CU,CUKEY,cuSave);
-    if(lsGet(KEY)!=null||S.name||Object.keys(S.ans||{}).length)chk(S,KEY,save);}catch(e){}}
+  try{if(k==="majelis.v1"&&MJ){MJ=null;mjLoad();}if(k==="planner.v1"&&PL){PL=null;plLoad();}if(k==="cukup.v1"&&CK){CK=null;ckLoad();}if(k==="catatusaha.v1"&&CU){CU=null;cuLoad();}}catch(e){}}
 function busy(){const a=document.activeElement;return !!(document.querySelector(".modal")||(a&&(/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)||a.isContentEditable)));}
 function writeLocal(k,str){applying=true;try{lsSet(k,str);}finally{applying=false;}reloadMem(k);}
 
@@ -1945,22 +1942,25 @@ async function integrate(k,b,g,uid){
   const lm=jget(MT,{})[k]||0,rm=Date.parse(g.at)||0,pref=lm>rm?"a":"b";
   conflicted=false;const merged=m3(o,loc,g.data,pref),mS=J(merged);
   if(mS!==locS&&memLoaded(k)&&busy()){soon(4000);return false;}
-  if(conflicted)keepBackup(k,pref==="a"?remS:locS);
+  if(conflicted||lostItems(locS,mS))keepBackup(k,locS);if(lostItems(remS,mS))keepBackup(k,remS);
   if(mS!==locS)writeLocal(k,mS);
   if(mS===remS){await baseSet(uid,k,{rev:g.rev,str:remS});return mS!==locS;}
   const r=await put(k,merged,g.rev);
   if(r&&r.ok)await baseSet(uid,k,{rev:r.rev,str:mS});
   else if(r&&r.reason==="conflict"){await baseSet(uid,k,{rev:g.rev,str:remS});soon(800);}
   return mS!==locS;}
+function lostItems(oldS,newS){const c=s=>(s.match(/"id":/g)||[]).length;return c(newS)<c(oldS);}
 async function run(){
+  if(navigator.locks&&!run._in){return navigator.locks.request("lnsync",()=>{run._in=true;return run().finally(()=>{run._in=false;});});}
   if(!sess||navigator.onLine===false){status();return;}
   if(running){again=true;return;}running=true;
   try{
-    flush();await token();if(!sess)return;
-    const uid=sess.uid,revs=(await rpc("sync_revs",{},true))||{},base=await baseLoad(uid),need=[];let applied=false;
+    await token();if(!sess)return;
+    B=null;const uid=sess.uid,revs=(await rpc("sync_revs",{},true))||{},base=await baseLoad(uid),need=[];let applied=false;
     for(const k of KEYS){const b=base[k],loc=lsGet(k),rr=revs[k]?revs[k].rev:0,br=b?b.rev:0;
       if(rr>br||(rr&&!b)){need.push(k);continue;}
-      if(loc!=null&&(!b||loc!==b.str||!rr)){let obj;try{obj=JSON.parse(loc);}catch(e){continue;}if(obj==null)continue;
+      if(loc!=null&&(!b||loc!==b.str||!rr)){let obj;try{obj=JSON.parse(loc);}catch(e){continue;}if(obj==null||typeof obj!=="object")continue;
+        if(b&&lostItems(b.str,loc))keepBackup(k,b.str);
         const r=await put(k,obj,rr);
         if(r&&r.ok)await baseSet(uid,k,{rev:r.rev,str:loc});
         else if(r&&r.reason==="conflict")applied=(await integrate(k,b,{rev:r.rev,at:r.at,data:r.data},uid))||applied;}}
@@ -2061,9 +2061,15 @@ document.addEventListener("click",e=>{if(e.target&&e.target.closest&&e.target.cl
 document.addEventListener("visibilitychange",()=>{if(sess)soon(document.visibilityState==="visible"?300:50);});
 window.addEventListener("online",()=>{status();if(sess)soon(500);});
 window.addEventListener("offline",status);
+let pendingReload=new Set();
+function refreshView(){if(!pendingReload.size||busy())return;pendingReload.forEach(reloadMem);pendingReload.clear();try{render();}catch(e){}}
+window.addEventListener("storage",e=>{
+  if(e.key===SK){sess=jget(SK,null);status();return;}
+  if(KEYS.indexOf(e.key)<0)return;B=null;pendingReload.add(e.key);refreshView();});
+document.addEventListener("focusout",()=>setTimeout(refreshView,300));
 setInterval(()=>{if(sess&&document.visibilityState==="visible")run();},90000);
 
-return {has:()=>!!sess,token,run,soon,touch,flush,signOut,authFlow,badge,status,photoChanged,_m3:m3};
+return {has:()=>!!sess,token,run,soon,touch,signOut,authFlow,badge,status,photoChanged,_m3:m3};
 })();
 if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));}
 view="shelf";boot();
@@ -2119,7 +2125,7 @@ view="shelf";boot();
 })();
 
 /* ===== Notifikasi pembaruan ===== */
-const APP_VERSION=63;
+const APP_VERSION=64;
 (function(){
   let shown=false;
   async function check(){
