@@ -1,7 +1,7 @@
 {
- "v": 65,
+ "v": 66,
  "notes": [
-  "Bagian cadangan lebih sederhana: isianmu tersimpan otomatis di akun",
-  "Cadangan manual sekarang ada di menu terpisah (opsional)"
+  "Catatan Majelis kini punya folder: kelompokkan catatan rapat, kajian kitab, halaqah, dan lainnya",
+  "Catatan baru bisa langsung dibuat di dalam folder, dan bisa dipindah folder kapan saja"
  ]
 }
