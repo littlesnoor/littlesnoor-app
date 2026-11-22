@@ -1,7 +1,7 @@
 {
- "v": 64,
+ "v": 65,
  "notes": [
-  "Sinkron antar HP & laptop lebih stabil: catatan tidak lagi hilang-muncul",
-  "Kalau aplikasi terbuka di dua tab/jendela, isinya tetap sama dan tidak saling menimpa"
+  "Bagian cadangan lebih sederhana: isianmu tersimpan otomatis di akun",
+  "Cadangan manual sekarang ada di menu terpisah (opsional)"
  ]
 }

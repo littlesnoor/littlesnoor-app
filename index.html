@@ -286,6 +286,11 @@ html,body{position:fixed;inset:0;width:100%;height:100%;overflow:hidden}
 .updbar .go{background:var(--sage);color:#fff}.updbar .later{background:#F4ECE6;color:#6a5d64;flex:0 0 auto;padding:11px 18px}
 .lnsync{display:block;width:100%;margin-top:10px;font:inherit;font-size:12.5px;line-height:1.4;padding:8px 12px;border-radius:12px;background:rgba(0,0,0,.045);color:inherit;border:0;text-align:left}
 .lnsync.warn{background:#FFE0D2;color:#782D1E;font-weight:600;cursor:pointer}
+.bkman summary{cursor:pointer;font-weight:600;font-size:14.5px;list-style:none}
+.bkman summary::-webkit-details-marker{display:none}
+.bkman summary::after{content:" ›";opacity:.6}
+.bkman[open] summary::after{content:" ⌄"}
+.bkman[open] summary{margin-bottom:8px}
 </style>
 </head>
 <body>
@@ -570,9 +575,10 @@ function more(){
   <div class="card"><div class="row"><div style="flex:1"><div class="sub">Hari selesai</div><div class="hello">${doneCount()}</div></div>
   <div style="flex:1"><div class="sub">Langkah kecil</div><div class="hello">${Object.values(S.step).filter(Boolean).length}</div></div>
   <div style="flex:1"><div class="sub">Rata-rata rasa</div><div class="hello">${avg===null?"–":MOODS[Math.round(avg)][0]}</div></div></div></div>
-  <div class="card"><h3 style="font-size:16px">Cadangan tulisanmu</h3><p class="small">Tulisanmu tersimpan di HP ini dan ikut tersimpan di akunmu saat online, jadi bisa dibuka di perangkat lain. Kode cadangan tetap bisa dipakai sebagai jaga-jaga.</p>
-  <div class="row"><button class="btn light" id="cp">Salin cadangan</button><button class="btn light" id="rs">Pulihkan</button></div>
-  <textarea id="bk" class="hidden" rows="4" placeholder="Tempel kode cadangan di sini, lalu ketuk Pulihkan lagi" style="margin-top:10px"></textarea></div>
+  <div class="card"><h3 style="font-size:16px">☁️ Tersimpan otomatis</h3><p class="small" style="margin:0">Tulisanmu otomatis tersimpan di akunmu, jadi bisa dibuka di HP atau laptop lain. Kamu tidak perlu melakukan apa-apa.</p></div>
+  <details class="card bkman"><summary>🗂️ Cadangan manual (opsional)</summary><p class="small">Hanya untuk jaga-jaga, misalnya sebelum menghapus banyak isian. Ketuk <b>Salin kode cadangan</b>, lalu simpan kodenya (misalnya di Notes, atau kirim WhatsApp ke dirimu sendiri). Untuk mengembalikan, ketuk <b>Pulihkan</b>, tempel kodenya, lalu ketuk Pulihkan lagi. Isian di perangkat ini akan diganti dengan isi kode.</p>
+  <div class="row"><button class="btn light" id="cp">Salin kode cadangan</button><button class="btn light" id="rs">Pulihkan</button></div>
+  <textarea id="bk" class="hidden" rows="4" placeholder="Tempel kode cadangan di sini, lalu ketuk Pulihkan lagi" style="margin-top:10px"></textarea></details>
   <div class="card"><p class="small" style="margin:0 0 10px">Masuk sebagai <b>${esc((acc()||{}).email||"")}</b></p><button class="btn ghost" id="rst">Mulai dari awal (hapus semua)</button></div>
   <p class="small" style="text-align:center;margin-top:18px">Mulai Lagi · littles noor<br>tumbuh pelan, bersinar perlahan</p></div>`;
   $("#nm").oninput=e=>{S.name=e.target.value;save();};
@@ -777,9 +783,10 @@ mjmore(){const SECT=[["mjhal","🤝 Rekap Halaqah","Kehadiran, materi & tugas"],
   app.innerHTML=`<div class="wrap">${mjHead("Lainnya","")}
   ${SECT.map(([v,t,s])=>`<button class="mjcard" data-v="${v}"><b>${t}</b><span>${s}</span></button>`).join("")}
   ${mjRemCard()}
-  <div class="card"><h3 style="font-size:16px">Cadangan Catatan Majelis</h3><p class="small">Catatanmu tersimpan di HP ini dan ikut tersimpan di akunmu saat online, jadi bisa dibuka di perangkat lain. Kode cadangan tetap bisa dipakai sebagai jaga-jaga.</p>
-  <div class="row"><button class="btn light" id="cp">Salin cadangan</button><button class="btn light" id="rs">Pulihkan</button></div>
-  <textarea id="bk" class="hidden" rows="4" placeholder="Tempel kode cadangan di sini, lalu ketuk Pulihkan lagi" style="margin-top:10px"></textarea></div></div>`;
+  <div class="card"><h3 style="font-size:16px">☁️ Tersimpan otomatis</h3><p class="small" style="margin:0">Catatanmu otomatis tersimpan di akunmu, jadi bisa dibuka di HP atau laptop lain. Kamu tidak perlu melakukan apa-apa.</p></div>
+  <details class="card bkman"><summary>🗂️ Cadangan manual (opsional)</summary><p class="small">Hanya untuk jaga-jaga, misalnya sebelum menghapus banyak isian. Ketuk <b>Salin kode cadangan</b>, lalu simpan kodenya (misalnya di Notes, atau kirim WhatsApp ke dirimu sendiri). Untuk mengembalikan, ketuk <b>Pulihkan</b>, tempel kodenya, lalu ketuk Pulihkan lagi. Isian di perangkat ini akan diganti dengan isi kode.</p>
+  <div class="row"><button class="btn light" id="cp">Salin kode cadangan</button><button class="btn light" id="rs">Pulihkan</button></div>
+  <textarea id="bk" class="hidden" rows="4" placeholder="Tempel kode cadangan di sini, lalu ketuk Pulihkan lagi" style="margin-top:10px"></textarea></details></div>`;
   mjBind();mjBindRem();app.querySelectorAll(".mjcard[data-v]").forEach(b=>b.onclick=()=>go(b.dataset.v));
   $("#cp").onclick=async()=>{const code=btoa(unescape(encodeURIComponent(JSON.stringify(mjLoad()))));try{await navigator.clipboard.writeText(code);toast("Kode cadangan disalin ✓");}catch(e){const b=$("#bk");b.classList.remove("hidden");b.value=code;b.select();toast("Salin kode di bawah ini");}};
   $("#rs").onclick=()=>{const b=$("#bk");if(b.classList.contains("hidden")||!b.value.trim()){b.classList.remove("hidden");b.value="";b.focus();return;}
@@ -1000,9 +1007,10 @@ plmore(){const SECT=[["plref","🌙 Refleksi 2026","Melihat kembali tahun ini"],
   app.innerHTML=`<div class="wrap">${plHead("Lainnya","")}
   ${SECT.map(([v,t,s])=>`<button class="mjcard" data-v="${v}"><b>${t}</b><span>${s}</span></button>`).join("")}
   ${plRemCard()}
-  <div class="card"><h3 style="font-size:16px">Cadangan Planner</h3><p class="small">Isi planner tersimpan di HP ini dan ikut tersimpan di akunmu saat online, jadi bisa dibuka di perangkat lain. Kode cadangan tetap bisa dipakai sebagai jaga-jaga.</p>
-  <div class="row"><button class="btn light" id="cp">Salin cadangan</button><button class="btn light" id="rs">Pulihkan</button></div>
-  <textarea id="bk" class="hidden" rows="4" placeholder="Tempel kode cadangan di sini, lalu ketuk Pulihkan lagi" style="margin-top:10px"></textarea></div></div>`;
+  <div class="card"><h3 style="font-size:16px">☁️ Tersimpan otomatis</h3><p class="small" style="margin:0">Isi planner-mu otomatis tersimpan di akunmu, jadi bisa dibuka di HP atau laptop lain. Kamu tidak perlu melakukan apa-apa.</p></div>
+  <details class="card bkman"><summary>🗂️ Cadangan manual (opsional)</summary><p class="small">Hanya untuk jaga-jaga, misalnya sebelum menghapus banyak isian. Ketuk <b>Salin kode cadangan</b>, lalu simpan kodenya (misalnya di Notes, atau kirim WhatsApp ke dirimu sendiri). Untuk mengembalikan, ketuk <b>Pulihkan</b>, tempel kodenya, lalu ketuk Pulihkan lagi. Isian di perangkat ini akan diganti dengan isi kode.</p>
+  <div class="row"><button class="btn light" id="cp">Salin kode cadangan</button><button class="btn light" id="rs">Pulihkan</button></div>
+  <textarea id="bk" class="hidden" rows="4" placeholder="Tempel kode cadangan di sini, lalu ketuk Pulihkan lagi" style="margin-top:10px"></textarea></details></div>`;
   plBind();plBindRem();app.querySelectorAll(".mjcard[data-v]").forEach(b=>b.onclick=()=>go(b.dataset.v));
   $("#cp").onclick=async()=>{const code=btoa(unescape(encodeURIComponent(JSON.stringify(plLoad()))));try{await navigator.clipboard.writeText(code);toast("Kode cadangan disalin ✓");}catch(e){const b=$("#bk");b.classList.remove("hidden");b.value=code;b.select();toast("Salin kode di bawah ini");}};
   $("#rs").onclick=()=>{const b=$("#bk");if(b.classList.contains("hidden")||!b.value.trim()){b.classList.remove("hidden");b.value="";b.focus();return;}
@@ -1210,9 +1218,10 @@ ckmore(){const M=ckLoad();const SECT=[["ckwal","👛 Dompet","Saldo per dompet &
   <div class="row"><input type="text" id="xe" value="🏷️" style="width:58px;flex:none;text-align:center;font-size:20px"><input type="text" id="xn" placeholder="misal: Kucing" style="flex:1;min-width:0"><button class="back" id="xAdd">＋</button></div>
   <div class="chips" style="flex-wrap:wrap">${["out","in"].flatMap(t=>(M.xcat[t]||[]).map(c=>`<button class="fchip" data-xd="${t}:${c[0]}">${c[1]} ${esc(c[2])} ✕</button>`)).join("")}</div></div>
   <div class="card"><h3 style="font-size:16px">Unduh data</h3><p class="small">Semua catatan dalam format CSV, bisa dibuka di Excel atau Google Sheets.</p><button class="btn light" id="csv">⬇️ Unduh CSV</button></div>
-  <div class="card"><h3 style="font-size:16px">Cadangan</h3><p class="small">Data keuanganmu tersimpan di HP ini dan ikut tersimpan di akunmu saat online, jadi bisa dibuka di perangkat lain. Kode cadangan tetap bisa dipakai sebagai jaga-jaga.</p>
-  <div class="row"><button class="btn light" id="cp">Salin cadangan</button><button class="btn light" id="rs">Pulihkan</button></div>
-  <textarea id="bk" class="hidden" rows="4" placeholder="Tempel kode cadangan di sini, lalu ketuk Pulihkan lagi" style="margin-top:10px"></textarea></div></div>`;
+  <div class="card"><h3 style="font-size:16px">☁️ Tersimpan otomatis</h3><p class="small" style="margin:0">Catatan keuanganmu otomatis tersimpan di akunmu, jadi bisa dibuka di HP atau laptop lain. Kamu tidak perlu melakukan apa-apa.</p></div>
+  <details class="card bkman"><summary>🗂️ Cadangan manual (opsional)</summary><p class="small">Hanya untuk jaga-jaga, misalnya sebelum menghapus banyak isian. Ketuk <b>Salin kode cadangan</b>, lalu simpan kodenya (misalnya di Notes, atau kirim WhatsApp ke dirimu sendiri). Untuk mengembalikan, ketuk <b>Pulihkan</b>, tempel kodenya, lalu ketuk Pulihkan lagi. Isian di perangkat ini akan diganti dengan isi kode.</p>
+  <div class="row"><button class="btn light" id="cp">Salin kode cadangan</button><button class="btn light" id="rs">Pulihkan</button></div>
+  <textarea id="bk" class="hidden" rows="4" placeholder="Tempel kode cadangan di sini, lalu ketuk Pulihkan lagi" style="margin-top:10px"></textarea></details></div>`;
   ckBind();app.querySelectorAll(".mjcard[data-v]").forEach(b=>b.onclick=()=>go(b.dataset.v));
   const get=()=>{const hm=$("#ckrt").value||"20:00";M.rem.d=hm;ckSave();return hm;};const T="💰 Catat keuangan hari ini",D="2 menit di Cukup, biar tahu ke mana uang pergi";
   $("#ckics").onclick=()=>dlICS(icsFor(get(),T,D),"pengingat-cukup.ics");$("#ckgc").onclick=()=>window.open(gcalUrl(get(),T,D),"_blank");
@@ -1658,8 +1667,9 @@ cumore(){const M=cuLoad();
   app.innerHTML=`<div class="wrap">${cuHead("Lainnya","")}
   <div class="card" style="padding:6px 14px">${L.map(([v,e,a,b])=>`<button class="txr" data-go="${v}"><span class="txe">${e}</span><span class="txm"><b>${a}</b><small>${b}</small></span><span class="small">›</span></button>`).join("")}</div>
   ${cuRemCard()}
-  <div class="sec"><h3>Cadangkan data</h3><p>Datamu tersimpan di HP ini dan ikut tersimpan di akunmu saat online (termasuk foto produk). Kode cadangan tetap bisa dipakai sebagai jaga-jaga; foto produk tidak ikut di kode cadangan.</p></div>
-  <div class="row"><button class="btn light" id="bk">⬇️ Salin kode cadangan</button><button class="btn light" id="rs">⬆️ Pulihkan</button></div>
+  <div class="card"><h3 style="font-size:16px">☁️ Tersimpan otomatis</h3><p class="small" style="margin:0">Data usahamu (termasuk foto produk) otomatis tersimpan di akunmu, jadi bisa dibuka di HP atau laptop lain. Kamu tidak perlu melakukan apa-apa.</p></div>
+  <details class="card bkman"><summary>🗂️ Cadangan manual (opsional)</summary><p class="small">Hanya untuk jaga-jaga, misalnya sebelum menghapus banyak isian. Ketuk <b>Salin kode cadangan</b>, lalu simpan kodenya (misalnya di Notes, atau kirim WhatsApp ke dirimu sendiri). Untuk mengembalikan, ketuk <b>Pulihkan</b>, tempel kodenya, lalu ketuk Pulihkan lagi. Data di perangkat ini akan diganti dengan isi kode. Foto produk tidak ikut di kode cadangan.</p>
+  <div class="row"><button class="btn light" id="bk">Salin kode cadangan</button><button class="btn light" id="rs">Pulihkan</button></div></details>
   <p class="small" style="text-align:center;margin-top:20px">Butuh bantuan? DM Instagram <a href='https://instagram.com/littlesnoor' target='_blank' rel='noopener' style='color:var(--sage);font-weight:700'>@littlesnoor</a></p></div>`;
   cuBind();
   {const get=()=>{const M=cuLoad();M.rem=M.rem||{};const hm=$("#curt").value||"20:00";M.rem.d=hm;cuSave();return hm;};const T="🧾 Catat penjualan hari ini",D="Rekap nota & biaya hari ini di Catat Usaha";
@@ -2125,7 +2135,7 @@ view="shelf";boot();
 })();
 
 /* ===== Notifikasi pembaruan ===== */
-const APP_VERSION=64;
+const APP_VERSION=65;
 (function(){
   let shown=false;
   async function check(){
