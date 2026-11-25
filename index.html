@@ -1852,7 +1852,7 @@ function summaryCard(owned,P0){
   return `<div class="card sumcard"><button class="sumhd" id="sumTg"><b>📊 Ringkasanku</b><span class="small">${sumOpen?"Tutup ⌃":"Buka ⌄"}</span></button>
   ${sumOpen?`<p class="small" style="margin:4px 0 8px">${head}</p>
   <div class="badges">${BADGES.map(b=>`<span class="badge ${best>=b[0]?"on":""}" title="${b[2]}: ${b[0]} hari berturut-turut"><i>${b[1]}</i><small>${b[0]} hari</small></span>`).join("")}</div>
-  <p class="small" style="margin:6px 0 8px">${nxt?`Rekormu <b>${best} hari</b> berturut-turut. ${nxt[0]-Math.max(st,0)>0?`<b>${nxt[0]-st} hari lagi</b> mengisi tanpa bolong untuk lencana ${nxt[1]} <b>${nxt[2]}</b>.`:""}`:`MasyaAllah, semua lencana sudah kamu raih! 🏅`}<br>🎁 Tiap bulan, beberapa pembeli yang paling istiqamah mendapat <b>Traktiran littles noor</b>.</p>${rows.map(([id,ic,nm,txt,pr])=>`<button class="sumrow" data-open="${id}"><span class="sumic">${ic}</span><span class="sumtx"><b>${nm}</b><small>${txt}</small>${pr!=null?`<i class="sumbar"><i style="width:${Math.round(Math.max(0,Math.min(1,pr))*100)}%"></i></i>`:""}</span><span class="small">›</span></button>`).join("")}`:""}</div>`;}
+  <p class="small" style="margin:6px 0 8px">${nxt?`Rekormu <b>${best} hari</b> berturut-turut. ${nxt[0]-Math.max(st,0)>0?`<b>${nxt[0]-st} hari lagi</b> mengisi tanpa bolong untuk lencana ${nxt[1]} <b>${nxt[2]}</b>.`:""}`:`MasyaAllah, semua lencana sudah kamu raih! 🏅`}<br>🎁 Tiap bulan, beberapa user yang paling istiqamah mendapat <b>Traktiran littles noor</b>.</p>${rows.map(([id,ic,nm,txt,pr])=>`<button class="sumrow" data-open="${id}"><span class="sumic">${ic}</span><span class="sumtx"><b>${nm}</b><small>${txt}</small>${pr!=null?`<i class="sumbar"><i style="width:${Math.round(Math.max(0,Math.min(1,pr))*100)}%"></i></i>`:""}</span><span class="small">›</span></button>`).join("")}`:""}</div>`;}
 function bindSummary(){const t=$("#sumTg");if(t)t.onclick=()=>{sumOpen=!sumOpen;try{localStorage.setItem("ln.sumOpen",sumOpen?"1":"0");}catch(e){}shelf();};
   app.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>openProduct(b.dataset.open));}
 function shelf(){
@@ -1880,7 +1880,7 @@ function shelf(){
      ${shelfEdit?`<span class="sedit"><i data-mv="-1" data-p="${p.id}" ${ix===0?'class="off"':""}>‹</i><i data-pin="${p.id}" class="${pin?"on":""}">📌</i><i data-mv="1" data-p="${p.id}" ${ix===P.length-1?'class="off"':""}>›</i></span>`:""}
      <img src="covers/${p.id}.jpg" alt=""><b>${esc(p.name)}</b><span>${esc(!live?p.tagline:(own?p.tagline:"Dapatkan di lynk.id/littlesnoor"))}</span></button>`}).join("")}</div>`).join("")}
   ${pushCard()}
-  ${["littlesnoor@gmail.com"].includes((A.email||"").toLowerCase())?`<a class="card fbcard" href="adminwildhard/" style="text-decoration:none;color:inherit"><span style="font-size:28px">🛠️</span><span style="flex:1;text-align:left"><b>Dashboard admin</b><small>Progres pembeli, penjualan, masukan & reward. Hanya terlihat olehmu</small></span><span class="small">›</span></a>`:""}
+  ${["littlesnoor@gmail.com"].includes((A.email||"").toLowerCase())?`<a class="card fbcard" href="adminwildhard/" style="text-decoration:none;color:inherit"><span style="font-size:28px">🛠️</span><span style="flex:1;text-align:left"><b>Dashboard admin</b><small>Progres user, penjualan, masukan & reward. Hanya terlihat olehmu</small></span><span class="small">›</span></a>`:""}
   <button class="card fbcard" id="fbOpen"><span style="font-size:28px">💌</span><span style="flex:1;text-align:left"><b>Kotak saran</b><small>Punya masukan atau ide aplikasi baru? Ceritakan ke kami</small></span><span class="small">›</span></button>
   <div class="card" style="margin-top:18px;display:flex;align-items:center;gap:10px"><p class="small" style="margin:0;flex:1">Masuk sebagai <b>${esc(A.email||"")}</b></p><button class="mini" id="logoutBtn">Keluar</button></div>
   <p class="small" style="text-align:center;margin-top:16px">Butuh bantuan? DM Instagram <a href='https://instagram.com/littlesnoor' target='_blank' rel='noopener' style='color:var(--sage);font-weight:700'>@littlesnoor</a></p></div>`;
@@ -2173,7 +2173,7 @@ function status(){const e=document.getElementById("lnSt")||document.getElementBy
 const ERRC="color:#B4566A;margin:10px 0 0;min-height:18px";
 const IG="<a href='https://instagram.com/littlesnoor' target='_blank' rel='noopener' style='color:var(--sage);font-weight:700'>@littlesnoor</a>";
 function resMsg(res){return res&&res.reason==="device_limit"?"Email ini sudah dipakai di batas maksimal perangkat. Hubungi "+IG+" untuk reset."
-  :"Email ini belum terdaftar sebagai pembeli. Pastikan sama dengan email saat membeli, atau hubungi "+IG+".";}
+  :"Email ini belum terdaftar sebagai user. Pastikan sama dengan email saat membeli, atau hubungi "+IG+".";}
 function errMsg(e){if(!e||!e.status)return "Tidak bisa terhubung. Cek internetmu lalu coba lagi.";
   if(e.status===429||/rate/i.test(e.code))return "Terlalu sering minta kode. Tunggu sekitar 1 menit, lalu coba lagi ya.";
   if(/belum terdaftar|not.?allowed|signup/i.test(e.message))return resMsg({reason:"not_buyer"});
@@ -2426,7 +2426,7 @@ var INK=(function(){
 })();
 
 /* ===== Notifikasi pembaruan ===== */
-const APP_VERSION=75;
+const APP_VERSION=76;
 (function(){
   let shown=false;
   async function check(){
