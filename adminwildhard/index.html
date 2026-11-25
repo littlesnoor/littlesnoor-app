@@ -162,7 +162,7 @@ async function compose(d){if(!d)return;const o=document.createElement("div");o.c
 function mailBtns(to,sub,body,label){
   const g="https://mail.google.com/mail/?authuser=littlesnoor@gmail.com&view=cm&fs=1&to="+encodeURIComponent(to)+"&su="+encodeURIComponent(sub)+"&body="+encodeURIComponent(body);
   const m="mailto:"+encodeURIComponent(to)+"?subject="+encodeURIComponent(sub)+"&body="+encodeURIComponent(body);
-  return `<a class="p" style="--c:var(--tc);text-decoration:none" href="${g}" target="_blank" rel="noopener">${label} lewat Gmail</a><a class="p off" style="text-decoration:none" href="${m}">aplikasi email</a>`;}
+  return `<a class="p off" style="text-decoration:none" href="${m}">✉️ lewat email</a>`;}
 /* ===== Perlu disapa: sudah beli tapi belum/jarang dipakai ===== */
 function nudge(U){
   const used=U.filter(u=>u.aktif_terakhir).length,rate=U.length?Math.round(used/U.length*100):0;
@@ -178,7 +178,7 @@ function nudge(U){
   return `<h2>🔔 Perlu disapa</h2>
   <div class="prod" style="--c:var(--tc)"><div class="kv"><span>Pembeli yang sudah memakai aplikasi</span><b>${used} dari ${U.length} (${rate}%)</b></div>
    <div class="sumbar" style="height:10px;background:#F1E8E2;border-radius:9px;overflow:hidden;margin:8px 0 4px"><i style="display:block;height:100%;width:${rate}%;background:var(--tc)"></i></div>
-   <p class="hcap">Target: semua pembeli memakai aplikasinya. Ketuk <b>✉️ Kirim sapaan lewat Gmail</b> untuk membuka Gmail di browser dengan pesan siap kirim (bisa kamu ubah dulu), atau <b>aplikasi email</b> kalau kamu pakai aplikasi Mail di HP/laptop.</p></div>
+   <p class="hcap">Target: semua pembeli memakai aplikasinya. Ketuk <b>💌 Kirim di aplikasi</b> untuk mengirim pesan yang muncul di aplikasi pembeli (bisa kamu ubah dulu). Untuk pembeli yang belum pernah masuk pakai kode, pakai <b>✉️ lewat email</b>.</p></div>
   ${belum.length?`<h3 style="font-size:14px;margin:14px 0 8px">Sudah beli, belum pernah dipakai (${belum.length})</h3>${belum.map(u=>row(u,"belum")).join("")}`:""}
   ${diam.length?`<h3 style="font-size:14px;margin:14px 0 8px">Sudah lebih dari 7 hari tidak dibuka (${diam.length})</h3>${diam.map(u=>row(u,"diam")).join("")}`:""}
   ${!belum.length&&!diam.length?`<p class="sub" style="margin-top:8px">MasyaAllah, semua pembeli aktif dalam 7 hari terakhir 🎉</p>`:""}`;}
@@ -199,7 +199,7 @@ function rewardsHtml(){
     const body=`Assalamu'alaikum,\n\nMasyaAllah, kamu termasuk pembeli yang paling istiqamah mengisi aplikasi littles noor di bulan ${bln}: ${x.terbaik_bulan_ini} hari berturut-turut 🤍\n\nSebagai apresiasi, kami ingin memberimu Traktiran littles noor. Boleh balas email ini dengan nama e-wallet dan nomornya (GoPay/OVO/DANA/ShopeePay)?\n\nTerima kasih sudah tumbuh pelan bersama kami. Semoga Allah menjaga istiqamahmu.\n\nTumbuh pelan, bersinar perlahan.\nPlan with intention, grow with barakah.\nlittles noor`;
     return appBtn(x.email,"Selamat, kamu dapat Traktiran littles noor 🎁",`Assalamu'alaikum 🤍\n\nMasyaAllah, kamu termasuk yang paling istiqamah mengisi aplikasi littles noor di bulan ${bln}: ${x.terbaik_bulan_ini} hari berturut-turut!\n\nSebagai apresiasi, kami ingin memberimu Traktiran littles noor. Ketuk 💬 Balas di bawah, lalu tulis nama e-wallet dan nomornya (GoPay/OVO/DANA/ShopeePay) ya.\n\nSemoga Allah menjaga istiqamahmu.\n\nTumbuh pelan, bersinar perlahan.\nPlan with intention, grow with barakah.`,"ucapan")+mailBtns(x.email,sub,body,"🎁 Kirim ucapan");};
   const medal=i=>["🥇","🥈","🥉"][i]||(i+1)+".";
-  return `<h2>🏆 Paling istiqamah · ${bln}</h2><p class="sub" style="margin:-4px 0 10px">Diurutkan dari hari berturut-turut terpanjang bulan ini. Pilih beberapa untuk Traktiran, lalu ketuk <b>🎁 Kirim ucapan</b>.</p>
+  return `<h2>🏆 Paling istiqamah · ${bln}</h2><p class="sub" style="margin:-4px 0 10px">Diurutkan dari hari berturut-turut terpanjang bulan ini. Pilih beberapa untuk Traktiran, lalu ketuk <b>💌 Kirim di aplikasi</b>.</p>
   ${L.length?L.slice(0,15).map((x,i)=>`<div class="user"><div class="urow"><div><b style="margin-right:6px">${medal(i)}</b><span class="em">${esc(x.email)}</span></div><div class="when">🔥 ${x.sekarang} hari sekarang</div></div>
     <div class="ps"><span class="p" style="--c:var(--tc)">Terpanjang bulan ini: ${x.terbaik_bulan_ini} hari</span><span class="p off">Hari mengisi bulan ini: ${x.hari_bulan_ini}</span><span class="p off">Rekor: ${x.terbaik} hari</span>${mail(x)}</div></div>`).join(""):`<p class="sub">Belum ada pembeli yang mengisi bulan ini.</p>`}
   <p class="note">Dihitung dari tanggal isian di semua aplikasi (jurnal, catatan, mutaba'ah, transaksi, nota, hari Mulai Lagi), tanpa membaca isi tulisan. Hanya pembeli yang sudah masuk pakai kode yang terhitung.</p>`;}
