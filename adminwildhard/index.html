@@ -170,7 +170,7 @@ async function loadExtra(t){
 let RW=null;
 function rewardsHtml(){
   if(!RW||!RW.ok)return `<h2>🏆 Paling istiqamah</h2><div class="msg"><b>Bagian reward belum dipasang.</b><p class="sub">Jalankan <code>supabase/05-reward-istiqamah.sql</code> di Supabase → SQL Editor.</p></div>`;
-  const L=RW.list.filter(x=>x.hari_bulan_ini>0||x.sekarang>0),bln=new Date(RW.today).toLocaleDateString("id-ID",{month:"long",year:"numeric"});
+  const L=RW.list.filter(x=>(x.hari_bulan_ini>0||x.sekarang>0)&&x.email!=="littlesnoor@gmail.com"),bln=new Date(RW.today).toLocaleDateString("id-ID",{month:"long",year:"numeric"});
   const mail=x=>{const sub="Selamat, kamu dapat Traktiran littles noor 🎁";
     const body=`Assalamu'alaikum,\n\nMasyaAllah, kamu termasuk pembeli yang paling istiqamah mengisi aplikasi littles noor di bulan ${bln}: ${x.terbaik_bulan_ini} hari berturut-turut 🤍\n\nSebagai apresiasi, kami ingin memberimu Traktiran littles noor. Boleh balas email ini dengan nama e-wallet dan nomornya (GoPay/OVO/DANA/ShopeePay)?\n\nTerima kasih sudah tumbuh pelan bersama kami. Semoga Allah menjaga istiqamahmu.\n\nTumbuh pelan, bersinar perlahan.\nPlan with intention, grow with barakah.\nlittles noor`;
     return mailBtns(x.email,sub,body,"🎁 Kirim ucapan");};
