@@ -133,6 +133,8 @@ nav button.on{color:var(--sage);font-weight:600}
 .chips{display:flex;gap:8px;overflow-x:auto;margin-top:10px;padding-bottom:4px}
 .fchip{flex:none;border:1.5px solid var(--line);background:#fff;border-radius:99px;padding:6px 12px;font:500 12.5px Poppins,system-ui;color:var(--ink);cursor:pointer}
 .fchip.on{background:var(--sage);color:#fff;border-color:var(--sage)}
+.tsbtn{background:#FFF6E3;border-color:#F0D9A6;color:#8A5A12}
+.tsstar{display:flex;gap:4px}.tsstar button{border:0;background:none;font-size:30px;line-height:1;color:#E3DCD6;cursor:pointer;padding:0 2px}.tsstar button.on{color:#E8A93B}
 .amal{display:flex;align-items:center;gap:12px;padding:11px 4px;border-bottom:1px solid #F1EAE4;cursor:pointer}
 .amal .check{border-color:var(--sage)}.amal.on .check{background:var(--sage)}
 .amal span{flex:1;font-size:14.5px}
@@ -1771,6 +1773,32 @@ function feedbackSheet(){const A=acc()||{};let kind="masukan";
       if(r&&r.ok===false)throw 0;e.remove();sheet("Terima kasih! 🤍","Saranmu sudah sampai. Doakan kami bisa terus berbenah dan membuat yang lebih bermanfaat ya.");}
     catch(x){btn.disabled=false;btn.textContent="Kirim saran";location.href="mailto:littlesnoor@gmail.com?subject="+encodeURIComponent("Saran littles noor ("+kind+")")+"&body="+encodeURIComponent(m);}};};
   draw();document.body.appendChild(e);e.onclick=x=>{if(x.target===e)e.remove();};}
+function testiSheet(owned,P0){const A=acc()||{};
+  const L=P0.filter(p=>owned.includes(p.id)&&p.live&&p.id!=="saku");let pick=L.length===1?[L[0].id]:[],star=5,pub=true;
+  const e=document.createElement("div");e.className="modal";
+  const keep=()=>{const t=e.querySelector("#tsm"),n=e.querySelector("#tsn");if(t)e._t=t.value;if(n)e._n=n.value;};
+  const draw=()=>{e.innerHTML=`<div class="sheet"><h3>⭐ Testimoni littles noor</h3><p class="small">Gimana rasanya memakai produk littles noor? Ceritakan kesan & pesanmu, sependek apa pun 🤍</p>
+  <p class="small" style="margin:12px 0 6px"><b>Produk yang kamu pakai</b></p>
+  <div class="chips" style="flex-wrap:wrap">${L.map(p=>`<button class="fchip ${pick.includes(p.id)?"on":""}" data-tp="${p.id}">${esc(p.name)}</button>`).join("")}</div>
+  <p class="small" style="margin:12px 0 4px"><b>Nilai kamu</b></p>
+  <div class="tsstar">${[1,2,3,4,5].map(i=>`<button data-st="${i}" class="${i<=star?"on":""}" aria-label="${i} bintang">★</button>`).join("")}</div>
+  <textarea id="tsm" style="margin-top:10px;min-height:120px" placeholder="Misal: sejak pakai planner ini aku jadi lebih teratur, karena...">${esc(e._t||"")}</textarea>
+  <input id="tsn" type="text" style="margin-top:8px" placeholder="Nama yang boleh ditampilkan (opsional), misal: Aisyah, Bandung" value="${esc(e._n||"")}">
+  <label class="small" style="display:flex;gap:8px;align-items:flex-start;margin-top:10px;cursor:pointer"><input type="checkbox" id="tspub" ${pub?"checked":""} style="width:auto;margin-top:2px"> Boleh ditampilkan di Instagram/website littles noor (tanpa email)</label>
+  <button class="btn" id="tss" style="margin-top:12px">Kirim testimoni</button><button class="btn ghost" id="tsx" style="margin-top:8px">Nanti saja</button></div>`;
+  e.querySelectorAll("[data-tp]").forEach(b=>b.onclick=()=>{keep();const id=b.dataset.tp;pick=pick.includes(id)?pick.filter(x=>x!==id):[...pick,id];draw();});
+  e.querySelectorAll("[data-st]").forEach(b=>b.onclick=()=>{keep();star=+b.dataset.st;draw();});
+  e.querySelector("#tspub").onchange=x=>pub=x.target.checked;
+  e.querySelector("#tsx").onclick=()=>e.remove();
+  e.querySelector("#tss").onclick=async()=>{keep();const m=(e._t||"").trim(),nm=(e._n||"").trim();
+    if(m.length<5){toast("Tulis kesan & pesannya dulu ya");return;}
+    const names=L.filter(p=>pick.includes(p.id)).map(p=>p.name);
+    const body=`${"⭐".repeat(star)} (${star}/5)\nProduk: ${names.join(", ")||"-"}\nNama tampil: ${nm||"-"}\nBoleh dipublikasikan: ${pub?"Ya":"Tidak"}\n\n${m}`;
+    const btn=e.querySelector("#tss");btn.disabled=true;btn.textContent="Mengirim...";
+    try{const r=await rpc("send_feedback",{p_email:A.email||"",p_kind:"testimoni",p_msg:body.slice(0,2000),p_ctx:"testimoni"});
+      if(r&&r.ok===false)throw 0;e.remove();sheet("Jazakillahu khairan! 🤍","Testimonimu sudah sampai. Semoga jadi kebaikan untukmu dan menguatkan teman-teman lain untuk ikut bertumbuh.");}
+    catch(x){btn.disabled=false;btn.textContent="Kirim testimoni";location.href="mailto:littlesnoor@gmail.com?subject="+encodeURIComponent("Testimoni littles noor")+"&body="+encodeURIComponent(body);}};};
+  draw();document.body.appendChild(e);e.onclick=x=>{if(x.target===e)e.remove();};}
 function shelfGroups(P,SO){
   if(shelfCat!=="all")return [["",P.filter(p=>catOf(p)===shelfCat)]];
   return [["",P]];
@@ -1881,12 +1909,13 @@ function shelf(){
      <img src="covers/${p.id}.jpg" alt=""><b>${esc(p.name)}</b><span>${esc(!live?p.tagline:(own?p.tagline:"Dapatkan di lynk.id/littlesnoor"))}</span></button>`}).join("")}</div>`).join("")}
   ${pushCard()}
   ${["littlesnoor@gmail.com"].includes((A.email||"").toLowerCase())?`<a class="card fbcard" href="adminwildhard/" style="text-decoration:none;color:inherit"><span style="font-size:28px">🛠️</span><span style="flex:1;text-align:left"><b>Dashboard admin</b><small>Progres user, penjualan, masukan & reward. Hanya terlihat olehmu</small></span><span class="small">›</span></a>`:""}
+  ${owned.some(id=>id!=="saku"&&(P0.find(p=>p.id===id)||{}).live)?`<div style="text-align:center;margin-top:10px"><button class="mini tsbtn" id="tsOpen">⭐ Tulis testimoni · kesan & pesan</button></div>`:""}
   <button class="card fbcard" id="fbOpen"><span style="font-size:28px">💌</span><span style="flex:1;text-align:left"><b>Kotak saran</b><small>Punya masukan atau ide aplikasi baru? Ceritakan ke kami</small></span><span class="small">›</span></button>
   <div class="card" style="margin-top:18px;display:flex;align-items:center;gap:10px"><p class="small" style="margin:0;flex:1">Masuk sebagai <b>${esc(A.email||"")}</b></p><button class="mini" id="logoutBtn">Keluar</button></div>
   <p class="small" style="text-align:center;margin-top:16px">Butuh bantuan? DM Instagram <a href='https://instagram.com/littlesnoor' target='_blank' rel='noopener' style='color:var(--sage);font-weight:700'>@littlesnoor</a></p></div>`;
   $("#editShelf").onclick=()=>{shelfEdit=!shelfEdit;shelf();};bindSummary();bindMsgCard();
   bindPushCard();
-  $("#logoutTop").onclick=logout;$("#logoutBtn").onclick=logout;$("#fbOpen").onclick=feedbackSheet;
+  $("#logoutTop").onclick=logout;$("#logoutBtn").onclick=logout;$("#fbOpen").onclick=feedbackSheet;if($("#tsOpen"))$("#tsOpen").onclick=()=>testiSheet(owned,P0);
   app.querySelectorAll("[data-cat]").forEach(b=>b.onclick=()=>{shelfCat=b.dataset.cat;shelf();});
   setTimeout(()=>{const on=app.querySelector("[data-cat].on");if(on)on.scrollIntoView({inline:"center",block:"nearest"});},0);
   app.querySelectorAll(".prod").forEach(el=>el.onclick=e=>{
@@ -2426,7 +2455,7 @@ var INK=(function(){
 })();
 
 /* ===== Notifikasi pembaruan ===== */
-const APP_VERSION=76;
+const APP_VERSION=77;
 (function(){
   let shown=false;
   async function check(){

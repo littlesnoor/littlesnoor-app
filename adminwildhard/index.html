@@ -250,9 +250,9 @@ function drawExtra(){
     <p class="hcap">Angka di bawah = tanggal. Data dari pembeli yang tercatat otomatis lewat Lynk.id.</p>
     <div style="margin-top:12px">${Object.keys(perProd).length?Object.entries(perProd).sort((a,b)=>b[1]-a[1]).map(([p,n])=>`<div class="kv"><span>${esc(pname(p))}</span><b>${n}</b></div>`).join(""):`<p class="sub">Belum ada penjualan 30 hari terakhir.</p>`}</div></div>
   <div class="prod" style="--c:var(--plum);margin-top:12px"><h3>Pembelian terbaru</h3>${T.slice(0,8).map(x=>`<div class="kv"><span>${esc(x.email)}<br><small style="color:var(--soft)">${x.items.length>=5?"📦 Paket "+x.items.length+" produk":x.items.map(pname).map(esc).join(", ")}</small></span><b style="font-weight:500;color:var(--soft);font-size:12px;text-align:right">${new Date(x.t).toLocaleString("id-ID",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})}</b></div>`).join("")||`<p class="sub">Belum ada.</p>`}</div>
-  <h2>💬 Masukan pembeli <span class="sub" style="font-weight:500">(${open.length} belum ditandai selesai)</span></h2>
-  <div class="chips"><button class="chip ${FBALL?"":"on"}" data-fb="0">Belum selesai</button><button class="chip ${FBALL?"on":""}" data-fb="1">Semua</button></div>
-  <div>${(FBALL?F:open).map(f=>`<div class="user"><div class="urow"><div><span class="p" style="--c:var(--teal)">${esc(f.kind||"saran")}</span> <span class="em" style="font-weight:500">${esc(f.email||"tanpa email")}</span></div><div class="when">${agoTxt(f.at)}</div></div>
+  <h2>💬 Masukan & testimoni user <span class="sub" style="font-weight:500">(${open.length} belum ditandai selesai)</span></h2>
+  <div class="chips"><button class="chip ${!FBALL?"on":""}" data-fb="0">Belum selesai</button><button class="chip ${FBALL===true?"on":""}" data-fb="1">Semua</button><button class="chip ${FBALL==="t"?"on":""}" data-fb="t">⭐ Testimoni (${F.filter(f=>f.kind==="testimoni").length})</button></div>
+  <div>${(FBALL==="t"?F.filter(f=>f.kind==="testimoni"):FBALL?F:open).map(f=>`<div class="user"><div class="urow"><div><span class="p" style="--c:${f.kind==="testimoni"?"#C98A1E":"var(--teal)"}">${f.kind==="testimoni"?"⭐ testimoni":esc(f.kind||"saran")}</span> <span class="em" style="font-weight:500">${esc(f.email||"tanpa email")}</span></div><div class="when">${agoTxt(f.at)}</div></div>
     <p style="margin:8px 0 6px;white-space:pre-wrap">${esc(f.msg||"")}</p>${f.ctx?`<p class="sub">dari: ${esc(f.ctx)}</p>`:""}
     <button class="light" data-done="${f.id}" data-v="${f.done?0:1}" style="margin-top:6px;padding:6px 12px;font-size:12px">${f.done?"↺ Tandai belum selesai":"✓ Tandai selesai"}</button></div>`).join("")||`<p class="sub">Tidak ada masukan di sini 🎉</p>`}</div>
   <h2>✨ Pemakaian fitur</h2><div class="tiles">
@@ -261,7 +261,7 @@ function drawExtra(){
     <div class="tile"><b>${fi.foto_produk||0}</b><span>Foto produk</span><small>Catat Usaha</small></div>
     <div class="tile"><b>${fi.perangkat||0}</b><span>Perangkat terdaftar</span><small>HP & laptop pembeli</small></div></div>`;
   $("#extra").innerHTML=h;
-  document.querySelectorAll("[data-fb]").forEach(b=>b.onclick=()=>{FBALL=b.dataset.fb==="1";drawExtra();});
+  document.querySelectorAll("[data-fb]").forEach(b=>b.onclick=()=>{FBALL=b.dataset.fb==="t"?"t":b.dataset.fb==="1";drawExtra();});
   document.querySelectorAll("[data-done]").forEach(b=>b.onclick=async()=>{b.disabled=true;
     try{const t=await token();await fetch(CONFIG.url+"/rest/v1/rpc/admin_feedback_done",{method:"POST",headers:{"Content-Type":"application/json",apikey:CONFIG.key,Authorization:"Bearer "+t},body:JSON.stringify({p_id:+b.dataset.done,p_done:b.dataset.v==="1"})});
       const f=EX.feedback.find(x=>x.id==b.dataset.done);if(f)f.done=b.dataset.v==="1";}catch(e){}drawExtra();});
