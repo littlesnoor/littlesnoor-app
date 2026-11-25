@@ -1,7 +1,6 @@
 {
- "v": 83,
+ "v": 84,
  "notes": [
-  "Habit Tracker lebih jelas: lingkaran sekarang tersusun seperti kalender (Sen–Min), ada keterangan cara pakainya, dan ukurannya pas di laptop.",
-  "Ada tombol ↺ Kosongkan centang untuk mengulang centang tanpa menghapus kebiasaannya. Tombol hapus sekarang bertuliskan 🗑️ Hapus kebiasaan supaya tidak salah tekan."
+  "Di Catatan Majelis kamu sekarang bisa memilih 🎨 warna kertas dan warna teks untuk setiap catatan. Kertas tulis tangannya ikut berwarna."
  ]
 }

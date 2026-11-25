@@ -68,6 +68,12 @@ h1,h2,h3{margin:0}
 textarea,input[type=text]{width:100%;border:1.5px solid var(--line);border-radius:16px;padding:12px 14px;font:15px Poppins,system-ui;color:var(--ink);background:#fff;resize:none;outline:none;line-height:1.6}
 textarea:focus,input:focus{border-color:var(--pc)}
 textarea.letter{min-height:260px;background:repeating-linear-gradient(#fff,#fff 31px,var(--line) 32px);line-height:32px;padding-top:4px}
+.nstyle .blk.box{background:var(--np)}
+.nstyle .blk.box textarea,.nstyle .blk.box input[type=text],.nstyle .blk.box input[type=date]{background-color:var(--np);color:var(--ni)}
+.nstyle .blk.box textarea.letter{background:repeating-linear-gradient(var(--np),var(--np) 31px,var(--line) 32px)}
+.npick summary{font-weight:700;font-size:14.5px;cursor:pointer}.npick label{display:block;font-size:13px;font-weight:600;margin:12px 0 6px}
+.nsw{display:flex;gap:8px;flex-wrap:wrap}.nsw .sw{width:34px;height:34px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 1.5px var(--line);cursor:pointer;padding:0}
+.nsw .sw.on{box-shadow:0 0 0 2.5px var(--ink)}
 .li{display:flex;gap:10px;align-items:center;margin-bottom:8px}
 .li em{width:28px;height:28px;flex:none;border-radius:50%;background:var(--pl);color:var(--pd);font-style:normal;font-weight:600;font-size:13px;display:flex;align-items:center;justify-content:center}
 .dots{display:flex;gap:8px}
@@ -993,6 +999,9 @@ function smartEnter(t){t.addEventListener("keydown",e=>{if(e.key!=="Enter"||e.sh
 function bindFmt(root){root.querySelectorAll(".tb").forEach(tb=>{const t=tb.nextElementSibling;if(!t||t.tagName!=="TEXTAREA")return;smartEnter(t);
   tb.querySelectorAll("button").forEach(b=>{b.onmousedown=e=>e.preventDefault();b.onclick=()=>listify(t,b.dataset.fmt);});});}
 const TB='<div class="tb"><button type="button" data-fmt="num">1. Nomor</button><button type="button" data-fmt="bul">• Poin</button><button type="button" data-fmt="txt">¶ Paragraf</button></div>';
+const NPAPER=[["#FFFFFF","Putih"],["#FFF8EC","Krem"],["#FDEDF1","Pink"],["#F1ECFB","Lilac"],["#E9F6EE","Mint"],["#E8F3F8","Biru"],["#FFF6D6","Kuning"]];
+const NINK=[["#3A3238","Hitam"],["#6B3E7C","Ungu"],["#24507A","Biru"],["#2F6B47","Hijau"],["#7A4A2A","Cokelat"],["#B4566A","Mawar"]];
+const nStyle=n=>`--np:${n.paper||"#FFFFFF"};--ni:${n.ink||"#3A3238"}`;
 const MJV={
 mjhome(){const M=mjLoad(), t=today(), pct=mutPct(t), [sal]=greet();
   const SECT=[["mjnotes","📖 Catatan",M.notes.length+" kajian, rapat & kegiatan","#FDEEF1","#B05A6E"],["mjmut","✅ Mutaba'ah",pct+"% hari ini","#EBF6F9","#3F8196"],["mjhal","🤝 Halaqah",M.hal.length+" pertemuan","#F3EFFB","#6E58A6"],["mjhaf","📗 Hafalan",M.haf.length+" target","#EEF7EE","#4A8A5C"],["mjbaca","📚 Bacaan",M.baca.length+" buku","#FFF5E3","#A0742A"],["mjdoa","🤲 Doa & Dzikir",M.doa.length+" doa","#FFEFE6","#B0613C"],["mjtanya","❓ Pertanyaan",M.tanya.filter(x=>!x.done).length+" belum terjawab","#EBF6F9","#3F8196"]];
@@ -1026,14 +1035,18 @@ mjnotes(){const M=mjLoad();const peme=[...new Set(M.notes.map(n=>(n.pemateri||""
   app.querySelectorAll(".fchip").forEach(b=>b.onclick=()=>{mjF=b.dataset.f;app.querySelectorAll(".fchip").forEach(x=>x.classList.toggle("on",x===b));draw();});},
 mjnote(){const M=mjLoad(), n=M.notes.find(x=>x.id===mjOpen);if(!n)return go("mjnotes");const T=ntype(n);
   const ta=(k,lab,ph,cls="")=>`<div class="blk box"><label>${lab}</label>${TB}<textarea class="${cls}" data-k="${k}" rows="3" placeholder="${ph}">${esc(n[k]||"")}</textarea></div>`;
-  app.innerHTML=`<div class="wrap">${mjHead(T.title,"",["mjnotes","Catatan"])}
+  app.innerHTML=`<div class="wrap nstyle" style="${nStyle(n)}">${mjHead(T.title,"",["mjnotes","Catatan"])}
+  <details class="card npick"><summary>🎨 Warna kertas & teks</summary>
+  <label>Warna kertas</label><div class="nsw">${NPAPER.map(([c,l])=>`<button class="sw ${(n.paper||"#FFFFFF")===c?"on":""}" data-np="${c}" title="${l}" style="background:${c}"></button>`).join("")}</div>
+  <label>Warna teks</label><div class="nsw">${NINK.map(([c,l])=>`<button class="sw ${(n.ink||"#3A3238")===c?"on":""}" data-ni="${c}" title="${l}" style="background:${c}"></button>`).join("")}</div>
+  <p class="small" style="margin:8px 0 0">Berlaku untuk catatan ini saja. Contoh tulisan: <b style="color:var(--ni);background:var(--np);padding:2px 8px;border-radius:8px;border:1px solid var(--line)">Bismillah 🤍</b></p></details>
   <div class="chips" style="margin-top:0">${Object.entries(NTYPE).map(([k,t])=>`<button class="fchip ${(n.type||"kajian")===k?"on":""}" data-ty="${k}">${t.ic} ${t.lab}</button>`).join("")}</div>
   <div class="row" style="margin-top:10px;align-items:center"><label style="font-size:13px;margin:0;flex:none">📁 Folder</label><select id="nfo" style="flex:1;border:1.5px solid var(--line);border-radius:14px;padding:9px 10px;font:500 13.5px Poppins,system-ui;background:#fff;color:var(--ink)"><option value="">Tanpa folder</option>${(M.folders||[]).map(f=>`<option value="${f.id}" ${n.folder===f.id?"selected":""}>${esc(f.name)}</option>`).join("")}<option value="_new">＋ Folder baru…</option></select></div>
-  <div class="blk box"><label>${T.tema[0]}</label><input type="text" data-k="tema" value="${esc(n.tema)}" placeholder="${T.tema[1]}">
-  <div class="row" style="margin-top:10px"><div style="flex:1"><label style="font-size:13px">Tanggal</label><input type="date" data-k="tgl" value="${esc(n.tgl)}"></div></div>
-  <label style="font-size:13px;margin-top:10px">${T.who[0]}</label><input type="text" data-k="pemateri" value="${esc(n.pemateri)}" placeholder="${T.who[1]}" list="pml">
+  <div class="blk box"><label>${T.tema[0]}</label><input type="text" data-k="tema" value="${esc(n.tema||"")}" placeholder="${T.tema[1]}">
+  <div class="row" style="margin-top:10px"><div style="flex:1"><label style="font-size:13px">Tanggal</label><input type="date" data-k="tgl" value="${esc(n.tgl||"")}"></div></div>
+  <label style="font-size:13px;margin-top:10px">${T.who[0]}</label><input type="text" data-k="pemateri" value="${esc(n.pemateri||"")}" placeholder="${T.who[1]}" list="pml">
   <datalist id="pml">${[...new Set(M.notes.map(x=>x.pemateri).filter(Boolean))].map(p=>`<option value="${esc(p)}">`).join("")}</datalist>
-  <label style="font-size:13px;margin-top:10px">Tempat</label><input type="text" data-k="tempat" value="${esc(n.tempat)}" placeholder="${T.where}">
+  <label style="font-size:13px;margin-top:10px">Tempat</label><input type="text" data-k="tempat" value="${esc(n.tempat||"")}" placeholder="${T.where}">
   <div class="seg" style="margin-top:10px">${["Offline","Online"].map(m=>`<button data-m="${m}" class="${n.mode===m?"on":""}">${m}</button>`).join("")}</div></div>
   <div class="blk box"><label>Perasaanku saat ini</label><div class="moods" style="flex-wrap:wrap">${NMOOD.map(([e,l])=>`<button class="mood ${n.feel===e?"on":""}" data-feel="${e}" style="flex:0 0 calc(25% - 6px)">${e}<small>${l}</small></button>`).join("")}</div></div>
   ${T.areas.map(x=>ta(...x)).join("")}
@@ -1045,6 +1058,9 @@ mjnote(){const M=mjLoad(), n=M.notes.find(x=>x.id===mjOpen);if(!n)return go("mjn
   <div class="row" style="margin-top:10px"><button class="btn light" id="fav">${n.fav?"⭐ Favorit":"☆ Jadikan favorit"}</button><button class="btn ghost" id="del">Hapus</button></div>
   <div class="saved" id="sv"></div></div>`;
   bindFmt(app);
+  const wr=app.querySelector(".nstyle");window.INKPAPER=n.paper||"";
+  app.querySelectorAll("[data-np]").forEach(b=>b.onclick=()=>{n.paper=b.dataset.np;if(n.paper==="#FFFFFF")delete n.paper;window.INKPAPER=n.paper||"";wr.style.cssText=nStyle(n);app.querySelectorAll("[data-np]").forEach(x=>x.classList.toggle("on",x===b));mjSave();});
+  app.querySelectorAll("[data-ni]").forEach(b=>b.onclick=()=>{n.ink=b.dataset.ni;if(n.ink==="#3A3238")delete n.ink;wr.style.cssText=nStyle(n);app.querySelectorAll("[data-ni]").forEach(x=>x.classList.toggle("on",x===b));mjSave();});
   app.querySelectorAll("[data-ty]").forEach(b=>b.onclick=()=>{n.type=b.dataset.ty;mjSave();MJV.mjnote();});
   app.querySelectorAll("[data-feel]").forEach(b=>b.onclick=()=>{n.feel=n.feel===b.dataset.feel?"":b.dataset.feel;mjSave();app.querySelectorAll("[data-feel]").forEach(x=>x.classList.toggle("on",x.dataset.feel===n.feel));});
   mjBind(["mjnotes","Catatan"]);
@@ -2687,6 +2703,7 @@ var INK=(function(){
     <div class="inkhint">Tulis pakai Apple Pencil, stylus, atau jari. Kalau pakai pen, geser halaman dengan jari.</div>`;
     document.body.appendChild(e);document.body.style.overflow="hidden";
     const sc=e.querySelector(".inkscroll"),paper=e.querySelector(".inkpaper"),cv=e.querySelector("canvas");let k=1,ctx;
+    if(window.INKPAPER&&/^mjnote/.test(typeof view==="string"?view:""))paper.style.backgroundColor=window.INKPAPER;
     const size_=()=>{const cw=Math.min(paper.clientWidth||sc.clientWidth-24,900);k=cw/W;const dpr=Math.min(window.devicePixelRatio||1,2);
       cv.style.width=cw+"px";cv.style.height=H*k+"px";cv.width=Math.round(cw*dpr);cv.height=Math.round(H*k*dpr);ctx=cv.getContext("2d");ctx.setTransform(dpr,0,0,dpr,0,0);
       paper.style.backgroundSize=bg==="kotak"?"30px 30px":"100% 38px";redraw();};
@@ -2736,7 +2753,7 @@ var INK=(function(){
 })();
 
 /* ===== Notifikasi pembaruan ===== */
-const APP_VERSION=83;
+const APP_VERSION=84;
 (function(){
   let shown=false;
   async function check(){
