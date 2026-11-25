@@ -1848,6 +1848,7 @@ function shelf(){
      ${shelfEdit?`<span class="sedit"><i data-mv="-1" data-p="${p.id}" ${ix===0?'class="off"':""}>‹</i><i data-pin="${p.id}" class="${pin?"on":""}">📌</i><i data-mv="1" data-p="${p.id}" ${ix===P.length-1?'class="off"':""}>›</i></span>`:""}
      <img src="covers/${p.id}.jpg" alt=""><b>${esc(p.name)}</b><span>${esc(!live?p.tagline:(own?p.tagline:"Dapatkan di lynk.id/littlesnoor"))}</span></button>`}).join("")}</div>`).join("")}
   ${pushCard()}
+  ${["littlesnoor@gmail.com"].includes((A.email||"").toLowerCase())?`<a class="card fbcard" href="adminwildhard/" style="text-decoration:none;color:inherit"><span style="font-size:28px">🛠️</span><span style="flex:1;text-align:left"><b>Dashboard admin</b><small>Progres pembeli, penjualan, masukan & reward. Hanya terlihat olehmu</small></span><span class="small">›</span></a>`:""}
   <button class="card fbcard" id="fbOpen"><span style="font-size:28px">💌</span><span style="flex:1;text-align:left"><b>Kotak saran</b><small>Punya masukan atau ide aplikasi baru? Ceritakan ke kami</small></span><span class="small">›</span></button>
   <div class="card" style="margin-top:18px;display:flex;align-items:center;gap:10px"><p class="small" style="margin:0;flex:1">Masuk sebagai <b>${esc(A.email||"")}</b></p><button class="mini" id="logoutBtn">Keluar</button></div>
   <p class="small" style="text-align:center;margin-top:16px">Butuh bantuan? DM Instagram <a href='https://instagram.com/littlesnoor' target='_blank' rel='noopener' style='color:var(--sage);font-weight:700'>@littlesnoor</a></p></div>`;
@@ -2393,7 +2394,7 @@ var INK=(function(){
 })();
 
 /* ===== Notifikasi pembaruan ===== */
-const APP_VERSION=73;
+const APP_VERSION=74;
 (function(){
   let shown=false;
   async function check(){

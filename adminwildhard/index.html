@@ -54,7 +54,7 @@ input[type=search]{width:100%;border:1.5px solid var(--line);border-radius:14px;
 .copy{background:none;color:var(--soft);padding:0 0 0 6px;font-weight:500;font-size:12px;text-decoration:underline}
 </style></head>
 <body><div class="wrap">
-<header><img src="../saku/logo.png" alt="littles noor"><div style="display:flex;gap:8px"><button class="light" id="rf">↻ Muat ulang</button><button class="light" id="lo" style="display:none">Keluar</button></div></header>
+<header><img src="../saku/logo.png" alt="littles noor"><div style="display:flex;gap:8px"><a href="../" class="light" style="font:600 13px Poppins,system-ui;border-radius:14px;padding:9px 14px;background:#fff;color:var(--ink);text-decoration:none;box-shadow:0 1px 6px rgba(0,0,0,.06)">‹ Aplikasi</a><button class="light" id="rf">↻ Muat ulang</button><button class="light" id="lo" style="display:none">Keluar</button></div></header>
 <h1>Dashboard admin</h1>
 <p class="sub" id="upd">Memuat data...</p>
 <div id="out"></div>
@@ -84,8 +84,15 @@ async function authFetch(path,body){
   if(!r.ok){const er=new Error(j.msg||j.error_description||j.message||("http "+r.status));er.status=r.status;throw er;}
   return j;}
 const saveSess=j=>{const n={at:j.access_token,rt:j.refresh_token,exp:Date.now()+((j.expires_in||3600)-90)*1000,email:String(j.user&&j.user.email||"").toLowerCase()};try{localStorage.setItem(SK,JSON.stringify(n));}catch(e){}return n;};
+// kalau sudah masuk di aplikasi littles noor dengan email admin, pakai sesi itu (tanpa kode lagi)
+async function appToken(){
+  const a=jget("ln.sess",null);if(!a||!a.rt||(a.email||"").toLowerCase()!=="littlesnoor@gmail.com")return null;
+  if(Date.now()<a.exp)return a.at;
+  try{const j=await authFetch("token?grant_type=refresh_token",{refresh_token:a.rt});
+    const n={at:j.access_token,rt:j.refresh_token,exp:Date.now()+((j.expires_in||3600)-90)*1000,uid:j.user&&j.user.id,email:String(j.user&&j.user.email||"").toLowerCase()};
+    try{localStorage.setItem("ln.sess",JSON.stringify(n));}catch(e){}return n.at;}catch(e){return null;}}
 async function token(){
-  const s=jget(SK,null);if(!s)return null;
+  const s=jget(SK,null);if(!s)return appToken();
   if(Date.now()<s.exp)return s.at;
   try{return saveSess(await authFetch("token?grant_type=refresh_token",{refresh_token:s.rt})).at;}
   catch(e){try{localStorage.removeItem(SK);}catch(_){}return null;}}
