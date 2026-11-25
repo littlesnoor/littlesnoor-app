@@ -178,7 +178,10 @@ input[type=date]{width:100%;border:1.5px solid var(--line);border-radius:16px;pa
 .cd.td{border:2px solid var(--sage)}
 .hgrid{display:grid;grid-template-columns:repeat(8,1fr);gap:5px;margin-top:10px}
 .hd{aspect-ratio:1;border:1.5px solid var(--pc);background:#fff;border-radius:99px;font:500 11px Poppins,system-ui;color:var(--muted);cursor:pointer;padding:0}
-.hd.on{background:var(--sage);border-color:var(--sage);color:#fff}.hd.td{box-shadow:0 0 0 2px var(--pl)}
+.hd.on{background:var(--sage);border-color:var(--sage);color:#fff}
+.hcard .hd{border-color:var(--hc)}.hcard .hd.on{background:var(--hc);border-color:var(--hc);color:#fff}
+.hpct{display:inline-block;background:var(--hb);color:var(--hc);border-radius:99px;padding:2px 9px;font-weight:700}
+.hleg{display:flex;flex-wrap:wrap;gap:6px 12px;justify-content:center;margin:2px 0 10px;font-size:11.5px;color:var(--muted)}.hleg span{display:flex;align-items:center;gap:5px}.hleg i{width:11px;height:11px;border-radius:99px;display:inline-block}.hd.td{box-shadow:0 0 0 2px var(--pl)}
 .jgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
 .juz{aspect-ratio:1;border:2px solid var(--pc);background:#fff;border-radius:99px;font:700 17px Poppins,system-ui;color:var(--pd);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1}
 .juz small{font-size:9px;font-weight:500}.juz.on{background:var(--sage);border-color:var(--sage);color:#fff}
@@ -1120,6 +1123,8 @@ const pDate=s=>{const[y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d);}
 const kOf=d=>dkey(d.getFullYear(),d.getMonth()+1,d.getDate());
 function hijri(s){const T=PLT.hstart;let st=null;for(const x of T)if(x[0]<=s)st=x;if(!st)return null;const n=Math.round((pDate(s)-pDate(st[0]))/864e5)+1;if(n>30)return null;return [n,PLT.hm[st[1]],st[2]];}
 function hijriTxt(s){const h=hijri(s);return h?`${h[0]} ${h[1]} ${h[2]} H`:"";}
+const PLNO=/isra|mi.?raj|ni[sf]{2}u|sya.?ban|maulid|mawlid/i;
+function plFix(t){if(t&&Array.isArray(t.events))t.events=t.events.filter(e=>!PLNO.test(e[1]||""));return t;}
 const plEvt=s=>{const e=(PLT.events||[]).find(x=>x[0]===s);return e?e[1]:"";};
 function plHead(title,sub,back){return `<div class="brand">${back?`<button class="back" id="plBack">‹ ${back[1]}</button>`:`<button class="back" id="toShelf">‹ Rak</button>`}<span>Planner Muslimah 2027</span></div><div class="hello">${title}</div>${sub?`<div class="sub">${sub}</div>`:""}`;}
 function plBind(back){if($("#toShelf"))$("#toShelf").onclick=()=>go("shelf");if(back&&$("#plBack"))$("#plBack").onclick=()=>go(back[0]);
@@ -1132,6 +1137,8 @@ const plSaveBtn='<button class="btn" id="plSaveBtn" style="margin-top:16px">💾
 function plCurMon(){const d=new Date();return d.getFullYear()===PLT.year?d.getMonth()+1:(d.getFullYear()>PLT.year?12:1);}
 function nextEvent(){const t=today();const e=(PLT.events||[]).find(x=>x[0]>=t);if(!e)return null;return [e[1],e[0],Math.round((pDate(e[0])-pDate(t))/864e5)];}
 function jurFill(k){const j=plLoad().jur[k];if(!j)return 0;let n=0;if(j.mood)n++;if((j.syk||[]).some(Boolean))n++;if((j.pri||[]).some(x=>x&&x.t))n++;if(Object.values(j.ib||{}).some(Boolean))n++;if((j.ref||"").trim())n++;return n;}
+function habCol(p){return p>=100?["#2C7A90","#DDF0F5"]:p>=75?["#3B8456","#E2F2E7"]:p>=50?["#C99A1E","#FBF1D2"]:p>=25?["#D9822B","#FDEBDC"]:["#D4687E","#FCE4E8"];}
+const HABLEG=`<div class="hleg">${[[0,"<25%"],[25,"25–49%"],[50,"50–74%"],[75,"75–99%"],[100,"100%"]].map(([p,l])=>`<span><i style="background:${habCol(p)[0]}"></i>${l}</span>`).join("")}</div>`;
 function habPct(m){const H=plLoad().hab[m];if(!H||!H.list||!H.list.length)return null;const dim=new Date(PLT.year,m,0).getDate();let c=0;H.list.forEach((_,i)=>{for(let d=1;d<=dim;d++)if((H.done[i]||{})[d])c++;});return Math.round(c/(H.list.length*dim)*100);}
 function stepsStat(){const T=plLoad().tgt;let a=0,b=0;Object.values(T).forEach(x=>(x.steps||[]).forEach(s=>{b++;if(s.done)a++;}));return [a,b];}
 function plRemCard(){const M=plLoad();return `<div class="card" id="remind"><b style="font-size:15px">⏰ Pengingat jurnal</b><p class="small" style="margin:6px 0 4px">Pilih jam, lalu tambahkan ke kalender HP. Kalendermu yang akan mengingatkan setiap hari.</p>
@@ -1142,6 +1149,59 @@ function plBindRem(){const M=plLoad();const get=()=>{const hm=$("#plrt").value||
   const T="Waktunya isi jurnal 🤍",D="Syukur, ibadah & refleksi hari ini di Planner Muslimah";
   $("#plics").onclick=()=>{const blob=new Blob([icsFor(get(),T,D)],{type:"text/calendar"}),u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download="pengingat-jurnal.ics";document.body.appendChild(a);a.click();a.remove();toast("Buka file-nya lalu ketuk Tambahkan ✓");};
   $("#plgc").onclick=()=>window.open(gcalUrl(get(),T,D),"_blank");}
+/* ---- Countdown Ramadhan (bisa dibagikan) ---- */
+const RAMQ=[
+ ["Wahai orang-orang yang beriman! Diwajibkan atas kamu berpuasa sebagaimana diwajibkan atas orang-orang sebelum kamu, agar kamu bertakwa.","QS. Al-Baqarah: 183"],
+ ["Bulan Ramadhan adalah (bulan) yang di dalamnya diturunkan Al-Qur'an, sebagai petunjuk bagi manusia.","QS. Al-Baqarah: 185"],
+ ["Dan apabila hamba-hamba-Ku bertanya kepadamu tentang Aku, maka sesungguhnya Aku dekat.","QS. Al-Baqarah: 186"],
+ ["Barangsiapa berpuasa Ramadhan karena iman dan mengharap pahala, diampuni dosa-dosanya yang telah lalu.","HR. Bukhari & Muslim"],
+ ["Apabila Ramadhan tiba, pintu-pintu surga dibuka, pintu-pintu neraka ditutup, dan setan-setan dibelenggu.","HR. Bukhari & Muslim"],
+ ["Siapkan hati sebelum hari itu tiba. Ramadhan tidak menunggu kita merasa siap.","littlesnoor"],
+ ["Satu kebiasaan baik setiap hari, pelan-pelan saja. Biar Ramadhan nanti terasa lebih ringan.","littlesnoor"]];
+let ramQi=0;
+function ramStart(){return (PLT&&PLT.ram&&PLT.ram.start)||"2027-02-08";}
+function ramCd(){const t=today(),d=Math.round((pDate(ramStart())-pDate(t))/864e5);if(d>0)return {pre:true,n:d};if(d>-30)return {pre:false,n:1-d};return null;}
+function ramCdCard(){const c=ramCd();if(!c)return "";
+  return `<div class="card" style="display:flex;gap:12px;align-items:center;background:linear-gradient(135deg,#2C7A90,#4FA3B8);color:#fff"><div style="font-size:30px">🌙</div><div style="flex:1"><b style="font-size:13px;opacity:.9">${c.pre?"Menuju Ramadhan 1448 H":"Ramadhan 1448 H"}</b><div style="font:700 24px Poppins,system-ui;line-height:1.2">${c.pre?c.n+" hari lagi":"Hari ke-"+c.n}</div><p style="margin:2px 0 0;font-size:12px;opacity:.85">${fmtD(ramStart())}</p></div><button class="back" data-ramcd="1" style="background:#fff;color:#2C7A90">Bagikan</button></div>`;}
+function wrapTxt(x,t,maxW){const w=t.split(" "),L=[];let l="";w.forEach(k=>{const tt=l?l+" "+k:k;if(x.measureText(tt).width>maxW&&l){L.push(l);l=k;}else l=tt;});if(l)L.push(l);return L;}
+async function ramCanvas(){
+  try{await Promise.all([document.fonts.load("700 80px Poppins"),document.fonts.load("500 40px Poppins"),document.fonts.load("italic 400 36px Poppins")]);}catch(e){}
+  const c=ramCd()||{pre:true,n:0},[qt,qs]=RAMQ[ramQi%RAMQ.length];
+  const cv=document.createElement("canvas");cv.width=1080;cv.height=1920;const x=cv.getContext("2d");
+  const g=x.createLinearGradient(0,0,0,1920);g.addColorStop(0,"#1F5E70");g.addColorStop(1,"#4FA3B8");x.fillStyle=g;x.fillRect(0,0,1080,1920);
+  x.strokeStyle="rgba(255,255,255,.08)";x.lineWidth=2;for(let i=0;i<=1080;i+=60){x.beginPath();x.moveTo(i,0);x.lineTo(i,1920);x.stroke();}for(let i=0;i<=1920;i+=60){x.beginPath();x.moveTo(0,i);x.lineTo(1080,i);x.stroke();}
+  const star=(X,Y,r,col)=>{x.fillStyle=col;x.beginPath();for(let i=0;i<8;i++){const a=i*Math.PI/4,rr=i%2?r*.38:r;x.lineTo(X+Math.cos(a)*rr,Y+Math.sin(a)*rr);}x.closePath();x.fill();};
+  [[860,170,18],[960,260,11],[150,1780,14],[930,1700,20],[120,330,10]].forEach(([a,b,r])=>star(a,b,r,"rgba(255,243,214,.85)"));
+  // logo kiri atas
+  x.textAlign="left";star(96,120,14,"#F2C14E");star(128,98,8,"#E8AEB9");x.fillStyle="#fff";x.font="700 44px Poppins, sans-serif";x.fillText("littlesnoor",150,136);
+  const rr=(X,Y,w,h,r)=>{x.beginPath();x.moveTo(X+r,Y);x.arcTo(X+w,Y,X+w,Y+h,r);x.arcTo(X+w,Y+h,X,Y+h,r);x.arcTo(X,Y+h,X,Y,r);x.arcTo(X,Y,X+w,Y,r);x.closePath();};
+  x.fillStyle="#FFF9F3";rr(80,240,920,1400,60);x.fill();
+  // bulan sabit
+  x.fillStyle="#F2C14E";x.beginPath();x.arc(540,400,78,0,7);x.fill();x.fillStyle="#FFF9F3";x.beginPath();x.arc(574,376,70,0,7);x.fill();star(470,330,12,"#F2C14E");
+  x.textAlign="center";x.fillStyle="#DDF0F5";rr(330,520,420,64,32);x.fill();x.fillStyle="#2C7A90";x.font="600 30px Poppins, sans-serif";x.fillText(c.pre?"Menuju Ramadhan 1448 H":"Ramadhan 1448 H",540,563);
+  x.fillStyle="#1F5E70";x.font="700 260px Poppins, sans-serif";x.fillText(String(c.n),540,860);
+  x.fillStyle="#3A3238";x.font="600 56px Poppins, sans-serif";x.fillText(c.pre?"hari lagi":"hari ke-"+c.n+" Ramadhan",540,950);
+  x.fillStyle="#857882";x.font="400 34px Poppins, sans-serif";x.fillText((c.pre?"insyaAllah mulai ":"dimulai ")+fmtDate(pDate(ramStart())),540,1010);
+  x.strokeStyle="#E6DAD0";x.lineWidth=3;x.beginPath();x.moveTo(300,1070);x.lineTo(780,1070);x.stroke();
+  x.fillStyle="#3A3238";x.font="italic 400 38px Poppins, sans-serif";const L=wrapTxt(x,"“"+qt+"”",780);let y=1140;L.forEach(l=>{x.fillText(l,540,y);y+=56;});
+  x.fillStyle="#2C7A90";x.font="600 30px Poppins, sans-serif";x.fillText("— "+qs,540,y+14);
+  x.fillStyle="#2C7A90";x.font="italic 400 32px Poppins, sans-serif";x.fillText("tumbuh pelan, bersinar perlahan",540,1530);x.font="italic 400 27px Poppins, sans-serif";x.fillText("plan with intention, grow with barakah",540,1578);
+  x.fillStyle="#fff";x.font="500 34px Poppins, sans-serif";x.fillText("@littlesnoor · app.littlesnoor.com",540,1760);
+  return cv;}
+async function ramShare(){
+  const e=document.createElement("div");e.className="modal";e.innerHTML=`<div class="sheet"><h3>🌙 Countdown Ramadhan</h3><p class="small" style="margin:4px 0 10px">Bagikan ke Story atau status WhatsApp. Ketuk "Ganti kutipan" untuk memilih kutipan lain.</p>
+  <img id="rcImg" alt="Countdown Ramadhan" style="width:100%;max-width:300px;display:block;margin:0 auto;border-radius:18px;box-shadow:0 6px 20px rgba(0,0,0,.12)">
+  <div class="row" style="margin-top:12px"><button class="btn light" id="rcQ" style="padding:11px;font-size:13.5px">🔄 Ganti kutipan</button><button class="btn" id="rcS" style="padding:11px;font-size:13.5px">📤 Bagikan</button></div>
+  <button class="mini" id="rcX" style="display:block;margin:10px auto 0">Tutup</button></div>`;
+  document.body.appendChild(e);let cv;const draw=async()=>{cv=await ramCanvas();e.querySelector("#rcImg").src=cv.toDataURL("image/png");};await draw();
+  e.onclick=v=>{if(v.target===e)e.remove();};e.querySelector("#rcX").onclick=()=>e.remove();
+  e.querySelector("#rcQ").onclick=async()=>{ramQi++;await draw();};
+  e.querySelector("#rcS").onclick=async()=>{const fn="countdown-ramadhan-littlesnoor.png";const c=ramCd(),[qt,qs]=RAMQ[ramQi%RAMQ.length];
+    const txt=(c?(c.pre?c.n+" hari lagi menuju Ramadhan 1448 H 🌙":"Ramadhan hari ke-"+c.n+" 🌙"):"Ramadhan 1448 H 🌙")+"\n\n“"+qt+"” ("+qs+")\n\nPlanner Muslimah 2027 · app.littlesnoor.com";
+    try{const b=await new Promise(r=>cv.toBlob(r,"image/png")),f=new File([b],fn,{type:"image/png"});
+      if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f],text:txt});}catch(er){}return;}}catch(er){}
+    const a=document.createElement("a");a.href=cv.toDataURL("image/png");a.download=fn;document.body.appendChild(a);a.click();a.remove();toast("Gambar disimpan ✓");};}
+function plBindRamCd(){app.querySelectorAll("[data-ramcd]").forEach(b=>b.onclick=ramShare);}
 const PLMOOD=[["😔","berat"],["😕","kurang"],["😐","biasa"],["🙂","baik"],["😊","senang"]];
 const PLV={
 plhome(){const M=plLoad(),t=today(),[sal]=greet(),ev=nextEvent(),[sa,sb]=stepsStat(),cm=plCurMon(),hp=habPct(cm),jf=jurFill(t);
@@ -1152,10 +1212,11 @@ plhome(){const M=plLoad(),t=today(),[sal]=greet(),ev=nextEvent(),[sa,sb]=stepsSt
   app.innerHTML=`<div class="wrap">${plHead(sal+(S.name?", "+esc(S.name):"")+" 🤍",`${fmtD(t)}${hijri(t)?" · "+hijriTxt(t):""}`)}
   <div class="card" style="display:flex;gap:14px;align-items:center"><div style="font-size:34px">📖</div><div style="flex:1"><b style="font-size:15px">Jurnal hari ini</b><div class="pbar" style="margin-top:8px"><i style="width:${jf*20}%"></i></div><p class="small" style="margin:4px 0 0">${jf?jf+" dari 5 bagian terisi":"Belum diisi. Pelan-pelan saja 🌱"}</p></div></div>
   <button class="btn" id="toJur" style="margin-top:12px">${jf?"Lanjutkan jurnal":"＋ Tulis jurnal hari ini"}</button>
-  ${ev?`<div class="card" style="display:flex;gap:12px;align-items:center;background:var(--pl)"><div style="font-size:28px">🌙</div><div style="flex:1"><b style="font-size:14px">${esc(ev[0])}</b><p class="small" style="margin:2px 0 0">${fmtD(ev[1])} · ${ev[2]===0?"hari ini":ev[2]+" hari lagi"}</p></div></div>`:""}
+  ${ramCdCard()}
+  ${ev&&!(ramCd()&&ev[1]===ramStart())?`<div class="card" style="display:flex;gap:12px;align-items:center;background:var(--pl)"><div style="font-size:28px">🌙</div><div style="flex:1"><b style="font-size:14px">${esc(ev[0])}</b><p class="small" style="margin:2px 0 0">${fmtD(ev[1])} · ${ev[2]===0?"hari ini":ev[2]+" hari lagi"}</p></div></div>`:""}
   ${!M.rem.jur?`<div class="card" style="display:flex;gap:12px;align-items:center"><div style="font-size:30px">⏰</div><div style="flex:1"><b style="font-size:14px">Pasang pengingat</b><p class="small" style="margin:2px 0 0">Supaya rutin mengisi jurnal.</p></div><button class="back" id="toRemind">Atur</button></div>`:""}
   <div class="tiles">${T.map(([v,a,b,bg,fg])=>`<button class="mtile" data-v="${v}" style="background:${bg};color:${fg}"><b>${a}</b><span>${b}</span></button>`).join("")}</div></div>`;
-  plBind();$("#toJur").onclick=()=>{plDate=t;go("pljur");};app.querySelectorAll(".mtile").forEach(b=>b.onclick=()=>go(b.dataset.v));
+  plBind();plBindRamCd();$("#toJur").onclick=()=>{plDate=t;go("pljur");};app.querySelectorAll(".mtile").forEach(b=>b.onclick=()=>go(b.dataset.v));
   if($("#toRemind"))$("#toRemind").onclick=()=>{go("plmore");setTimeout(()=>{const r=$("#remind");if(r)r.scrollIntoView({behavior:"smooth",block:"center"});},50);};},
 pljur(){const M=plLoad();plDate=plDate||today();const j=M.jur[plDate]=M.jur[plDate]||{mood:"",syk:["","",""],pri:[],ib:{},ref:""};j.pri=j.pri||[];j.ib=j.ib||{};j.syk=j.syk||["","",""];
   const ev=plEvt(plDate), past=Object.keys(M.jur).filter(k=>k!==plDate&&jurFill(k)).sort().reverse().slice(0,5);
@@ -1194,10 +1255,10 @@ plmon(){const M=plLoad(),Y=PLT.year;plMon=plMon||plCurMon();const m=plMon,mk=Str
       <p class="small" style="margin:10px 0 0">Ketuk tanggal untuk menulis catatan. Titik = ada catatan/jurnal.</p></div>
       ${PLT.fokus.map((f,i)=>plTa(`mon.${mk}.f.${i}`,f,"",2)).join("")}${plSaveBtn}`;}
   else if(plSub==="hab"){const H=M.hab[mk]=M.hab[mk]||{list:[],done:{}};const dim=new Date(Y,m,0).getDate();
-    body=`${H.list.length?H.list.map((h,i)=>{const dn=H.done[i]=H.done[i]||{};const c=Object.values(dn).filter(Boolean).length;
-      return `<div class="card" style="padding:14px"><div class="row" style="justify-content:space-between;align-items:center"><b style="font-size:14.5px">${esc(h)}</b><span class="small"><b style="color:var(--pd)">${Math.round(c/dim*100)}%</b> <button class="mini" data-hx="${i}">✕</button></span></div>
+    body=`${H.list.length?H.list.map((h,i)=>{const dn=H.done[i]=H.done[i]||{};const c=Object.values(dn).filter(Boolean).length,hp=Math.round(c/dim*100),[hc,hb]=habCol(hp);
+      return `<div class="card hcard" style="padding:14px;--hc:${hc};--hb:${hb}"><div class="row" style="justify-content:space-between;align-items:center"><b style="font-size:14.5px">${esc(h)}</b><span class="small"><b class="hpct">${hp}%</b> <button class="mini" data-hx="${i}">✕</button></span></div>
       <div class="hgrid">${[...Array(dim)].map((_,d)=>`<button class="hd ${dn[d+1]?"on":""} ${dkey(Y,m,d+1)===today()?"td":""}" data-h="${i}" data-d="${d+1}">${d+1}</button>`).join("")}</div></div>`;}).join("")
-      :`<div class="card"><p class="small" style="margin:0">Belum ada kebiasaan bulan ini. Pilih dari ide di bawah atau tulis sendiri 🌱</p></div>`}
+      +HABLEG:`<div class="card"><p class="small" style="margin:0">Belum ada kebiasaan bulan ini. Pilih dari ide di bawah atau tulis sendiri 🌱</p></div>`}
       <div class="card"><b style="font-size:14px">Tambah kebiasaan</b><div class="row" style="margin-top:8px"><input type="text" id="nh" placeholder="misal: Tilawah 1 halaman"><button class="back" id="addH">＋</button></div>
       <div class="chips" style="flex-wrap:wrap">${PLT.habits.filter(x=>!H.list.includes(x)).map(x=>`<button class="fchip" data-hs="${esc(x)}">＋ ${esc(x)}</button>`).join("")}</div>
       ${m>1&&(M.hab[String(m-1)]||{list:[]}).list.length&&!H.list.length?`<button class="btn light" id="copyH" style="margin-top:10px">Salin kebiasaan dari ${BLN[m-2]}</button>`:""}</div>
@@ -1216,7 +1277,7 @@ plmon(){const M=plLoad(),Y=PLT.year;plMon=plMon||plCurMon();const m=plMon,mk=Str
   app.querySelectorAll("[data-rate]").forEach(x=>x.onclick=()=>{const R=M.muh[mk];R.rate=R.rate===+x.dataset.rate?0:+x.dataset.rate;plSave();app.querySelectorAll("[data-rate]").forEach(y=>y.classList.toggle("on",+y.dataset.rate===R.rate));});
   if(plSub==="hab"){const H=M.hab[mk];
     app.querySelectorAll(".hd").forEach(x=>x.onclick=()=>{const i=x.dataset.h,d=x.dataset.d;H.done[i]=H.done[i]||{};H.done[i][d]=!H.done[i][d];plSave();x.classList.toggle("on",!!H.done[i][d]);
-      const dim=new Date(Y,m,0).getDate(),c=Object.values(H.done[i]).filter(Boolean).length;x.closest(".card").querySelector("b[style*='--pd']").textContent=Math.round(c/dim*100)+"%";});
+      const dim=new Date(Y,m,0).getDate(),c=Object.values(H.done[i]).filter(Boolean).length,hp=Math.round(c/dim*100),[hc,hb]=habCol(hp),cd=x.closest(".card");cd.querySelector(".hpct").textContent=hp+"%";cd.style.setProperty("--hc",hc);cd.style.setProperty("--hb",hb);});
     const add=v=>{v=(v||"").trim();if(!v||H.list.includes(v))return;H.list.push(v);plSave();PLV.plmon();};
     $("#addH").onclick=()=>add($("#nh").value);$("#nh").onkeydown=e=>{if(e.key==="Enter")add(e.target.value);};
     app.querySelectorAll("[data-hs]").forEach(x=>x.onclick=()=>add(x.dataset.hs));
@@ -1261,9 +1322,9 @@ plram(){const M=plLoad(),R=PLT.ram,D=M.ram;D.prep=D.prep||{};D.tr=D.tr||{};D.juz
     ${R.eidq.map((q,i)=>plTa("ram.eq"+i,q)).join("")}
     <div class="card"><b style="font-size:15px">Daftar silaturahmi</b><div>${D.sil.map((s,i)=>`<div class="amal ${s.done?"on":""}" data-sil="${i}"><div class="check">${s.done?"✓":""}</div><span>${esc(s.t)}</span><button class="mini" data-x="1">✕</button></div>`).join("")}</div>
     <div class="row" style="margin-top:8px"><input type="text" id="nsil" placeholder="Nama keluarga / kerabat..."><button class="back" id="addSil">＋</button></div></div>${plSaveBtn}`;
-  app.innerHTML=`<div class="wrap">${plHead("Ramadhan 1448 H",esc(R.range),["plhome","Beranda"])}
+  app.innerHTML=`<div class="wrap">${plHead("Ramadhan 1448 H",esc(R.range),["plhome","Beranda"])}${ramCdCard()}
   <div class="chips">${subs.map(([k,l])=>`<button class="fchip ${plRam===k?"on":""}" data-rs="${k}">${l}</button>`).join("")}</div>${body}</div>`;
-  plBind(["plhome","Beranda"]);const re=()=>{const y=document.getElementById("app").scrollTop;PLV.plram();document.getElementById("app").scrollTop=y;};
+  plBind(["plhome","Beranda"]);plBindRamCd();const re=()=>{const y=document.getElementById("app").scrollTop;PLV.plram();document.getElementById("app").scrollTop=y;};
   app.querySelectorAll("[data-rs]").forEach(b=>b.onclick=()=>{plRam=b.dataset.rs;PLV.plram();});
   app.querySelectorAll("[data-c]").forEach(r=>r.onclick=()=>{const o=D[r.dataset.c];o[r.dataset.i]=!o[r.dataset.i];plSave();re();});
   app.querySelectorAll("[data-tr]").forEach(b=>b.onclick=()=>{const T=D.tr[b.dataset.tr];T[b.dataset.j]=!T[b.dataset.j];plSave();b.classList.toggle("on",!!T[b.dataset.j]);b.querySelector(".check").textContent=T[b.dataset.j]?"✓":"";});
@@ -2174,7 +2235,7 @@ async function openProduct(id){
     let c=lsGet(PLCKEY);
     if(!c){try{const r=await getContent(A.email,PLID);if(r&&r.ok&&r.data){c=JSON.stringify(r.data);lsSet(PLCKEY,c);}}catch(e){}}
     if(!c){toast("Butuh internet untuk membuka pertama kali");return;}
-    PLT=JSON.parse(c); go("plhome");
+    PLT=plFix(JSON.parse(c)); go("plhome");
   }
   if(id===CUID){cuMon=null;go("cuhome");return;}
   if(id===CKID){
@@ -2672,7 +2733,7 @@ var INK=(function(){
 })();
 
 /* ===== Notifikasi pembaruan ===== */
-const APP_VERSION=81;
+const APP_VERSION=82;
 (function(){
   let shown=false;
   async function check(){
