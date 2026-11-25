@@ -9,9 +9,9 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="littles noor">
+<meta name="apple-mobile-web-app-title" content="littlesnoor">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<title>littles noor</title>
+<title>littlesnoor</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
 <style>
@@ -551,13 +551,13 @@ async function certCanvas(){
   x.textAlign="center";x.fillStyle="#857882";x.font="500 40px Poppins, sans-serif";x.fillText("Alhamdulillah, aku menyelesaikan",540,720);
   x.fillStyle="#9A5262";x.font="700 120px Poppins, sans-serif";x.fillText("Mulai Lagi",540,860);
   x.fillStyle="#3A3238";x.font="500 31px Poppins, sans-serif";x.fillText("workbook 30 hari untuk bangkit pelan-pelan",540,930);
-  x.fillStyle="#7C3F4E";x.font="700 64px Poppins, sans-serif";x.fillText(S.name||"Sahabat littles noor",540,1060);
+  x.fillStyle="#7C3F4E";x.font="700 64px Poppins, sans-serif";x.fillText(S.name||"Sahabat littlesnoor",540,1060);
   const d=S.doneAt[30]?(()=>{const[a,b,cc]=S.doneAt[30].split("-").map(Number);return new Date(a,b-1,cc);})():new Date();
   x.fillStyle="#857882";x.font="400 36px Poppins, sans-serif";x.fillText(fmtDate(d),540,1120);
   const st=[["30","hari"],[String(stepsDone()),"langkah kecil"],[words().toLocaleString("id-ID"),"kata ditulis"]];
   st.forEach((s_,i)=>{const cx=240+i*300;x.fillStyle="#F6E6EA";rr(cx-130,1190,260,190,36);x.fill();x.fillStyle="#7C3F4E";x.font="700 70px Poppins, sans-serif";x.fillText(s_[0],cx,1290);x.fillStyle="#857882";x.font="500 30px Poppins, sans-serif";x.fillText(s_[1],cx,1345);});
   x.fillStyle="#9A5262";x.font="italic 400 40px Poppins, sans-serif";x.fillText("tumbuh pelan, bersinar perlahan",540,1470);x.font="italic 400 32px Poppins, sans-serif";x.fillText("plan with intention, grow with barakah",540,1522);
-  x.fillStyle="#9A5262";x.font="700 36px Poppins, sans-serif";x.fillText("littles noor",540,1600);
+  x.fillStyle="#9A5262";x.font="700 36px Poppins, sans-serif";x.fillText("littlesnoor",540,1600);
   x.fillStyle="#FFF9F3";x.font="500 36px Poppins, sans-serif";x.fillText("@littlesnoor · app.littlesnoor.com",540,1800);
   return c;
 }
@@ -571,7 +571,7 @@ async function celebrate(){
   <div class="card"><b style="font-size:15px">🌱 Lihat dirimu tumbuh</b><p class="small" style="margin:6px 0 8px">Di Hari 1 kamu menulis:</p><div class="then">${then?esc(then):"(Hari 1 belum kamu isi)"}</div>
   <label style="display:block;font-weight:600;font-size:14px;margin:14px 0 8px">Sekarang, apa yang berubah dalam dirimu?</label><textarea id="fin2" rows="4" placeholder="Tulis dengan jujur...">${esc(S.ans.final||"")}</textarea><div class="saved" id="sv"></div></div>
   <div class="card"><b style="font-size:15px">🏅 Sertifikatmu</b><p class="small" style="margin:6px 0 10px">Simpan dan bagikan ke Instagram Story ya 🤍</p><img class="cert" id="cimg" alt="Sertifikat Mulai Lagi"><button class="btn" id="dl" style="margin-top:12px">Simpan sertifikat</button></div>
-  <div class="card" style="background:#FFF3D6"><b style="font-size:15px">☕ Traktiran littles noor</b><p class="small" style="margin:6px 0 0;font-size:13.5px">Bagikan sertifikatmu di IG Story, tag <a href='https://instagram.com/littlesnoor' target='_blank' rel='noopener' style='color:var(--sage);font-weight:700'>@littlesnoor</a><b style="display:none"></b>, dan tulis satu kalimat refleksi favoritmu. Setiap bulan kami memilih beberapa refleksi yang paling menyentuh untuk ditraktir 🤍</p></div>
+  <div class="card" style="background:#FFF3D6"><b style="font-size:15px">☕ Traktiran littlesnoor</b><p class="small" style="margin:6px 0 0;font-size:13.5px">Bagikan sertifikatmu di IG Story, tag <a href='https://instagram.com/littlesnoor' target='_blank' rel='noopener' style='color:var(--sage);font-weight:700'>@littlesnoor</a><b style="display:none"></b>, dan tulis satu kalimat refleksi favoritmu. Setiap bulan kami memilih beberapa refleksi yang paling menyentuh untuk ditraktir 🤍</p></div>
   ${S.capsule?`<div class="card"><b style="font-size:15px">💌 Kapsul waktu</b><p class="small" style="margin:6px 0 0">Suratmu untuk dirimu setahun lagi sudah tersegel. Bisa dibuka pada <b>${fmtDate(unlockDate())}</b>.</p></div>`:""}
   </div>`;
   $("#toHome").onclick=()=>go("home");
@@ -586,7 +586,7 @@ function icsFor(hm,title="🌿 Waktunya Mulai Lagi",desc="10 menit untuk diriku 
   const p=n=>String(n).padStart(2,"0"), dt=`${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}T${p(h)}${p(m)}00`;
   const end=new Date(d);end.setHours(h,m+15);const de=`${end.getFullYear()}${p(end.getMonth()+1)}${p(end.getDate())}T${p(end.getHours())}${p(end.getMinutes())}00`;
   const now=new Date().toISOString().replace(/[-:]/g,"").split(".")[0]+"Z";
-  return ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//littles noor//app//ID","CALSCALE:GREGORIAN","BEGIN:VEVENT","UID:mulailagi-"+Date.now()+"@littlesnoor.com","DTSTAMP:"+now,"DTSTART:"+dt,"DTEND:"+de,"RRULE:FREQ=DAILY",
+  return ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//littlesnoor//app//ID","CALSCALE:GREGORIAN","BEGIN:VEVENT","UID:mulailagi-"+Date.now()+"@littlesnoor.com","DTSTAMP:"+now,"DTSTART:"+dt,"DTEND:"+de,"RRULE:FREQ=DAILY",
    "SUMMARY:"+title,"DESCRIPTION:"+desc+"\\nBuka: https://app.littlesnoor.com","URL:https://app.littlesnoor.com",
    "BEGIN:VALARM","ACTION:DISPLAY","DESCRIPTION:"+title,"TRIGGER:PT0M","END:VALARM","END:VEVENT","END:VCALENDAR"].join("\r\n");
 }
@@ -627,7 +627,7 @@ function more(){
   <div class="row"><button class="btn light" id="cp">Salin kode cadangan</button><button class="btn light" id="rs">Pulihkan</button></div>
   <textarea id="bk" class="hidden" rows="4" placeholder="Tempel kode cadangan di sini, lalu ketuk Pulihkan lagi" style="margin-top:10px"></textarea></details>
   <div class="card"><p class="small" style="margin:0 0 10px">Masuk sebagai <b>${esc((acc()||{}).email||"")}</b></p><button class="btn ghost" id="rst">Mulai dari awal (hapus semua)</button></div>
-  <p class="small" style="text-align:center;margin-top:18px">Mulai Lagi · littles noor<br>tumbuh pelan, bersinar perlahan<br>plan with intention, grow with barakah</p></div>`;
+  <p class="small" style="text-align:center;margin-top:18px">Mulai Lagi · littlesnoor<br>tumbuh pelan, bersinar perlahan<br>plan with intention, grow with barakah</p></div>`;
   $("#nm").oninput=e=>{S.name=e.target.value;save();};
   if($("#cel"))$("#cel").onclick=()=>go("celebrate");
   bindReminder();
@@ -706,7 +706,7 @@ function pickType(){const e=document.createElement("div");e.className="modal";e.
   e.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{e.remove();newNote(b.dataset.t);});}
 function notePrintHTML(n){const T=ntype(n);const F=[[T.tema[0],n.tema],["Tanggal",fmtD(n.tgl)],[T.who[0],n.pemateri],["Tempat",(n.tempat||"")+(n.mode?" ("+n.mode+")":"")]];
   const blk=([k,lab])=>`<div class="pf"><h4>${lab}</h4><div>${esc(n[k]||"")}</div></div>`;
-  return `<div class="pp"><div class="ph"><b>Catatan Majelis · ${T.lab}</b><span>littles noor</span></div>
+  return `<div class="pp"><div class="ph"><b>Catatan Majelis · ${T.lab}</b><span>littlesnoor</span></div>
   <div class="pt">${esc(n.tema||"(tanpa judul)")}</div><div class="pm">${[fmtD(n.tgl),n.pemateri,n.tempat,n.mode].filter(Boolean).map(esc).join(" · ")}${moodOf(n)?" · Perasaan: "+moodOf(n)[0]+" "+moodOf(n)[1]:""}</div>
   ${T.areas.map(blk).join("")}
   <div class="pf"><h4>${T.list[0]}</h4><div class="pchk">${(n.amalan||[]).map(a=>(a.done?"☑ ":"☐ ")+esc(a.t)).join("<br>")||""}</div></div>
@@ -728,7 +728,7 @@ function makePDF(notes){
   const wrap=(t,w)=>{const out=[];String(t).split("\n").forEach(par=>{if(!par.trim()){out.push("");return;}let cur="";par.split(" ").forEach(word=>{const tr=cur?cur+" "+word:word;if(cx.measureText(tr).width<=w)cur=tr;else{if(cur)out.push(cur);while(cx.measureText(word).width>w){let i=word.length;while(i>1&&cx.measureText(word.slice(0,i)).width>w)i--;out.push(word.slice(0,i));word=word.slice(i);}cur=word;}});out.push(cur);});return out;};
   const need=h=>{if(y+h>BOT){newPage();}};
   notes.forEach(n=>{newPage();noteBlocks(n).forEach(b=>{
-    if(b.k==="head"){font("600",24);cx.fillStyle=PUR;cx.fillText(b.s,M,y+24);font("400",20);cx.fillStyle=MUT;cx.textAlign="right";cx.fillText("littles noor",W-M,y+24);cx.textAlign="left";y+=40;cx.fillStyle=PUR;cx.fillRect(M,y,W-2*M,4);y+=44;}
+    if(b.k==="head"){font("600",24);cx.fillStyle=PUR;cx.fillText(b.s,M,y+24);font("400",20);cx.fillStyle=MUT;cx.textAlign="right";cx.fillText("littlesnoor",W-M,y+24);cx.textAlign="left";y+=40;cx.fillStyle=PUR;cx.fillRect(M,y,W-2*M,4);y+=44;}
     else if(b.k==="title"){font("700",42);cx.fillStyle=INKC;wrap(b.s,W-2*M).forEach(l=>{need(56);cx.fillText(l,M,y+42);y+=56;});y+=4;}
     else if(b.k==="meta"){font("400",21);cx.fillStyle=MUT;wrap(b.s,W-2*M).forEach(l=>{cx.fillText(l,M,y+21);y+=32;});y+=22;}
     else{font("600",23);need(90);cx.fillStyle=PUR;cx.fillText(b.h,M,y+23);y+=40;font("400",22);cx.fillStyle=INKC;
@@ -1168,7 +1168,7 @@ function ckRemCard(){const M=ckLoad();return `<div class="card" id="remind"><b s
 function dlICS(txt,fn){const blob=new Blob([txt],{type:"text/calendar"}),u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download=fn;document.body.appendChild(a);a.click();a.remove();toast("Buka file-nya lalu ketuk Tambahkan ✓");}
 function icsMonthly(day,title,desc){const d=new Date(),p=n=>String(n).padStart(2,"0");let y=d.getFullYear(),m=d.getMonth()+1;if(d.getDate()>day){m++;if(m>12){m=1;y++;}}
   const dd=Math.min(day,28),ds=`${y}${p(m)}${p(dd)}`,now=new Date().toISOString().replace(/[-:]/g,"").split(".")[0]+"Z";
-  return ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//littles noor//app//ID","BEGIN:VEVENT","UID:cukup-"+Date.now()+"@littlesnoor.com","DTSTAMP:"+now,"DTSTART:"+ds+"T090000","DTEND:"+ds+"T091500","RRULE:FREQ=MONTHLY;BYMONTHDAY="+dd,"SUMMARY:"+title,"DESCRIPTION:"+desc+"\\nBuka: https://app.littlesnoor.com",
+  return ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//littlesnoor//app//ID","BEGIN:VEVENT","UID:cukup-"+Date.now()+"@littlesnoor.com","DTSTAMP:"+now,"DTSTART:"+ds+"T090000","DTEND:"+ds+"T091500","RRULE:FREQ=MONTHLY;BYMONTHDAY="+dd,"SUMMARY:"+title,"DESCRIPTION:"+desc+"\\nBuka: https://app.littlesnoor.com",
    "BEGIN:VALARM","ACTION:DISPLAY","DESCRIPTION:"+title,"TRIGGER:-P1D","END:VALARM","END:VEVENT","END:VCALENDAR"].join("\r\n");}
 const CKV={
 ckhome(){const M=ckLoad(),ym=ymNow(),inn=ckSum(ym,"in"),out=ckSum(ym,"out"),[sal]=greet(),td=M.tx.filter(x=>x.t==="out"&&x.d===today()).reduce((a,x)=>a+x.amt,0);
@@ -1562,8 +1562,8 @@ function cuNotaCanvas(s,fmt){const M=cuLoad(),sh=M.shop,c=cuCust(s.cust),th=fmt=
   const L=cuLunas(s),txt=L?"LUNAS":"BELUM LUNAS",col=th?"#000":(L?"#2EAA64":"#D0583F");
   if(th){y+=10;x.strokeStyle="#000";x.lineWidth=2;x.font=`700 16px ${FF}`;const tw=x.measureText(txt).width+28;x.strokeRect(W/2-tw/2,y-4,tw,32);x.fillStyle="#000";x.textAlign="center";x.fillText(txt,W/2,y+19);y+=50;}
   else{x.save();x.translate(W-pad-230,Math.min(y+90,1500));x.rotate(-0.12);x.strokeStyle=col;x.lineWidth=8;x.font=`700 ${L?64:46}px ${FF}`;const tw=x.measureText(txt).width+60;x.strokeRect(-tw/2,-58,tw,104);x.fillStyle=col;x.textAlign="center";x.fillText(txt,0,16);x.restore();}
-  const ft=sh.foot||"Terima kasih 🤍";if(th){y+=4;wrap(ft,11,400,W-pad*2).forEach(l=>{T(l,11,400,MU,"center");y+=15;});y+=10;T("dibuat dengan Catat Usaha · littles noor",9,400,MU,"center");y+=30;}
-  else{y=1748-150;hr();y+=70;T(ft,13,500,PL,"center");y+=46;T("dibuat dengan Catat Usaha · littles noor",10,400,MU,"center");}
+  const ft=sh.foot||"Terima kasih 🤍";if(th){y+=4;wrap(ft,11,400,W-pad*2).forEach(l=>{T(l,11,400,MU,"center");y+=15;});y+=10;T("dibuat dengan Catat Usaha · littlesnoor",9,400,MU,"center");y+=30;}
+  else{y=1748-150;hr();y+=70;T(ft,13,500,PL,"center");y+=46;T("dibuat dengan Catat Usaha · littlesnoor",10,400,MU,"center");}
   if(th){const o=document.createElement("canvas");o.width=W;o.height=Math.ceil(y);o.getContext("2d").drawImage(cv,0,0);return o;}
   return cv;}
 function cuPDF(cv,wPt){const hPt=wPt*cv.height/cv.width;
@@ -1773,20 +1773,20 @@ function feedbackSheet(){const A=acc()||{};let kind="masukan";
     const btn=e.querySelector("#fbs");btn.disabled=true;btn.textContent="Mengirim...";
     try{const r=await rpc("send_feedback",{p_email:A.email||"",p_kind:kind,p_msg:m.slice(0,2000),p_ctx:(view||"")+" · "+navigator.userAgent.slice(0,120)});
       if(r&&r.ok===false)throw 0;e.remove();sheet("Terima kasih! 🤍","Saranmu sudah sampai. Doakan kami bisa terus berbenah dan membuat yang lebih bermanfaat ya.");}
-    catch(x){btn.disabled=false;btn.textContent="Kirim saran";location.href="mailto:littlesnoor@gmail.com?subject="+encodeURIComponent("Saran littles noor ("+kind+")")+"&body="+encodeURIComponent(m);}};};
+    catch(x){btn.disabled=false;btn.textContent="Kirim saran";location.href="mailto:littlesnoor@gmail.com?subject="+encodeURIComponent("Saran littlesnoor ("+kind+")")+"&body="+encodeURIComponent(m);}};};
   draw();document.body.appendChild(e);e.onclick=x=>{if(x.target===e)e.remove();};}
 function testiSheet(owned,P0){const A=acc()||{};
   const L=P0.filter(p=>owned.includes(p.id)&&p.live&&p.id!=="saku");let pick=L.length===1?[L[0].id]:[],star=5,pub=true;
   const e=document.createElement("div");e.className="modal";
   const keep=()=>{const t=e.querySelector("#tsm"),n=e.querySelector("#tsn");if(t)e._t=t.value;if(n)e._n=n.value;};
-  const draw=()=>{e.innerHTML=`<div class="sheet"><h3>⭐ Testimoni littles noor</h3><p class="small">Gimana rasanya memakai produk littles noor? Ceritakan kesan & pesanmu, sependek apa pun 🤍</p>
+  const draw=()=>{e.innerHTML=`<div class="sheet"><h3>⭐ Testimoni littlesnoor</h3><p class="small">Gimana rasanya memakai produk littlesnoor? Ceritakan kesan & pesanmu, sependek apa pun 🤍</p>
   <p class="small" style="margin:12px 0 6px"><b>Produk yang kamu pakai</b></p>
   <div class="chips" style="flex-wrap:wrap">${L.map(p=>`<button class="fchip ${pick.includes(p.id)?"on":""}" data-tp="${p.id}">${esc(p.name)}</button>`).join("")}</div>
   <p class="small" style="margin:12px 0 4px"><b>Nilai kamu</b></p>
   <div class="tsstar">${[1,2,3,4,5].map(i=>`<button data-st="${i}" class="${i<=star?"on":""}" aria-label="${i} bintang">★</button>`).join("")}</div>
   <textarea id="tsm" style="margin-top:10px;min-height:120px" placeholder="Misal: sejak pakai planner ini aku jadi lebih teratur, karena...">${esc(e._t||"")}</textarea>
   <input id="tsn" type="text" style="margin-top:8px" placeholder="Nama yang boleh ditampilkan (opsional), misal: Aisyah, Bandung" value="${esc(e._n||"")}">
-  <label class="small" style="display:flex;gap:8px;align-items:flex-start;margin-top:10px;cursor:pointer"><input type="checkbox" id="tspub" ${pub?"checked":""} style="width:auto;margin-top:2px"> Boleh ditampilkan di Instagram/website littles noor (tanpa email)</label>
+  <label class="small" style="display:flex;gap:8px;align-items:flex-start;margin-top:10px;cursor:pointer"><input type="checkbox" id="tspub" ${pub?"checked":""} style="width:auto;margin-top:2px"> Boleh ditampilkan di Instagram/website littlesnoor (tanpa email)</label>
   <button class="btn" id="tss" style="margin-top:12px">Kirim testimoni</button><button class="btn ghost" id="tsx" style="margin-top:8px">Nanti saja</button></div>`;
   e.querySelectorAll("[data-tp]").forEach(b=>b.onclick=()=>{keep();const id=b.dataset.tp;pick=pick.includes(id)?pick.filter(x=>x!==id):[...pick,id];draw();});
   e.querySelectorAll("[data-st]").forEach(b=>b.onclick=()=>{keep();star=+b.dataset.st;draw();});
@@ -1799,7 +1799,7 @@ function testiSheet(owned,P0){const A=acc()||{};
     const btn=e.querySelector("#tss");btn.disabled=true;btn.textContent="Mengirim...";
     try{const r=await rpc("send_feedback",{p_email:A.email||"",p_kind:"testimoni",p_msg:body.slice(0,2000),p_ctx:"testimoni"});
       if(r&&r.ok===false)throw 0;e.remove();sheet("Jazakillahu khairan! 🤍","Testimonimu sudah sampai. Semoga jadi kebaikan untukmu dan menguatkan teman-teman lain untuk ikut bertumbuh.");}
-    catch(x){btn.disabled=false;btn.textContent="Kirim testimoni";location.href="mailto:littlesnoor@gmail.com?subject="+encodeURIComponent("Testimoni littles noor")+"&body="+encodeURIComponent(body);}};};
+    catch(x){btn.disabled=false;btn.textContent="Kirim testimoni";location.href="mailto:littlesnoor@gmail.com?subject="+encodeURIComponent("Testimoni littlesnoor")+"&body="+encodeURIComponent(body);}};};
   draw();document.body.appendChild(e);e.onclick=x=>{if(x.target===e)e.remove();};}
 function shelfGroups(P,SO){
   if(shelfCat!=="all")return [["",P.filter(p=>catOf(p)===shelfCat)]];
@@ -1809,7 +1809,7 @@ function shelfGroups(P,SO){
   if(used.length<=1&&!pins.length)return [["",P]];
   const G=[];if(pins.length)G.push(["📌 Disematkan",pins]);
   used.forEach(c=>G.push([c[1]+" "+c[2],rest.filter(p=>catOf(p)===c[0])]));return G;}
-/* ===== Pesan dari littles noor (dikirim admin, muncul di aplikasi pembeli) ===== */
+/* ===== Pesan dari littlesnoor (dikirim admin, muncul di aplikasi pembeli) ===== */
 let MSGS=(function(){try{return JSON.parse(localStorage.getItem("ln.msgs")||"[]");}catch(e){return [];}})();
 async function loadMsgs(){if(!window.LNS||!LNS.has()||navigator.onLine===false)return;
   try{const r=await rpc("my_messages",{},true);if(Array.isArray(r)){MSGS=r;try{localStorage.setItem("ln.msgs",JSON.stringify(r));}catch(e){}
@@ -1817,14 +1817,14 @@ async function loadMsgs(){if(!window.LNS||!LNS.has()||navigator.onLine===false)r
     const n=MSGS.find(m=>!m.read);let shown=[];try{shown=JSON.parse(localStorage.getItem("ln.msgShown")||"[]");}catch(e){}
     if(n&&!shown.includes(n.id)&&!document.querySelector(".modal")){shown.push(n.id);try{localStorage.setItem("ln.msgShown",JSON.stringify(shown.slice(-50)));}catch(e){}openMsg(n.id);}}}catch(e){}}
 function msgCard(){if(!MSGS.length)return `<span id="msgCard"></span>`;const u=MSGS.filter(m=>!m.read).length;
-  return `<button class="card fbcard" id="msgCard" style="border-style:solid;border-color:#E7B9A5;background:#FFF3EC"><span style="font-size:28px">💌</span><span style="flex:1;text-align:left"><b>Pesan dari littles noor${u?` <span class="msgdot">${u} baru</span>`:""}</b><small>${esc((MSGS[0]||{}).title||"")}</small></span><span class="small">›</span></button>`;}
+  return `<button class="card fbcard" id="msgCard" style="border-style:solid;border-color:#E7B9A5;background:#FFF3EC"><span style="font-size:28px">💌</span><span style="flex:1;text-align:left"><b>Pesan dari littlesnoor${u?` <span class="msgdot">${u} baru</span>`:""}</b><small>${esc((MSGS[0]||{}).title||"")}</small></span><span class="small">›</span></button>`;}
 function bindMsgCard(){const c=document.getElementById("msgCard");if(c&&c.tagName==="BUTTON")c.onclick=msgList;}
 function msgList(){const e=document.createElement("div");e.className="modal";
-  e.innerHTML=`<div class="sheet"><h3>💌 Pesan dari littles noor</h3>${MSGS.map(m=>`<button class="sumrow" data-m="${m.id}"><span class="sumic">${m.read?"📭":"📬"}</span><span class="sumtx"><b>${esc(m.title)}</b><small>${new Date(m.at).toLocaleDateString("id-ID",{day:"numeric",month:"long",year:"numeric"})}</small></span><span class="small">›</span></button>`).join("")}<button class="btn ghost" id="mx" style="margin-top:10px">Tutup</button></div>`;
+  e.innerHTML=`<div class="sheet"><h3>💌 Pesan dari littlesnoor</h3>${MSGS.map(m=>`<button class="sumrow" data-m="${m.id}"><span class="sumic">${m.read?"📭":"📬"}</span><span class="sumtx"><b>${esc(m.title)}</b><small>${new Date(m.at).toLocaleDateString("id-ID",{day:"numeric",month:"long",year:"numeric"})}</small></span><span class="small">›</span></button>`).join("")}<button class="btn ghost" id="mx" style="margin-top:10px">Tutup</button></div>`;
   document.body.appendChild(e);e.querySelector("#mx").onclick=()=>e.remove();e.querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>{e.remove();openMsg(+b.dataset.m);});}
 function openMsg(id){const m=MSGS.find(x=>x.id===id);if(!m)return;const e=document.createElement("div");e.className="modal";
   e.innerHTML=`<div class="sheet"><div style="font-size:42px;text-align:center">${m.kind==="ucapan"?"🎁":"💌"}</div><h3 style="text-align:center;margin-top:4px">${esc(m.title)}</h3>
-  <p class="small" style="text-align:center;margin:0 0 10px">${new Date(m.at).toLocaleDateString("id-ID",{day:"numeric",month:"long",year:"numeric"})} · dari littles noor</p>
+  <p class="small" style="text-align:center;margin:0 0 10px">${new Date(m.at).toLocaleDateString("id-ID",{day:"numeric",month:"long",year:"numeric"})} · dari littlesnoor</p>
   <div style="white-space:pre-wrap;line-height:1.6;font-size:14.5px;background:#FFF9F3;border-radius:16px;padding:14px">${esc(m.body)}</div>
   <button class="btn" id="mr" style="margin-top:12px">💬 Balas</button><button class="btn ghost" id="mx" style="margin-top:8px">Tutup</button></div>`;
   document.body.appendChild(e);e.querySelector("#mx").onclick=()=>e.remove();
@@ -1832,7 +1832,7 @@ function openMsg(id){const m=MSGS.find(x=>x.id===id);if(!m)return;const e=docume
   if(!m.read){m.read=true;try{localStorage.setItem("ln.msgs",JSON.stringify(MSGS));}catch(x){}rpc("read_message",{p_id:m.id},true).catch(()=>{});
     if(view==="shelf"){const c=document.getElementById("msgCard");if(c){c.outerHTML=msgCard();bindMsgCard();}}}}
 function replyMsg(m){const A=acc()||{},e=document.createElement("div");e.className="modal";
-  e.innerHTML=`<div class="sheet"><h3>💬 Balas pesan</h3><p class="small">Balasanmu langsung sampai ke littles noor.</p><textarea id="rm" style="min-height:130px;margin-top:8px" placeholder="Tulis balasanmu..."></textarea>
+  e.innerHTML=`<div class="sheet"><h3>💬 Balas pesan</h3><p class="small">Balasanmu langsung sampai ke littlesnoor.</p><textarea id="rm" style="min-height:130px;margin-top:8px" placeholder="Tulis balasanmu..."></textarea>
   <button class="btn" id="rs2" style="margin-top:12px">Kirim balasan</button><button class="btn ghost" id="rx" style="margin-top:8px">Batal</button></div>`;
   document.body.appendChild(e);e.querySelector("#rx").onclick=()=>e.remove();
   e.querySelector("#rs2").onclick=async()=>{const t=e.querySelector("#rm").value.trim();if(t.length<2){toast("Tulis balasannya dulu ya");return;}const b=e.querySelector("#rs2");b.disabled=true;b.textContent="Mengirim...";
@@ -1882,7 +1882,7 @@ function summaryCard(owned,P0){
   return `<div class="card sumcard"><button class="sumhd" id="sumTg"><b>📊 Ringkasanku</b><span class="small">${sumOpen?"Tutup ⌃":"Buka ⌄"}</span></button>
   ${sumOpen?`<p class="small" style="margin:4px 0 8px">${head}</p>
   <div class="badges">${BADGES.map(b=>`<span class="badge ${best>=b[0]?"on":""}" title="${b[2]}: ${b[0]} hari berturut-turut"><i>${b[1]}</i><small>${b[0]} hari</small></span>`).join("")}</div>
-  <p class="small" style="margin:6px 0 8px">${nxt?`Rekormu <b>${best} hari</b> berturut-turut. ${nxt[0]-Math.max(st,0)>0?`<b>${nxt[0]-st} hari lagi</b> mengisi tanpa bolong untuk lencana ${nxt[1]} <b>${nxt[2]}</b>.`:""}`:`MasyaAllah, semua lencana sudah kamu raih! 🏅`}<br>🎁 Tiap bulan, beberapa user yang paling istiqamah mendapat <b>Traktiran littles noor</b>.</p>${rows.map(([id,ic,nm,txt,pr])=>`<button class="sumrow" data-open="${id}"><span class="sumic">${ic}</span><span class="sumtx"><b>${nm}</b><small>${txt}</small>${pr!=null?`<i class="sumbar"><i style="width:${Math.round(Math.max(0,Math.min(1,pr))*100)}%"></i></i>`:""}</span><span class="small">›</span></button>`).join("")}`:""}</div>`;}
+  <p class="small" style="margin:6px 0 8px">${nxt?`Rekormu <b>${best} hari</b> berturut-turut. ${nxt[0]-Math.max(st,0)>0?`<b>${nxt[0]-st} hari lagi</b> mengisi tanpa bolong untuk lencana ${nxt[1]} <b>${nxt[2]}</b>.`:""}`:`MasyaAllah, semua lencana sudah kamu raih! 🏅`}<br>🎁 Tiap bulan, beberapa user yang paling istiqamah mendapat <b>Traktiran littlesnoor</b>.</p>${rows.map(([id,ic,nm,txt,pr])=>`<button class="sumrow" data-open="${id}"><span class="sumic">${ic}</span><span class="sumtx"><b>${nm}</b><small>${txt}</small>${pr!=null?`<i class="sumbar"><i style="width:${Math.round(Math.max(0,Math.min(1,pr))*100)}%"></i></i>`:""}</span><span class="small">›</span></button>`).join("")}`:""}</div>`;}
 function bindSummary(){const t=$("#sumTg");if(t)t.onclick=()=>{sumOpen=!sumOpen;try{localStorage.setItem("ln.sumOpen",sumOpen?"1":"0");}catch(e){}shelf();};
   app.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>openProduct(b.dataset.open));}
 function shelf(){
@@ -1893,7 +1893,7 @@ function shelf(){
   const P=[...P0].sort((a,b)=>rank(a)-rank(b));
   const saveSO=()=>lsSet("littlesnoor.shelf",JSON.stringify(SO));
   app.innerHTML=`<div class="wrap">
-  <div class="brand"><b>littles noor</b><button class="back" id="logoutTop">Keluar ⎋</button></div>${LNS.badge()}
+  <div class="brand"><b>littlesnoor</b><button class="back" id="logoutTop">Keluar ⎋</button></div>${LNS.badge()}
   <div class="hello">${sal}${S.name?", "+esc(S.name):""} ${sal==="Masih terjaga"?"🌙":"🤍"}</div>
   <div class="sub">${gsub?gsub+"<br>":""}Kamu semangat terus ya, jangan menyerah. Biarlah Allah menjadi sebaik-baik saksi atas setiap hal yang kamu usahakan 😊</div>
   ${msgCard()}
@@ -1929,7 +1929,7 @@ function shelf(){
 }
 let shelfEdit=false, shelfCat="all";
 const PCATS=[["jurnal","📔","Workbook & Jurnal"],["planner","🗓️","Planner"],["keuangan","💰","Keuangan"],["buku","📚","Buku Bacaan"],["saku","🌙","Saku Gratis"]];
-const SAKU={id:"saku",name:"Saku",tagline:"Kartu sakti littles noor",color:"#F2795A",live:true,category:"saku"};
+const SAKU={id:"saku",name:"Saku",tagline:"Kartu sakti littlesnoor",color:"#F2795A",live:true,category:"saku"};
 const PCAT_DEF={"mulai-lagi-id":"jurnal","catatan-majelis-id":"jurnal","planner-2027-id":"planner","cukup-id":"keuangan","catat-usaha-id":"keuangan"};
 const catOf=p=>p.category||PCAT_DEF[p.id]||"jurnal";
 function logout(){confirmBox("Keluar dari akun?","Tulisan dan catatanmu tetap tersimpan di perangkat ini dan di akunmu. Masuk lagi di perangkat ini cukup dengan email yang sama, tanpa kode.",async()=>{const e=document.createElement("div");e.className="toast";e.textContent="Menyimpan & keluar...";document.body.appendChild(e);
@@ -1974,9 +1974,9 @@ function lockScreen(msg){
   theme("hub");
   $("#nav").classList.add("hidden");
   app.innerHTML=`<div class="wrap welcome"><div class="arch"></div>
-  <div class="big">littles noor</div><p class="sub" style="font-size:15px">Masuk dengan email yang kamu pakai<br>saat membeli di Lynk.id</p>
+  <div class="big">littlesnoor</div><p class="sub" style="font-size:15px">Masuk dengan email yang kamu pakai<br>saat membeli di Lynk.id</p>
   <div class="card" style="text-align:left" id="authBox"></div>
-  <a href="saku/" style="display:block;margin-top:12px;background:#FFE0D2;color:#782D1E;border-radius:16px;padding:13px;font-weight:600;text-decoration:none;text-align:center">🌙 Coba Saku gratis: kartu sakti littles noor</a>
+  <a href="saku/" style="display:block;margin-top:12px;background:#FFE0D2;color:#782D1E;border-radius:16px;padding:13px;font-weight:600;text-decoration:none;text-align:center">🌙 Coba Saku gratis: kartu sakti littlesnoor</a>
   <p class="small" style="margin-top:14px">Belum punya? Dapatkan di <a href="https://lynk.id/littlesnoor" target="_blank" rel="noopener" style="color:var(--sage);font-weight:700">lynk.id/littlesnoor</a><br>Butuh bantuan? DM Instagram <a href="https://instagram.com/littlesnoor" target="_blank" rel="noopener" style="color:var(--sage);font-weight:700">@littlesnoor</a></p></div>`;
   LNS.authFlow($("#authBox"),(acc()||{}).email||lsGetSafe("littlesnoor.lastEmail")||"",()=>{start();refreshContent((acc()||{}).owned||[]);setTimeout(loadMsgs,1500);},msg);
 }
@@ -2456,7 +2456,7 @@ var INK=(function(){
 })();
 
 /* ===== Notifikasi pembaruan ===== */
-const APP_VERSION=78;
+const APP_VERSION=79;
 (function(){
   let shown=false;
   async function check(){
@@ -2471,7 +2471,7 @@ const APP_VERSION=78;
   function show(v){
     shown=true; const d=document.createElement("div"); d.className="updbar";
     const notes=(v.notes||[]).slice(0,4).map(n=>"<li>"+String(n).replace(/[<>&]/g,c=>({"<":"&lt;",">":"&gt;","&":"&amp;"}[c]))+"</li>").join("");
-    d.innerHTML='<h4>✨ Ada pembaruan littles noor</h4>'+(notes?'<ul>'+notes+'</ul>':'<p style="margin:0 0 14px;font-size:13.5px;color:#5a4e55">Versi terbaru sudah siap.</p>')+'<div class="r"><button class="later">Nanti</button><button class="go">Perbarui sekarang</button></div>';
+    d.innerHTML='<h4>✨ Ada pembaruan littlesnoor</h4>'+(notes?'<ul>'+notes+'</ul>':'<p style="margin:0 0 14px;font-size:13.5px;color:#5a4e55">Versi terbaru sudah siap.</p>')+'<div class="r"><button class="later">Nanti</button><button class="go">Perbarui sekarang</button></div>';
     document.body.appendChild(d); requestAnimationFrame(()=>d.classList.add("show"));
     d.querySelector(".later").onclick=()=>{ try{sessionStorage.setItem("ln.updLater",String(v.v))}catch(e){} d.classList.remove("show"); setTimeout(()=>d.remove(),300); shown=false; };
     d.querySelector(".go").onclick=async()=>{ d.querySelector(".go").textContent="Memperbarui…";
@@ -2490,7 +2490,7 @@ const APP_VERSION=78;
       const v=await r.json(); if(!v||v.v!==APP_VERSION){ mark(); return; }
       shown=true; const d=document.createElement("div"); d.className="updbar";
       const notes=(v.notes||[]).slice(0,4).map(n=>"<li>"+String(n).replace(/[<>&]/g,c=>({"<":"&lt;",">":"&gt;","&":"&amp;"}[c]))+"</li>").join("");
-      d.innerHTML='<h4>✨ Ada yang baru di littles noor!</h4>'+(notes?'<ul>'+notes+'</ul>':'')+'<div class="r"><button class="go">Oke, mengerti</button></div>';
+      d.innerHTML='<h4>✨ Ada yang baru di littlesnoor!</h4>'+(notes?'<ul>'+notes+'</ul>':'')+'<div class="r"><button class="go">Oke, mengerti</button></div>';
       document.body.appendChild(d); requestAnimationFrame(()=>d.classList.add("show"));
       d.querySelector(".go").onclick=()=>{ mark(); d.classList.remove("show"); setTimeout(()=>d.remove(),300); shown=false; };
     }catch(e){}

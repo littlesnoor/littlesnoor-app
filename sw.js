@@ -1,4 +1,4 @@
-const C="littlesnoor-v78";
+const C="littlesnoor-v79";
 const FILES=["./","index.html","manifest.webmanifest","icon-192.png","icon-512.png","icon-180.png","covers/mulai-lagi-id.jpg","covers/catatan-majelis-id.jpg","covers/planner-2027-id.jpg"];
 self.addEventListener("install",e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(FILES)));self.skipWaiting();});
 self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))));self.clients.claim();});
@@ -11,7 +11,7 @@ self.addEventListener("fetch",e=>{
 
 self.addEventListener("push",e=>{
   let d={}; try{d=e.data?e.data.json():{}}catch(x){d={body:e.data&&e.data.text()}}
-  e.waitUntil(self.registration.showNotification(d.title||"littles noor",{body:d.body||"",icon:"icon-192.png",badge:"icon-192.png",data:{url:d.url||"./"}}));
+  e.waitUntil(self.registration.showNotification(d.title||"littlesnoor",{body:d.body||"",icon:"icon-192.png",badge:"icon-192.png",data:{url:d.url||"./"}}));
 });
 self.addEventListener("notificationclick",e=>{
   e.notification.close(); const url=new URL((e.notification.data&&e.notification.data.url)||"./",self.registration.scope).href;
