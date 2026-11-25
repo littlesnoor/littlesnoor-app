@@ -85,4 +85,4 @@ end $$;
 grant execute on function public.hook_only_buyers(jsonb) to supabase_auth_admin;
 grant select on public.admins to supabase_auth_admin;
 
-select 'Dashboard admin siap ✓  Buka app.littlesnoor.com/admin/' as hasil;
+select 'Dashboard admin siap ✓  Buka app.littlesnoor.com/wildhard/' as hasil;
