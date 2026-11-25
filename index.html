@@ -176,7 +176,9 @@ input[type=date]{width:100%;border:1.5px solid var(--line);border-radius:16px;pa
 .cd i{font-style:normal;font-size:7.5px;line-height:1.15;background:var(--pl);color:var(--pd);border-radius:4px;padding:1px 2px;margin-top:2px;width:100%;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;text-align:left}
 .cd u{position:absolute;top:6px;right:5px;width:6px;height:6px;border-radius:9px;background:var(--pc)}
 .cd.td{border:2px solid var(--sage)}
-.hgrid{display:grid;grid-template-columns:repeat(8,1fr);gap:5px;margin-top:10px}
+.hgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin:10px auto 0;max-width:420px}
+.hw{text-align:center;font:600 10.5px Poppins,system-ui;color:var(--muted)}
+.hact{display:flex;justify-content:space-between;gap:8px;margin-top:10px;flex-wrap:wrap}.hact .hdel{color:#B4566A}
 .hd{aspect-ratio:1;border:1.5px solid var(--pc);background:#fff;border-radius:99px;font:500 11px Poppins,system-ui;color:var(--muted);cursor:pointer;padding:0}
 .hd.on{background:var(--sage);border-color:var(--sage);color:#fff}
 .hcard .hd{border-color:var(--hc)}.hcard .hd.on{background:var(--hc);border-color:var(--hc);color:#fff}
@@ -1254,10 +1256,10 @@ plmon(){const M=plLoad(),Y=PLT.year;plMon=plMon||plCurMon();const m=plMon,mk=Str
     body=`<div class="card" style="padding:12px"><div class="cgrid">${["Sen","Sel","Rab","Kam","Jum","Sab","Min"].map((x,i)=>`<div class="ch ${i>4?"we":""}">${x}</div>`).join("")}${cells}</div>
       <p class="small" style="margin:10px 0 0">Ketuk tanggal untuk menulis catatan. Titik = ada catatan/jurnal.</p></div>
       ${PLT.fokus.map((f,i)=>plTa(`mon.${mk}.f.${i}`,f,"",2)).join("")}${plSaveBtn}`;}
-  else if(plSub==="hab"){const H=M.hab[mk]=M.hab[mk]||{list:[],done:{}};const dim=new Date(Y,m,0).getDate();
-    body=`${H.list.length?H.list.map((h,i)=>{const dn=H.done[i]=H.done[i]||{};const c=Object.values(dn).filter(Boolean).length,hp=Math.round(c/dim*100),[hc,hb]=habCol(hp);
-      return `<div class="card hcard" style="padding:14px;--hc:${hc};--hb:${hb}"><div class="row" style="justify-content:space-between;align-items:center"><b style="font-size:14.5px">${esc(h)}</b><span class="small"><b class="hpct">${hp}%</b> <button class="mini" data-hx="${i}">✕</button></span></div>
-      <div class="hgrid">${[...Array(dim)].map((_,d)=>`<button class="hd ${dn[d+1]?"on":""} ${dkey(Y,m,d+1)===today()?"td":""}" data-h="${i}" data-d="${d+1}">${d+1}</button>`).join("")}</div></div>`;}).join("")
+  else if(plSub==="hab"){const H=M.hab[mk]=M.hab[mk]||{list:[],done:{}};const dim=new Date(Y,m,0).getDate(),hoff=(new Date(Y,m-1,1).getDay()+6)%7;
+    body=`${H.list.length?`<p class="small" style="margin:12px 2px 0">Ketuk tanggal saat kamu melakukan kebiasaan itu. Persen = berapa hari terpenuhi bulan ini.</p>`+H.list.map((h,i)=>{const dn=H.done[i]=H.done[i]||{};const c=Object.values(dn).filter(Boolean).length,hp=Math.round(c/dim*100),[hc,hb]=habCol(hp);
+      return `<div class="card hcard" style="padding:14px;--hc:${hc};--hb:${hb}"><div class="row" style="justify-content:space-between;align-items:center"><b style="font-size:14.5px">${esc(h)}</b><b class="hpct">${hp}%</b></div>
+      <div class="hgrid">${["Sen","Sel","Rab","Kam","Jum","Sab","Min"].map(x=>`<div class="hw">${x}</div>`).join("")}${'<div></div>'.repeat(hoff)}${[...Array(dim)].map((_,d)=>`<button class="hd ${dn[d+1]?"on":""} ${dkey(Y,m,d+1)===today()?"td":""}" data-h="${i}" data-d="${d+1}">${d+1}</button>`).join("")}</div><div class="hact"><button class="mini" data-hr="${i}">↺ Kosongkan centang</button><button class="mini hdel" data-hx="${i}">🗑️ Hapus kebiasaan</button></div></div>`;}).join("")
       +HABLEG:`<div class="card"><p class="small" style="margin:0">Belum ada kebiasaan bulan ini. Pilih dari ide di bawah atau tulis sendiri 🌱</p></div>`}
       <div class="card"><b style="font-size:14px">Tambah kebiasaan</b><div class="row" style="margin-top:8px"><input type="text" id="nh" placeholder="misal: Tilawah 1 halaman"><button class="back" id="addH">＋</button></div>
       <div class="chips" style="flex-wrap:wrap">${PLT.habits.filter(x=>!H.list.includes(x)).map(x=>`<button class="fchip" data-hs="${esc(x)}">＋ ${esc(x)}</button>`).join("")}</div>
@@ -1282,6 +1284,7 @@ plmon(){const M=plLoad(),Y=PLT.year;plMon=plMon||plCurMon();const m=plMon,mk=Str
     $("#addH").onclick=()=>add($("#nh").value);$("#nh").onkeydown=e=>{if(e.key==="Enter")add(e.target.value);};
     app.querySelectorAll("[data-hs]").forEach(x=>x.onclick=()=>add(x.dataset.hs));
     if($("#copyH"))$("#copyH").onclick=()=>{H.list=[...M.hab[String(m-1)].list];plSave();PLV.plmon();};
+    app.querySelectorAll("[data-hr]").forEach(x=>x.onclick=()=>confirmBox("Kosongkan centang?","Semua centang kebiasaan ini di bulan ini akan dikosongkan. Kebiasaannya tetap ada.",()=>{H.done[+x.dataset.hr]={};plSave();PLV.plmon();},"Kosongkan"));
     app.querySelectorAll("[data-hx]").forEach(x=>x.onclick=()=>confirmBox("Hapus kebiasaan ini?","Centang bulan ini untuk kebiasaan ini juga ikut terhapus.",()=>{const i=+x.dataset.hx;H.list.splice(i,1);const nd={};Object.keys(H.done).forEach(k=>{if(+k<i)nd[k]=H.done[k];else if(+k>i)nd[+k-1]=H.done[k];});H.done=nd;plSave();PLV.plmon();}));}},
 plref(){app.innerHTML=`<div class="wrap">${plHead("Refleksi 2026","Melihat ke belakang dengan lembut.",["plhome","Beranda"])}${PLT.refleksi.map((q,i)=>plTa("ref.q"+i,q)).join("")}${plSaveBtn}</div>`;plBind(["plhome","Beranda"]);},
 plvisi(){const M=plLoad();app.innerHTML=`<div class="wrap">${plHead("Visi 2027","Melihat ke depan.",["plhome","Beranda"])}
@@ -2733,7 +2736,7 @@ var INK=(function(){
 })();
 
 /* ===== Notifikasi pembaruan ===== */
-const APP_VERSION=82;
+const APP_VERSION=83;
 (function(){
   let shown=false;
   async function check(){
