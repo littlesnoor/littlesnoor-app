@@ -322,6 +322,12 @@ html,body{position:fixed;inset:0;width:100%;height:100%;overflow:hidden}
 .paperpick{display:flex;flex:none;background:#F4F0F2;border-radius:12px;padding:3px;gap:2px}
 .paperpick .pp{border:0;background:transparent;border-radius:9px;padding:7px 10px;font:600 12px Poppins,sans-serif;color:var(--ink);cursor:pointer;white-space:nowrap}
 .paperpick .pp.on{background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.1)}
+.sumcard{margin-top:14px;padding:12px 14px}
+.sumhd{display:flex;justify-content:space-between;align-items:center;width:100%;background:none;border:0;padding:0;font:inherit;color:var(--ink);cursor:pointer}
+.sumhd b{font-size:15px}
+.sumrow{display:flex;align-items:center;gap:10px;width:100%;background:none;border:0;border-top:1px dashed var(--line);padding:10px 0;font-family:Poppins,system-ui;color:var(--ink);text-align:left;cursor:pointer}
+.sumic{font-size:22px;flex:none}.sumtx{flex:1;display:flex;flex-direction:column;gap:2px}.sumtx b{font-size:13.5px}.sumtx small{font-size:12.5px;color:#6E6470}
+.sumbar{display:block;height:6px;border-radius:9px;background:#EFE8EC;overflow:hidden;margin-top:4px}.sumbar i{display:block;height:100%;background:var(--sage);border-radius:9px}
 </style>
 </head>
 <body>
@@ -1767,6 +1773,35 @@ function shelfGroups(P,SO){
   if(used.length<=1&&!pins.length)return [["",P]];
   const G=[];if(pins.length)G.push(["📌 Disematkan",pins]);
   used.forEach(c=>G.push([c[1]+" "+c[2],rest.filter(p=>catOf(p)===c[0])]));return G;}
+/* ===== Ringkasanku: progres semua produk milik pembeli dalam satu layar ===== */
+let sumOpen=(function(){try{return localStorage.getItem("ln.sumOpen")!=="0";}catch(e){return true;}})();
+function summaryCard(owned,P0){
+  const J=k=>{try{return JSON.parse(lsGet(k)||"null")||{};}catch(e){return {};}};
+  const now=new Date(),ym=now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0"),bulan=now.toLocaleDateString("id-ID",{month:"long"});
+  const rp=n=>"Rp"+Math.round(n||0).toLocaleString("id-ID");
+  const live=id=>owned.includes(id)&&(P0.find(p=>p.id===id)||{}).live;
+  const rows=[],days=new Set(),add=d=>{if(d&&/^\d{4}-\d{2}-\d{2}/.test(d))days.add(d.slice(0,10));};
+  if(live(ML)){const d=J(KEY),n=Object.values(d.done||{}).filter(Boolean).length;Object.values(d.doneAt||{}).forEach(add);
+    rows.push([ML,"🌱","Mulai Lagi",n?`Hari <b>${n}</b> dari 30 selesai`:"Belum dimulai, ketuk untuk mulai hari 1",n/30]);}
+  if(live(PLID)){const d=J(PLKEY),ks=Object.keys(d.jur||{});ks.forEach(add);const m=ks.filter(k=>k.startsWith(ym)).length;
+    rows.push([PLID,"🗓️","Planner",ks.length?`<b>${m}</b> hari jurnal di bulan ${bulan}`:"Belum ada jurnal, yuk isi hari ini",Math.min(1,m/now.getDate())]);}
+  if(live(MJID)){const d=J(MJKEY),N=d.notes||[];N.forEach(n=>add(n.tgl));Object.keys(d.mut||{}).forEach(add);const m=N.filter(n=>(n.tgl||"").startsWith(ym)).length;
+    rows.push([MJID,"📖","Catatan Majelis",N.length?`<b>${N.length}</b> catatan · ${m} di bulan ${bulan}`:"Belum ada catatan kajian",null]);}
+  if(live(CKID)){const d=J(CKKEY),T=(d.tx||[]).filter(t=>(t.d||"").startsWith(ym));(d.tx||[]).forEach(t=>add(t.d));
+    const out=T.filter(t=>t.t==="out").reduce((a,t)=>a+(+t.amt||0),0),inn=T.filter(t=>t.t==="in").reduce((a,t)=>a+(+t.amt||0),0);
+    rows.push([CKID,"💰","Cukup",T.length?`Keluar <b>${rp(out)}</b> · masuk ${rp(inn)} (${bulan})`:"Belum ada catatan uang bulan ini",null]);}
+  if(live(CUID)){const d=J(CUKEY),S=(d.sales||[]).filter(x=>(x.d||"").startsWith(ym));(d.sales||[]).forEach(x=>add(x.d));
+    const tot=S.reduce((a,x)=>a+Math.max(0,(x.items||[]).reduce((b,i)=>b+(+i.q||0)*(+i.price||0),0)-(+x.disc||0)),0);
+    rows.push([CUID,"🧾","Catat Usaha",S.length?`Penjualan <b>${rp(tot)}</b> · ${S.length} nota (${bulan})`:"Belum ada nota bulan ini",null]);}
+  if(!rows.length)return "";
+  // hari berturut-turut ada isian (dari hari ini atau kemarin)
+  const ymd=x=>x.getFullYear()+"-"+String(x.getMonth()+1).padStart(2,"0")+"-"+String(x.getDate()).padStart(2,"0");
+  let st=0;const c=new Date();if(!days.has(ymd(c)))c.setDate(c.getDate()-1);while(days.has(ymd(c))){st++;c.setDate(c.getDate()-1);}
+  const head=st>=2?`🔥 <b>${st} hari</b> berturut-turut kamu mengisi. MasyaAllah!`:days.has(ymd(new Date()))?"✅ Hari ini kamu sudah mengisi. Terus pelan-pelan ya.":"Belum ada isian hari ini. Satu langkah kecil saja cukup 🤍";
+  return `<div class="card sumcard"><button class="sumhd" id="sumTg"><b>📊 Ringkasanku</b><span class="small">${sumOpen?"Tutup ⌃":"Buka ⌄"}</span></button>
+  ${sumOpen?`<p class="small" style="margin:4px 0 8px">${head}</p>${rows.map(([id,ic,nm,txt,pr])=>`<button class="sumrow" data-open="${id}"><span class="sumic">${ic}</span><span class="sumtx"><b>${nm}</b><small>${txt}</small>${pr!=null?`<i class="sumbar"><i style="width:${Math.round(Math.max(0,Math.min(1,pr))*100)}%"></i></i>`:""}</span><span class="small">›</span></button>`).join("")}`:""}</div>`;}
+function bindSummary(){const t=$("#sumTg");if(t)t.onclick=()=>{sumOpen=!sumOpen;try{localStorage.setItem("ln.sumOpen",sumOpen?"1":"0");}catch(e){}shelf();};
+  app.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>openProduct(b.dataset.open));}
 function shelf(){
   const A=acc()||{}, owned=[...(A.owned||[]),"saku"], P0=[...(A.products||[]),SAKU];
   const [sal,gsub]=greet();
@@ -1778,6 +1813,7 @@ function shelf(){
   <div class="brand"><b>littles noor</b><button class="back" id="logoutTop">Keluar ⎋</button></div>${LNS.badge()}
   <div class="hello">${sal}${S.name?", "+esc(S.name):""} ${sal==="Masih terjaga"?"🌙":"🤍"}</div>
   <div class="sub">${gsub?gsub+"<br>":""}Kamu semangat terus ya, jangan menyerah. Biarlah Allah menjadi sebaik-baik saksi atas setiap hal yang kamu usahakan 😊</div>
+  ${summaryCard(owned,P0)}
   <div class="row" style="justify-content:flex-end;margin-top:10px"><button class="mini" id="editShelf">${shelfEdit?"✓ Selesai":"⇅ Atur rak"}</button></div>
   ${shelfEdit?`<p class="small" style="margin:6px 0 0">Ketuk 📌 untuk menyematkan di atas, atau geser dengan ‹ ›.</p>`:""}
   ${(()=>{const used=PCATS.filter(c=>P.some(p=>catOf(p)===c[0]));return used.length>1?`<div class="chips">${[["all","✨","Semua"],...used].map(c=>`<button class="fchip ${shelfCat===c[0]?"on":""}" data-cat="${c[0]}">${c[1]} ${c[2]}</button>`).join("")}</div>`:"";})()}
@@ -1793,7 +1829,7 @@ function shelf(){
   <button class="card fbcard" id="fbOpen"><span style="font-size:28px">💌</span><span style="flex:1;text-align:left"><b>Kotak saran</b><small>Punya masukan atau ide aplikasi baru? Ceritakan ke kami</small></span><span class="small">›</span></button>
   <div class="card" style="margin-top:18px;display:flex;align-items:center;gap:10px"><p class="small" style="margin:0;flex:1">Masuk sebagai <b>${esc(A.email||"")}</b></p><button class="mini" id="logoutBtn">Keluar</button></div>
   <p class="small" style="text-align:center;margin-top:16px">Butuh bantuan? DM Instagram <a href='https://instagram.com/littlesnoor' target='_blank' rel='noopener' style='color:var(--sage);font-weight:700'>@littlesnoor</a></p></div>`;
-  $("#editShelf").onclick=()=>{shelfEdit=!shelfEdit;shelf();};
+  $("#editShelf").onclick=()=>{shelfEdit=!shelfEdit;shelf();};bindSummary();
   bindPushCard();
   $("#logoutTop").onclick=logout;$("#logoutBtn").onclick=logout;$("#fbOpen").onclick=feedbackSheet;
   app.querySelectorAll("[data-cat]").forEach(b=>b.onclick=()=>{shelfCat=b.dataset.cat;shelf();});
@@ -2335,7 +2371,7 @@ var INK=(function(){
 })();
 
 /* ===== Notifikasi pembaruan ===== */
-const APP_VERSION=71;
+const APP_VERSION=72;
 (function(){
   let shown=false;
   async function check(){
