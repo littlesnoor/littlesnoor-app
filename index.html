@@ -2055,20 +2055,20 @@ cumore(){const M=cuLoad();
 };
 
 
-function feedbackSheet(){const A=acc()||{};let kind="masukan";
-  const K=[["masukan","💬 Masukan aplikasi"],["usul","💡 Usul produk baru"],["masalah","🐞 Ada yang error"]];
+function feedbackSheet(){const A=acc()||{};let kind="testimoni";
+  const K=[["testimoni","🤍 Kesan & pesan"],["masukan","💬 Masukan aplikasi"],["usul","💡 Usul produk baru"],["masalah","🐞 Ada yang error"]];
   const e=document.createElement("div");e.className="modal";
-  const draw=()=>{e.innerHTML=`<div class="sheet"><h3>💌 Kotak saran</h3><p class="small">Ceritakan apa saja, mau masukan untuk aplikasinya atau ide aplikasi/workbook baru yang kamu butuhkan. Semua kami baca dengan sepenuh hati 🤍</p>
+  const draw=()=>{e.innerHTML=`<div class="sheet"><h3>❤️ Pesan & kesanmu</h3><p class="small">Ceritakan apa saja: kesanmu memakai littlesnoor, masukan untuk aplikasinya, atau ide workbook baru yang kamu butuhkan. Semua kami baca dengan sepenuh hati 🤍</p>
   <div class="chips" style="flex-wrap:wrap">${K.map(([k,l])=>`<button class="fchip ${kind===k?"on":""}" data-k="${k}">${l}</button>`).join("")}</div>
-  <textarea id="fbm" style="margin-top:12px;min-height:130px" placeholder="${kind==="usul"?"Misal: aku butuh jurnal untuk...":kind==="masalah"?"Ceritakan apa yang terjadi, di aplikasi mana...":"Apa yang kamu suka, apa yang bisa lebih baik..."}">${esc(e._t||"")}</textarea>
-  <button class="btn" id="fbs" style="margin-top:12px">Kirim saran</button><button class="btn ghost" id="fbx" style="margin-top:8px">Batal</button></div>`;
+  <textarea id="fbm" style="margin-top:12px;min-height:130px" placeholder="${kind==="testimoni"?"Gimana rasanya memakai littlesnoor? Sependek apa pun boleh...":kind==="usul"?"Misal: aku butuh jurnal untuk...":kind==="masalah"?"Ceritakan apa yang terjadi, di aplikasi mana...":"Apa yang kamu suka, apa yang bisa lebih baik..."}">${esc(e._t||"")}</textarea>
+  <button class="btn" id="fbs" style="margin-top:12px">Kirim</button><button class="btn ghost" id="fbx" style="margin-top:8px">Batal</button></div>`;
   e.querySelectorAll("[data-k]").forEach(b=>b.onclick=()=>{e._t=e.querySelector("#fbm").value;kind=b.dataset.k;draw();});
   e.querySelector("#fbx").onclick=()=>e.remove();
-  e.querySelector("#fbs").onclick=async()=>{const m=e.querySelector("#fbm").value.trim();if(m.length<3){toast("Tulis sarannya dulu ya");return;}
+  e.querySelector("#fbs").onclick=async()=>{const m=e.querySelector("#fbm").value.trim();if(m.length<3){toast("Tulis pesannya dulu ya");return;}
     const btn=e.querySelector("#fbs");btn.disabled=true;btn.textContent="Mengirim...";
     try{const r=await rpc("send_feedback",{p_email:A.email||"",p_kind:kind,p_msg:m.slice(0,2000),p_ctx:(view||"")+" · "+navigator.userAgent.slice(0,120)});
-      if(r&&r.ok===false)throw 0;e.remove();sheet("Terima kasih! 🤍","Saranmu sudah sampai. Doakan kami bisa terus berbenah dan membuat yang lebih bermanfaat ya.");}
-    catch(x){btn.disabled=false;btn.textContent="Kirim saran";location.href="mailto:littlesnoor@gmail.com?subject="+encodeURIComponent("Saran littlesnoor ("+kind+")")+"&body="+encodeURIComponent(m);}};};
+      if(r&&r.ok===false)throw 0;e.remove();sheet("Jazakillahu khairan! 🤍",kind==="testimoni"?"Pesan & kesanmu sudah sampai. Semoga jadi kebaikan untukmu dan menguatkan teman-teman lain untuk ikut bertumbuh.":"Pesanmu sudah sampai. Doakan kami bisa terus berbenah dan membuat yang lebih bermanfaat ya.");}
+    catch(x){btn.disabled=false;btn.textContent="Kirim";location.href="mailto:littlesnoor@gmail.com?subject="+encodeURIComponent("Pesan littlesnoor ("+kind+")")+"&body="+encodeURIComponent(m);}};};
   draw();document.body.appendChild(e);e.onclick=x=>{if(x.target===e)e.remove();};}
 function testiSheet(owned,P0){const A=acc()||{};
   const L=P0.filter(p=>owned.includes(p.id)&&p.live&&p.id!=="saku");let pick=L.length===1?[L[0].id]:[],star=5,pub=true;
@@ -2206,10 +2206,10 @@ function shelf(){
      <img src="covers/${p.id}.jpg" alt=""><b>${esc(p.name)}</b><span>${esc(!live?p.tagline:(own?p.tagline:"Dapatkan di lynk.id/littlesnoor"))}</span></button>`}).join("")}</div>`).join("")}
   ${pushCard()}
   ${["littlesnoor@gmail.com"].includes((A.email||"").toLowerCase())?`<a class="card fbcard" href="adminwildhard/" style="text-decoration:none;color:inherit"><span style="font-size:28px">🛠️</span><span style="flex:1;text-align:left"><b>Dashboard admin</b><small>Progres user, penjualan, masukan & reward. Hanya terlihat olehmu</small></span><span class="small">›</span></a>`:""}
-  <button class="card fbcard" id="fbOpen"><span style="font-size:28px">💌</span><span style="flex:1;text-align:left"><b>Kotak saran</b><small>Punya masukan atau ide aplikasi baru? Ceritakan ke kami</small></span><span class="small">›</span></button>
+  <button class="card fbcard" id="fbOpen"><span style="font-size:28px">💌</span><span style="flex:1;text-align:left"><b>Tulis pesan dan kesanmu di sini ❤️</b><small>Kesan, masukan, ide produk baru, atau kalau ada yang error</small></span><span class="small">›</span></button>
   <div class="card" style="margin-top:18px;display:flex;align-items:center;gap:10px"><p class="small" style="margin:0;flex:1">Masuk sebagai <b>${esc(A.email||"")}</b></p><button class="mini" id="logoutBtn">Keluar</button></div>
   <p class="small" style="text-align:center;margin-top:16px">Butuh bantuan? DM Instagram <a href='https://instagram.com/littlesnoor' target='_blank' rel='noopener' style='color:var(--sage);font-weight:700'>@littlesnoor</a></p>
-  ${owned.some(id=>id!=="saku"&&(P0.find(p=>p.id===id)||{}).live)?`<div style="text-align:center;margin-top:10px"><button class="pillbtn tsbtn" id="tsOpen" aria-label="Tulis testimoni">⭐ Testimoni</button></div>`:""}</div>`;
+</div>`;
   $("#editShelf").onclick=()=>{shelfEdit=!shelfEdit;shelf();};bindSummary();bindMsgCard();
   bindPushCard();
   $("#logoutTop").onclick=logout;$("#logoutBtn").onclick=logout;$("#fbOpen").onclick=feedbackSheet;if($("#tsOpen"))$("#tsOpen").onclick=()=>testiSheet(owned,P0);
@@ -2753,7 +2753,7 @@ var INK=(function(){
 })();
 
 /* ===== Notifikasi pembaruan ===== */
-const APP_VERSION=84;
+const APP_VERSION=85;
 (function(){
   let shown=false;
   async function check(){
