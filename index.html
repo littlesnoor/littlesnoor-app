@@ -133,6 +133,8 @@ nav button.on{color:var(--sage);font-weight:600}
 .chips{display:flex;gap:8px;overflow-x:auto;margin-top:10px;padding-bottom:4px}
 .fchip{flex:none;border:1.5px solid var(--line);background:#fff;border-radius:99px;padding:6px 12px;font:500 12.5px Poppins,system-ui;color:var(--ink);cursor:pointer}
 .fchip.on{background:var(--sage);color:#fff;border-color:var(--sage)}
+.pillbtn{display:inline-flex;align-items:center;gap:4px;border:1.5px solid var(--line);background:#fff;color:var(--ink);font:600 12.5px Poppins,system-ui;padding:7px 14px;border-radius:99px;cursor:pointer;box-shadow:0 2px 6px rgba(60,40,30,.06)}
+.pillbtn:active{transform:scale(.96)}
 .tsbtn{background:#FFF6E3;border-color:#F0D9A6;color:#8A5A12}
 .tsstar{display:flex;gap:4px}.tsstar button{border:0;background:none;font-size:30px;line-height:1;color:#E3DCD6;cursor:pointer;padding:0 2px}.tsstar button.on{color:#E8A93B}
 .amal{display:flex;align-items:center;gap:12px;padding:11px 4px;border-bottom:1px solid #F1EAE4;cursor:pointer}
@@ -1896,7 +1898,7 @@ function shelf(){
   <div class="sub">${gsub?gsub+"<br>":""}Kamu semangat terus ya, jangan menyerah. Biarlah Allah menjadi sebaik-baik saksi atas setiap hal yang kamu usahakan 😊</div>
   ${msgCard()}
   ${summaryCard(owned,P0)}
-  <div class="row" style="justify-content:flex-end;margin-top:10px"><button class="mini" id="editShelf">${shelfEdit?"✓ Selesai":"⇅ Atur rak"}</button></div>
+  <div class="row" style="justify-content:space-between;align-items:center;margin-top:12px">${owned.some(id=>id!=="saku"&&(P0.find(p=>p.id===id)||{}).live)?`<button class="pillbtn tsbtn" id="tsOpen" aria-label="Tulis testimoni">⭐ Testimoni</button>`:"<span></span>"}<button class="pillbtn" id="editShelf">${shelfEdit?"✓ Selesai":"⇅ Atur rak"}</button></div>
   ${shelfEdit?`<p class="small" style="margin:6px 0 0">Ketuk 📌 untuk menyematkan di atas, atau geser dengan ‹ ›.</p>`:""}
   ${(()=>{const used=PCATS.filter(c=>P.some(p=>catOf(p)===c[0]));return used.length>1?`<div class="chips">${[["all","✨","Semua"],...used].map(c=>`<button class="fchip ${shelfCat===c[0]?"on":""}" data-cat="${c[0]}">${c[1]} ${c[2]}</button>`).join("")}</div>`:"";})()}
   ${shelfGroups(P,SO).map(([title,L])=>`${title?`<div class="sec"><h3>${title}</h3></div>`:""}<div class="shelf ${shelfEdit?"editing":""}">${L.map(p=>{const ix=P.indexOf(p);const own=owned.includes(p.id), live=p.live, pin=SO.pin.includes(p.id);
@@ -1909,7 +1911,6 @@ function shelf(){
      <img src="covers/${p.id}.jpg" alt=""><b>${esc(p.name)}</b><span>${esc(!live?p.tagline:(own?p.tagline:"Dapatkan di lynk.id/littlesnoor"))}</span></button>`}).join("")}</div>`).join("")}
   ${pushCard()}
   ${["littlesnoor@gmail.com"].includes((A.email||"").toLowerCase())?`<a class="card fbcard" href="adminwildhard/" style="text-decoration:none;color:inherit"><span style="font-size:28px">🛠️</span><span style="flex:1;text-align:left"><b>Dashboard admin</b><small>Progres user, penjualan, masukan & reward. Hanya terlihat olehmu</small></span><span class="small">›</span></a>`:""}
-  ${owned.some(id=>id!=="saku"&&(P0.find(p=>p.id===id)||{}).live)?`<div style="text-align:center;margin-top:10px"><button class="mini tsbtn" id="tsOpen">⭐ Tulis testimoni · kesan & pesan</button></div>`:""}
   <button class="card fbcard" id="fbOpen"><span style="font-size:28px">💌</span><span style="flex:1;text-align:left"><b>Kotak saran</b><small>Punya masukan atau ide aplikasi baru? Ceritakan ke kami</small></span><span class="small">›</span></button>
   <div class="card" style="margin-top:18px;display:flex;align-items:center;gap:10px"><p class="small" style="margin:0;flex:1">Masuk sebagai <b>${esc(A.email||"")}</b></p><button class="mini" id="logoutBtn">Keluar</button></div>
   <p class="small" style="text-align:center;margin-top:16px">Butuh bantuan? DM Instagram <a href='https://instagram.com/littlesnoor' target='_blank' rel='noopener' style='color:var(--sage);font-weight:700'>@littlesnoor</a></p></div>`;
@@ -2455,7 +2456,7 @@ var INK=(function(){
 })();
 
 /* ===== Notifikasi pembaruan ===== */
-const APP_VERSION=77;
+const APP_VERSION=78;
 (function(){
   let shown=false;
   async function check(){
