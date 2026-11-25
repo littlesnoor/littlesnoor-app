@@ -137,24 +137,47 @@ async function load(){
   $("#lo").style.display="";
   draw(r);loadExtra(t);
 }
+/* ===== Template pesan (tinggal pilih, isi otomatis menyesuaikan pembeli) ===== */
+const SIGN="\n\nTumbuh pelan, bersinar perlahan.\nPlan with intention, grow with barakah.\n— littles noor";
+function ctxOf(email){const u=(DATA&&DATA.users||[]).find(x=>x.email===email)||{},r=(RW&&RW.list||[]).find(x=>x.email===email)||{};
+  const prods=P.filter(p=>(u.owned||[]).includes(p.id)).map(p=>p.name),bln=new Date().toLocaleDateString("id-ID",{month:"long"});
+  return {prod:prods.join(", ")||"produk littles noor",satu:prods[0]||"aplikasinya",streak:r.terbaik_bulan_ini||r.sekarang||0,bln};}
+const TPL=[
+ ["sambut","👋 Sambutan pembeli baru",c=>["Selamat datang di littles noor 🤍",`Assalamu'alaikum 🤍\n\nTerima kasih sudah membeli ${c.prod}. MasyaAllah, senang sekali kamu bergabung.\n\nSemua isianmu tersimpan di akunmu, jadi bisa dibuka di HP maupun laptop. Mulai pelan-pelan saja, satu halaman kecil hari ini sudah cukup.\n\nKalau ada yang bikin bingung, ketuk 💬 Balas ya, insyaAllah aku bantu.`+SIGN]],
+ ["mulai","🌱 Ajak mulai memakai",c=>["Yuk mulai pakai "+c.satu+" 🌱",`Assalamu'alaikum 🤍\n\n${c.prod} sudah siap menunggumu di aplikasi ini.\n\nNggak perlu langsung banyak. Coba isi satu bagian kecil hari ini, cukup 5 menit. Langkah kecil yang konsisten itu yang paling berarti.\n\nAda yang bikin ragu untuk mulai? Ketuk 💬 Balas, cerita saja.`+SIGN]],
+ ["kangen","🤍 Kangen (lama tidak membuka)",c=>["Kangen kamu di littles noor 🤍",`Assalamu'alaikum 🤍\n\nSudah beberapa hari kamu belum mengisi ${c.prod}. Nggak apa-apa, hidup memang kadang sedang ramai.\n\nSemua isianmu masih tersimpan rapi. Kapan pun kamu siap, kita mulai lagi pelan-pelan dari satu halaman kecil.\n\nKalau ada yang bisa kubantu, ketuk 💬 Balas ya.`+SIGN]],
+ ["traktir","🎁 Traktiran (paling istiqamah)",c=>["Selamat, kamu dapat Traktiran littles noor 🎁",`Assalamu'alaikum 🤍\n\nMasyaAllah, kamu termasuk yang paling istiqamah mengisi aplikasi littles noor di bulan ${c.bln}${c.streak?": "+c.streak+" hari berturut-turut":""}!\n\nSebagai apresiasi, kami ingin memberimu Traktiran littles noor. Ketuk 💬 Balas, lalu tulis nama e-wallet dan nomornya (GoPay/OVO/DANA/ShopeePay) ya.\n\nSemoga Allah menjaga istiqamahmu.`+SIGN]],
+ ["apresiasi","⭐ Apresiasi istiqamah",c=>["Bangga sama kamu ⭐",`Assalamu'alaikum 🤍\n\nAku lihat kamu rajin sekali mengisi ${c.prod}${c.streak?", sampai "+c.streak+" hari berturut-turut":""}. MasyaAllah, tabarakallah!\n\nTerus jaga ya. Pelan tapi istiqamah jauh lebih kuat daripada cepat tapi berhenti.`+SIGN]],
+ ["fitur","📣 Info fitur baru",c=>["Ada yang baru di littles noor ✨",`Assalamu'alaikum 🤍\n\nAda beberapa fitur baru di aplikasimu:\n• ✍️ Tulis tangan pakai pen/jari di setiap kolom isian\n• 📁 Folder di Catatan Majelis\n• 📊 Ringkasanku & lencana istiqamah di halaman Rak\n• 🌙 Saku kini 60 kartu dengan folder per topik\n\nTutup lalu buka lagi aplikasinya untuk memperbarui. Kalau ada ide fitur lain, ketuk 💬 Balas ya.`+SIGN]],
+ ["testi","🙏 Minta testimoni",c=>["Boleh minta ceritamu? 🙏",`Assalamu'alaikum 🤍\n\nSudah beberapa waktu kamu memakai ${c.prod}. Boleh aku tahu, apa yang paling terasa manfaatnya untukmu?\n\nCeritamu (1–3 kalimat saja) akan sangat membantu muslimah lain yang sedang mencari teman bertumbuh. Ketuk 💬 Balas ya. Kalau boleh kami tampilkan di Instagram @littlesnoor, sebutkan juga ya (boleh tanpa nama).\n\nJazakillahu khairan 🤍`+SIGN]],
+ ["kabar","💬 Tanya kabar & masukan",c=>["Apa kabar? 🤍",`Assalamu'alaikum 🤍\n\nApa kabar hari ini? Semoga Allah mudahkan urusanmu.\n\nAku ingin tahu, bagaimana pengalamanmu memakai ${c.prod}? Ada yang bikin bingung, atau ada yang ingin kamu tambahkan?\n\nKetuk 💬 Balas, semua masukan kubaca dengan sepenuh hati.`+SIGN]],
+ ["tindak","🛠️ Terima kasih atas masukan",c=>["Terima kasih atas masukanmu 🤍",`Assalamu'alaikum 🤍\n\nTerima kasih sudah memberi masukan. Masukanmu sudah kami perhatikan dan kami perbaiki di versi terbaru aplikasi.\n\nTutup lalu buka lagi aplikasinya untuk memperbarui. Kalau masih ada yang kurang pas, ketuk 💬 Balas ya.\n\nJazakillahu khairan 🤍`+SIGN]],
+ ["kosong","✏️ Tulis sendiri",c=>["Pesan dari littles noor","Assalamu'alaikum 🤍\n\n"+SIGN.trim()]]];
+const KIND2TPL={sapaan:"mulai",ucapan:"traktir",pesan:"kosong"};
 /* ===== Kirim pesan yang muncul di aplikasi pembeli ===== */
 const DRAFTS={};
 function appBtn(email,title,body,kind){const id="d"+Math.random().toString(36).slice(2,9);DRAFTS[id]={email,title,body,kind};
   return `<a class="p" href="#" data-app="${id}" style="--c:var(--plum);text-decoration:none">💌 Kirim di aplikasi</a>`;}
 document.addEventListener("click",e=>{const a=e.target.closest&&e.target.closest("[data-app]");if(!a)return;e.preventDefault();compose(DRAFTS[a.dataset.app]);});
 async function compose(d){if(!d)return;const o=document.createElement("div");o.className="ov";
-  o.innerHTML=`<div class="box"><b style="font-size:16px">💌 Kirim di aplikasi</b><p class="sub" style="margin:2px 0 10px">Ke <b>${esc(d.email)}</b>. Pesan muncul saat dia membuka aplikasi littles noor (setelah masuk pakai kode). Ubah dulu sesukamu.</p>
+  const c=ctxOf(d.email);let cur=d.kind==="sapaan"&&d.title.startsWith("Kangen")?"kangen":(KIND2TPL[d.kind]||"kosong");
+  {const t=TPL.find(x=>x[0]===cur);if(t){const [a,b]=t[2](c);d={...d,title:a,body:b};}}
+  o.innerHTML=`<div class="box"><b style="font-size:16px">💌 Kirim di aplikasi</b><p class="sub" style="margin:2px 0 10px">Ke <b>${esc(d.email)}</b>. Pesan muncul saat dia membuka aplikasi littles noor (setelah masuk pakai kode). Pilih template, lalu ubah sesukamu.</p>
+  <div class="chips" id="tp" style="margin:0 0 10px">${TPL.map(t=>`<button class="chip ${t[0]===cur?"on":""}" data-tp="${t[0]}" style="font-size:12px;padding:5px 10px">${t[1]}</button>`).join("")}</div>
   <label class="sub">Judul</label><input id="ct" value="${esc(d.title)}" maxlength="120">
   <label class="sub" style="margin-top:8px;display:block">Isi pesan</label><textarea id="cb" rows="10">${esc(d.body)}</textarea>
   <p class="sub" id="ch" style="margin:6px 0 0"></p>
   <div style="display:flex;gap:8px;margin-top:12px"><button class="light" id="cx" style="flex:1">Batal</button><button id="cs" style="flex:2">Kirim ke aplikasinya</button></div></div>`;
   document.body.appendChild(o);o.querySelector("#cx").onclick=()=>o.remove();o.onclick=e=>{if(e.target===o)o.remove();};
-  const cb=o.querySelector("#cb");cb.focus();cb.setSelectionRange(cb.value.length,cb.value.length);
+  const cb=o.querySelector("#cb");
+  o.querySelectorAll("[data-tp]").forEach(b=>b.onclick=()=>{const t=TPL.find(x=>x[0]===b.dataset.tp);const [a,bd]=t[2](c);o.querySelector("#ct").value=a;cb.value=bd;cur=t[0];
+    o.querySelectorAll("[data-tp]").forEach(x=>x.classList.toggle("on",x===b));});
+  cb.focus();cb.setSelectionRange(cb.value.length,cb.value.length);
   try{const t=await token();const r=await fetch(CONFIG.url+"/rest/v1/rpc/admin_messages",{method:"POST",headers:{"Content-Type":"application/json",apikey:CONFIG.key,Authorization:"Bearer "+t},body:JSON.stringify({p_email:d.email})});
     const L=r.ok?await r.json():[];if(L.length)o.querySelector("#ch").innerHTML="Sudah pernah dikirim: "+L.slice(0,3).map(m=>`${esc(m.title)} (${agoTxt(m.at)}${m.read?", sudah dibaca":", belum dibaca"})`).join(" · ");}catch(e){}
   o.querySelector("#cs").onclick=async()=>{const b=o.querySelector("#cs"),title=o.querySelector("#ct").value.trim(),body=cb.value.trim();if(body.length<3){cb.focus();return;}
     b.disabled=true;b.textContent="Mengirim...";
-    try{const t=await token();const r=await fetch(CONFIG.url+"/rest/v1/rpc/admin_send_message",{method:"POST",headers:{"Content-Type":"application/json",apikey:CONFIG.key,Authorization:"Bearer "+t},body:JSON.stringify({p_email:d.email,p_title:title,p_body:body,p_kind:d.kind})});
+    try{const t=await token();const r=await fetch(CONFIG.url+"/rest/v1/rpc/admin_send_message",{method:"POST",headers:{"Content-Type":"application/json",apikey:CONFIG.key,Authorization:"Bearer "+t},body:JSON.stringify({p_email:d.email,p_title:title,p_body:body,p_kind:["traktir","apresiasi"].includes(cur)?"ucapan":"pesan"})});
       if(r.status===404){b.textContent="Fitur pesan belum dipasang (jalankan supabase/06-pesan-pembeli.sql)";return;}
       const j=await r.json();if(!j.ok)throw 0;o.querySelector(".box").innerHTML=`<p style="font-size:40px;margin:0;text-align:center">✅</p><p style="text-align:center"><b>Terkirim ke ${esc(d.email)}</b><br><span class="sub">Muncul saat dia membuka aplikasi.</span></p><button id="ok2" style="width:100%">Tutup</button>`;o.querySelector("#ok2").onclick=()=>o.remove();}
     catch(e){b.disabled=false;b.textContent="Coba kirim lagi";}};}
