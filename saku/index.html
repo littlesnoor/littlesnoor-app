@@ -46,16 +46,22 @@ footer a{color:inherit}
 .sheet{position:fixed;inset:0;background:rgba(20,16,20,.75);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;z-index:9}
 .sheet img{max-height:72vh;max-width:100%;border-radius:20px}
 .sheet .row{display:flex;gap:10px;margin-top:14px;width:100%;max-width:340px}
+.folds{display:flex;gap:10px;overflow-x:auto;padding:2px 2px 8px;margin:0 -2px}
+.fold{flex:none;width:118px;min-height:96px;background:#fff;border:1.5px solid #EADFD6;border-radius:18px;padding:10px 11px;text-align:left;cursor:pointer;font-family:Poppins,system-ui;color:#3A3238;display:flex;flex-direction:column;gap:2px;box-shadow:0 3px 12px rgba(0,0,0,.04)}
+.fold span{font-size:21px}.fold b{font-size:13px;line-height:1.25}.fold small{font-size:11.5px;opacity:.65;margin-top:auto}
+.fold.on{border-color:#A65A3C;background:#FFF0E8}
 </style></head><body><div class="wrap">
 <header><img src="logo.png" alt="littles noor"><a id="hdr" href="https://instagram.com/littlesnoor">@littlesnoor</a></header>
 <h1>Saku</h1>
 <p class="sub">Kartu sakti littles noor: kalimat penyemangat untuk setiap harimu. Satu kartu baru setiap hari 🌙</p>
-<span class="today" id="lbl">Kartu hari ini</span>
+<p class="hint" style="margin:0 0 8px"><b>Pilih topik</b> sesuai yang sedang kamu rasakan:</p>
+<div class="folds" id="folds"></div>
+<span class="today" id="lbl" style="margin-top:10px">Kartu hari ini</span>
 <div class="card" id="card"><span class="star" id="star">✦</span><div class="bar" id="bar"></div><div class="t1" id="t1"></div><div class="t2" id="t2"></div><div class="no" id="no"></div></div>
 <div class="nav"><button class="ic" id="prev" aria-label="Sebelumnya">‹</button><button id="fav">♡ Simpan</button><button id="share">Bagikan</button><button class="ic" id="next" aria-label="Berikutnya">›</button></div>
 <button class="btn main" id="wpBtn">📱 Jadikan wallpaper</button>
 <p class="how">Tips: pasang di <b>lock screen</b>, jadi kalimatnya selalu terlihat setiap kali kamu buka HP. Simpan juga halaman ini ke layar utama supaya bisa dibuka seperti aplikasi.</p>
-<h2>Koleksi wallpaper</h2><p class="hint">30 kartu. Ketuk untuk melihat, menyimpan, atau membagikan. ♥ = favoritmu.</p>
+<h2 id="gridHd" style="margin-top:22px;scroll-margin-top:16px">Semua kartu</h2><p class="hint">Ketuk kartu untuk melihat, menyimpan, atau membagikan wallpaper. ♥ = favoritmu.</p>
 <div class="grid" id="grid"></div>
 <div class="cta" id="remind"><b>⏰ Kartu penguat tiap hari</b><p>Pilih jam, lalu pasang pengingat di kalender HP. Saat waktunya tiba, buka Saku dan ambil satu kartu untuk hari ini.</p>
 <input type="time" id="rt" value="07:00" style="width:100%;box-sizing:border-box;border:1.5px solid #E6DCD3;border-radius:14px;padding:10px 12px;font:600 16px Poppins,system-ui;color:#3A3238;background:#fff;margin-bottom:10px">
@@ -68,11 +74,15 @@ footer a{color:inherit}
 const Q=[["Capek itu boleh.", "Nyerah jangan dulu. Allah lihat prosesmu, bukan cuma hasilnya."], ["Pelan bukan berarti gagal.", "Kamu cuma lagi jalan dengan kecepatanmu sendiri."], ["Hari ini berat?", "Gapapa. Besok kamu bangun dengan doa yang baru."], ["Nggak harus sempurna.", "Yang penting hari ini kamu nggak berhenti."], ["Rezekimu nggak akan ketuker.", "Jadi berhenti bandingin hidupmu sama story orang."], ["Istirahat itu bagian dari ikhtiar.", "Tidur cukup juga termasuk merawat amanah tubuhmu."], ["Gagal sekali, coba lagi.", "Gagal dua kali, coba lagi sambil minta tolong sama Allah."], ["Kamu lebih kuat dari yang kamu kira.", "Allah nggak membebani di luar kesanggupanmu."], ["Doain diri sendiri juga ya.", "Kamu juga layak didoakan dengan sungguh-sungguh."], ["Satu langkah kecil hari ini", "lebih baik daripada seribu rencana yang nggak jalan."], ["Jangan nunggu mood.", "Mulai aja dulu, nanti semangatnya nyusul."], ["Nangis itu bukan lemah.", "Sujud panjang itu tempat paling aman buat pulang."], ["Overthinking terus?", "Tarik napas, wudhu, terus serahin sisanya ke Allah."], ["Pencapaian kecil tetap pencapaian.", "Rayain, syukurin, lanjut lagi."], ["Nggak semua orang harus ngerti jalanmu.", "Cukup kamu dan Allah yang tahu niatnya."], ["Hidupmu bukan lomba.", "Nggak ada yang ngasih piala buat yang paling cepat capek."], ["Mulai lagi itu nggak memalukan.", "Yang memalukan itu menyerah sebelum sempat mencoba."], ["Kamu nggak sendirian.", "Allah lebih dekat dari urat lehermu."], ["Jaga hati, jaga lisan.", "Nggak semua hal harus dikomentari."], ["Sabar itu bukan diam.", "Sabar itu tetap bergerak sambil percaya."], ["Hari ini kamu bertahan.", "Itu sudah hebat. Serius."], ["Kalau belum bisa banyak,", "sedikit tapi rutin juga dicintai Allah."], ["Berhenti bilang 'aku nggak bisa'.", "Ganti jadi 'aku belum bisa, tapi lagi belajar'."], ["Yang pergi biarin pergi.", "Yang Allah takdirkan buatmu nggak akan nyasar."], ["Lelahmu dicatat.", "Nggak ada kebaikan yang sia-sia di sisi Allah."], ["Scroll boleh,", "tapi jangan sampai lupa ngisi diri sendiri."], ["Bersyukur dulu,", "baru minta lagi. Nikmat kemarin belum selesai dihitung."], ["Kamu boleh tumbuh pelan.", "Pohon besar juga dulunya cuma biji kecil."], ["Belum ada jalan?", "Mungkin Allah lagi nyiapin yang lebih baik. Tetap jalan."], ["Tumbuh pelan,", "bersinar perlahan. Kamu sedang di jalan yang benar."]]
 ;
 const PAL=[["#FFE0D2","#782D1E","#F2795A"],["#FFF0BD","#6E460A","#F0AA28"],["#D6EAFF","#193C6E","#508CDC"],["#E9DEFF","#462878","#966EDC"],["#D2F4E4","#0F5037","#3CB482"],["#282646","#FFF0D7","#FABE6E"]];
+const TOPICS=[["lelah","😮‍💨","Saat capek & lelah",[0,5,20,24]],["pelan","🐢","Tumbuh pelan",[1,3,13,21,27,29]],["bangkit","💪","Bangkit lagi",[6,7,9,10,16,19,22,28]],["allah","🤲","Dekat dengan Allah",[2,8,11,17]],["hati","🫧","Overthinking & jaga hati",[12,14,18,23]],["syukur","🌿","Syukur & cukup",[4,15,25,26]]];
 const $=s=>document.querySelector(s);
 const ls={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
 let favs=[];try{favs=JSON.parse(ls.get("saku.fav")||"[]")}catch(e){}
 const doy=()=>{const n=new Date(),s=new Date(n.getFullYear(),0,0);return Math.floor((n-s)/864e5)};
 const T=(doy()-1)%Q.length; let i=T;
+let topic=ls.get("saku.topic")||"";
+const inTopic=()=>topic==="fav"?favs.slice().sort((a,b)=>a-b):topic?((TOPICS.find(t=>t[0]===topic)||[])[3]||[]):Q.map((_,n)=>n);
+const topicOf=n=>TOPICS.find(t=>t[3].includes(n));
 const pad=n=>String(n+1).padStart(2,"0"); const wp=n=>"wp/saku-"+pad(n)+".jpg";
 function remWhen(hm){const[h,m]=hm.split(":").map(Number),d=new Date();d.setDate(d.getDate()+(d.getHours()*60+d.getMinutes()>=h*60+m?1:0));d.setHours(h,m,0,0);const e=new Date(d);e.setMinutes(e.getMinutes()+15);return[d,e];}
 function remF(x){const p=n=>String(n).padStart(2,"0");return`${x.getFullYear()}${p(x.getMonth()+1)}${p(x.getDate())}T${p(x.getHours())}${p(x.getMinutes())}00`;}
@@ -85,11 +95,18 @@ function remInit(){const t=$("#rt");if(!t)return;const last=ls.get("saku.rem");i
  $("#rGc").onclick=()=>{const[a,b]=remWhen(get());window.open("https://calendar.google.com/calendar/render?action=TEMPLATE&text="+encodeURIComponent(REM_T)+"&dates="+remF(a)+"/"+remF(b)+"&recur="+encodeURIComponent("RRULE:FREQ=DAILY")+"&details="+encodeURIComponent(REM_D+"\nhttps://app.littlesnoor.com/saku/"),"_blank");};}
 function toast(t){const e=$("#toast");e.textContent=t;e.classList.add("on");clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove("on"),1800)}
 function show(){const [bg,ink,acc]=PAL[i%PAL.length],c=$("#card");c.style.background=bg;c.style.color=ink;$("#bar").style.background=acc;$("#star").style.color=acc;$("#no").style.color=acc;
- $("#t1").textContent=Q[i][0];$("#t2").textContent=Q[i][1];$("#no").textContent="Saku #"+pad(i);$("#lbl").textContent=i===T?"Kartu hari ini":"Saku #"+pad(i)+" dari 30";
+ $("#t1").textContent=Q[i][0];$("#t2").textContent=Q[i][1];$("#no").textContent="Saku #"+pad(i)+(topicOf(i)?" · "+topicOf(i)[1]+" "+topicOf(i)[2]:"");{const L=inTopic(),k=L.indexOf(i);$("#lbl").textContent=i===T&&!topic?"Kartu hari ini":(topic&&k>=0?folderName()+" · "+(k+1)+" dari "+L.length:"Saku #"+pad(i)+" dari 30");}
  $("#fav").textContent=favs.includes(i)?"♥ Tersimpan":"♡ Simpan";grid()}
-function grid(){$("#grid").innerHTML=Q.map((q,n)=>`<button data-n="${n}"><img loading="lazy" src="th/saku-${pad(n)}.jpg" alt="${q[0]}">${favs.includes(n)?'<span class="fv">♥</span>':""}</button>`).join("");
+function folderName(){return topic==="fav"?"♥ Favoritku":topic?(t=>t[1]+" "+t[2])(TOPICS.find(t=>t[0]===topic)):"Semua kartu";}
+function folders(){const F=[["","🗂️","Semua",Q.length],...TOPICS.map(t=>[t[0],t[1],t[2],t[3].length]),["fav","♥","Favoritku",favs.length]];
+ $("#folds").innerHTML=F.map(([k,ic,nm,c])=>`<button class="fold${topic===k?" on":""}" data-t="${k}"><span>${ic}</span><b>${nm}</b><small>${c} kartu</small></button>`).join("");
+ $("#folds").querySelectorAll(".fold").forEach(b=>b.onclick=()=>{topic=b.dataset.t;ls.set("saku.topic",topic);const L=inTopic();if(L.length&&!L.includes(i))i=L[0];show();
+});}
+function grid(){folders();const L=inTopic();$("#gridHd").textContent=folderName();
+ $("#grid").innerHTML=L.length?L.map(n=>`<button data-n="${n}"><img loading="lazy" src="th/saku-${pad(n)}.jpg" alt="${Q[n][0]}">${favs.includes(n)?'<span class="fv">♥</span>':""}</button>`).join(""):`<p class="hint" style="grid-column:1/-1">Belum ada kartu favorit. Ketuk ♡ Simpan di kartu yang kamu suka.</p>`;
  $("#grid").querySelectorAll("button").forEach(b=>b.onclick=()=>{i=+b.dataset.n;show();openWp()})}
-$("#prev").onclick=()=>{i=(i+Q.length-1)%Q.length;show()};$("#next").onclick=()=>{i=(i+1)%Q.length;show()};
+const step=d=>{const L=inTopic().length?inTopic():Q.map((_,n)=>n);let k=L.indexOf(i);k=k<0?0:(k+d+L.length)%L.length;i=L[k];show();};
+$("#prev").onclick=()=>step(-1);$("#next").onclick=()=>step(1);
 $("#fav").onclick=()=>{favs=favs.includes(i)?favs.filter(x=>x!==i):[...favs,i];ls.set("saku.fav",JSON.stringify(favs));toast(favs.includes(i)?"Disimpan ke favorit ♥":"Dihapus dari favorit");show()};
 async function shareImg(){const txt=Q[i][0]+" "+Q[i][1]+"\n\nSaku by littles noor · app.littlesnoor.com/saku";
  try{const r=await fetch(wp(i)),b=await r.blob(),f=new File([b],"saku-"+pad(i)+".jpg",{type:"image/jpeg"});
