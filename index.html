@@ -332,6 +332,8 @@ html,body{position:fixed;inset:0;width:100%;height:100%;overflow:hidden}
 .badge{display:flex;flex-direction:column;align-items:center;justify-content:center;width:54px;height:58px;border-radius:14px;background:#F3EFF1;opacity:.45;filter:grayscale(1)}
 .badge i{font-style:normal;font-size:22px;line-height:1.1}.badge small{font-size:10px;font-weight:600;color:var(--ink)}
 .badge.on{opacity:1;filter:none;background:#FFF4E0;box-shadow:0 2px 8px rgba(224,161,46,.25)}
+.msgdot{display:inline-block;background:#C0563B;color:#fff;font-size:11px;font-weight:600;border-radius:99px;padding:1px 8px;margin-left:4px;vertical-align:middle}
+#msgCard{margin-top:14px}
 </style>
 </head>
 <body>
@@ -1777,6 +1779,35 @@ function shelfGroups(P,SO){
   if(used.length<=1&&!pins.length)return [["",P]];
   const G=[];if(pins.length)G.push(["📌 Disematkan",pins]);
   used.forEach(c=>G.push([c[1]+" "+c[2],rest.filter(p=>catOf(p)===c[0])]));return G;}
+/* ===== Pesan dari littles noor (dikirim admin, muncul di aplikasi pembeli) ===== */
+let MSGS=(function(){try{return JSON.parse(localStorage.getItem("ln.msgs")||"[]");}catch(e){return [];}})();
+async function loadMsgs(){if(!window.LNS||!LNS.has()||navigator.onLine===false)return;
+  try{const r=await rpc("my_messages",{},true);if(Array.isArray(r)){MSGS=r;try{localStorage.setItem("ln.msgs",JSON.stringify(r));}catch(e){}
+    if(view==="shelf"&&!document.querySelector(".modal")){const c=document.getElementById("msgCard");if(c)c.outerHTML=msgCard();bindMsgCard();}
+    const n=MSGS.find(m=>!m.read);let shown=[];try{shown=JSON.parse(localStorage.getItem("ln.msgShown")||"[]");}catch(e){}
+    if(n&&!shown.includes(n.id)&&!document.querySelector(".modal")){shown.push(n.id);try{localStorage.setItem("ln.msgShown",JSON.stringify(shown.slice(-50)));}catch(e){}openMsg(n.id);}}}catch(e){}}
+function msgCard(){if(!MSGS.length)return `<span id="msgCard"></span>`;const u=MSGS.filter(m=>!m.read).length;
+  return `<button class="card fbcard" id="msgCard" style="border-style:solid;border-color:#E7B9A5;background:#FFF3EC"><span style="font-size:28px">💌</span><span style="flex:1;text-align:left"><b>Pesan dari littles noor${u?` <span class="msgdot">${u} baru</span>`:""}</b><small>${esc((MSGS[0]||{}).title||"")}</small></span><span class="small">›</span></button>`;}
+function bindMsgCard(){const c=document.getElementById("msgCard");if(c&&c.tagName==="BUTTON")c.onclick=msgList;}
+function msgList(){const e=document.createElement("div");e.className="modal";
+  e.innerHTML=`<div class="sheet"><h3>💌 Pesan dari littles noor</h3>${MSGS.map(m=>`<button class="sumrow" data-m="${m.id}"><span class="sumic">${m.read?"📭":"📬"}</span><span class="sumtx"><b>${esc(m.title)}</b><small>${new Date(m.at).toLocaleDateString("id-ID",{day:"numeric",month:"long",year:"numeric"})}</small></span><span class="small">›</span></button>`).join("")}<button class="btn ghost" id="mx" style="margin-top:10px">Tutup</button></div>`;
+  document.body.appendChild(e);e.querySelector("#mx").onclick=()=>e.remove();e.querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>{e.remove();openMsg(+b.dataset.m);});}
+function openMsg(id){const m=MSGS.find(x=>x.id===id);if(!m)return;const e=document.createElement("div");e.className="modal";
+  e.innerHTML=`<div class="sheet"><div style="font-size:42px;text-align:center">${m.kind==="ucapan"?"🎁":"💌"}</div><h3 style="text-align:center;margin-top:4px">${esc(m.title)}</h3>
+  <p class="small" style="text-align:center;margin:0 0 10px">${new Date(m.at).toLocaleDateString("id-ID",{day:"numeric",month:"long",year:"numeric"})} · dari littles noor</p>
+  <div style="white-space:pre-wrap;line-height:1.6;font-size:14.5px;background:#FFF9F3;border-radius:16px;padding:14px">${esc(m.body)}</div>
+  <button class="btn" id="mr" style="margin-top:12px">💬 Balas</button><button class="btn ghost" id="mx" style="margin-top:8px">Tutup</button></div>`;
+  document.body.appendChild(e);e.querySelector("#mx").onclick=()=>e.remove();
+  e.querySelector("#mr").onclick=()=>{e.remove();replyMsg(m);};
+  if(!m.read){m.read=true;try{localStorage.setItem("ln.msgs",JSON.stringify(MSGS));}catch(x){}rpc("read_message",{p_id:m.id},true).catch(()=>{});
+    if(view==="shelf"){const c=document.getElementById("msgCard");if(c){c.outerHTML=msgCard();bindMsgCard();}}}}
+function replyMsg(m){const A=acc()||{},e=document.createElement("div");e.className="modal";
+  e.innerHTML=`<div class="sheet"><h3>💬 Balas pesan</h3><p class="small">Balasanmu langsung sampai ke littles noor.</p><textarea id="rm" style="min-height:130px;margin-top:8px" placeholder="Tulis balasanmu..."></textarea>
+  <button class="btn" id="rs2" style="margin-top:12px">Kirim balasan</button><button class="btn ghost" id="rx" style="margin-top:8px">Batal</button></div>`;
+  document.body.appendChild(e);e.querySelector("#rx").onclick=()=>e.remove();
+  e.querySelector("#rs2").onclick=async()=>{const t=e.querySelector("#rm").value.trim();if(t.length<2){toast("Tulis balasannya dulu ya");return;}const b=e.querySelector("#rs2");b.disabled=true;b.textContent="Mengirim...";
+    try{const r=await rpc("send_feedback",{p_email:A.email||"",p_kind:"balasan",p_msg:t.slice(0,2000),p_ctx:"balas pesan: "+String(m.title).slice(0,120)});if(r&&r.ok===false)throw 0;e.remove();toast("Balasan terkirim 🤍");}
+    catch(x){b.disabled=false;b.textContent="Kirim balasan";toast("Belum terkirim, cek internetmu ya");}};}
 /* ===== Lencana istiqamah (hari berturut-turut mengisi) ===== */
 const BADGES=[[3,"🌱","Langkah Awal"],[7,"⭐","Seminggu Istiqamah"],[14,"🌙","Dua Pekan Konsisten"],[30,"✨","Sebulan Bersinar"],[60,"🌿","Dua Bulan Teguh"],[100,"🏅","Seratus Hari Bercahaya"]];
 function celebrate(got){
@@ -1835,6 +1866,7 @@ function shelf(){
   <div class="brand"><b>littles noor</b><button class="back" id="logoutTop">Keluar ⎋</button></div>${LNS.badge()}
   <div class="hello">${sal}${S.name?", "+esc(S.name):""} ${sal==="Masih terjaga"?"🌙":"🤍"}</div>
   <div class="sub">${gsub?gsub+"<br>":""}Kamu semangat terus ya, jangan menyerah. Biarlah Allah menjadi sebaik-baik saksi atas setiap hal yang kamu usahakan 😊</div>
+  ${msgCard()}
   ${summaryCard(owned,P0)}
   <div class="row" style="justify-content:flex-end;margin-top:10px"><button class="mini" id="editShelf">${shelfEdit?"✓ Selesai":"⇅ Atur rak"}</button></div>
   ${shelfEdit?`<p class="small" style="margin:6px 0 0">Ketuk 📌 untuk menyematkan di atas, atau geser dengan ‹ ›.</p>`:""}
@@ -1852,7 +1884,7 @@ function shelf(){
   <button class="card fbcard" id="fbOpen"><span style="font-size:28px">💌</span><span style="flex:1;text-align:left"><b>Kotak saran</b><small>Punya masukan atau ide aplikasi baru? Ceritakan ke kami</small></span><span class="small">›</span></button>
   <div class="card" style="margin-top:18px;display:flex;align-items:center;gap:10px"><p class="small" style="margin:0;flex:1">Masuk sebagai <b>${esc(A.email||"")}</b></p><button class="mini" id="logoutBtn">Keluar</button></div>
   <p class="small" style="text-align:center;margin-top:16px">Butuh bantuan? DM Instagram <a href='https://instagram.com/littlesnoor' target='_blank' rel='noopener' style='color:var(--sage);font-weight:700'>@littlesnoor</a></p></div>`;
-  $("#editShelf").onclick=()=>{shelfEdit=!shelfEdit;shelf();};bindSummary();
+  $("#editShelf").onclick=()=>{shelfEdit=!shelfEdit;shelf();};bindSummary();bindMsgCard();
   bindPushCard();
   $("#logoutTop").onclick=logout;$("#logoutBtn").onclick=logout;$("#fbOpen").onclick=feedbackSheet;
   app.querySelectorAll("[data-cat]").forEach(b=>b.onclick=()=>{shelfCat=b.dataset.cat;shelf();});
@@ -1916,7 +1948,7 @@ function lockScreen(msg){
   <div class="card" style="text-align:left" id="authBox"></div>
   <a href="saku/" style="display:block;margin-top:12px;background:#FFE0D2;color:#782D1E;border-radius:16px;padding:13px;font-weight:600;text-decoration:none;text-align:center">🌙 Coba Saku gratis: kartu sakti littles noor</a>
   <p class="small" style="margin-top:14px">Belum punya? Dapatkan di <a href="https://lynk.id/littlesnoor" target="_blank" rel="noopener" style="color:var(--sage);font-weight:700">lynk.id/littlesnoor</a><br>Butuh bantuan? DM Instagram <a href="https://instagram.com/littlesnoor" target="_blank" rel="noopener" style="color:var(--sage);font-weight:700">@littlesnoor</a></p></div>`;
-  LNS.authFlow($("#authBox"),(acc()||{}).email||lsGetSafe("littlesnoor.lastEmail")||"",()=>{start();refreshContent((acc()||{}).owned||[]);},msg);
+  LNS.authFlow($("#authBox"),(acc()||{}).email||lsGetSafe("littlesnoor.lastEmail")||"",()=>{start();refreshContent((acc()||{}).owned||[]);setTimeout(loadMsgs,1500);},msg);
 }
 function lsGetSafe(k){try{return localStorage.getItem(k)}catch(e){return null}}
 function deep(){return location.hostname.startsWith("mulailagi.")||location.hash==="#mulai-lagi";}
@@ -1936,7 +1968,7 @@ async function boot(){
   if(navigator.onLine===false)return;
   try{const res=LNS.has()?await rpc("me",{p_device:deviceId()},true):await login(A.email);
     if(res&&res.ok){lsSet(AKEY,JSON.stringify(Object.assign(A,{owned:res.owned||[],products:res.products||[],at:Date.now()})));if(view==="shelf")shelf();
-      refreshContent(res.owned||[]);if(LNS.has())LNS.run();}
+      refreshContent(res.owned||[]);if(LNS.has()){LNS.run();loadMsgs();}}
     else if(res&&!res.ok&&res.reason!=="auth"){lsDel(AKEY);lsDel(CKEY);lockScreen(res.reason==="device_limit"?"Perangkat ini sudah tidak terdaftar. Hubungi <a href='https://instagram.com/littlesnoor' target='_blank' rel='noopener' style='color:var(--sage);font-weight:700'>@littlesnoor</a>.":"Akses untuk email ini sudah tidak aktif.");}}catch(e){}
 }
 /* ===== Akun aman (kode OTP) + sinkron antar-perangkat =====
@@ -2189,7 +2221,7 @@ function upgrade(){const A=acc()||{},e=document.createElement("div");e.className
   document.body.appendChild(e);e.querySelector("#ax").onclick=()=>e.remove();
   authFlow(e.querySelector("#af"),A.email,()=>{e.remove();toast("Akunmu sudah aman & tersinkron ✓");try{render();}catch(x){}run();});}
 document.addEventListener("click",e=>{if(e.target&&e.target.closest&&e.target.closest("#lnUp"))upgrade();});
-document.addEventListener("visibilitychange",()=>{if(sess)soon(document.visibilityState==="visible"?300:50);});
+document.addEventListener("visibilitychange",()=>{if(sess)soon(document.visibilityState==="visible"?300:50);if(sess&&document.visibilityState==="visible")setTimeout(()=>{try{loadMsgs();}catch(e){}},1500);});
 window.addEventListener("online",()=>{status();if(sess)soon(500);});
 window.addEventListener("offline",status);
 let pendingReload=new Set();
@@ -2394,7 +2426,7 @@ var INK=(function(){
 })();
 
 /* ===== Notifikasi pembaruan ===== */
-const APP_VERSION=74;
+const APP_VERSION=75;
 (function(){
   let shown=false;
   async function check(){

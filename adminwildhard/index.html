@@ -52,6 +52,9 @@ input[type=search]{width:100%;border:1.5px solid var(--line);border-radius:14px;
 .msg{background:#fff;border-radius:18px;padding:22px;margin-top:20px;box-shadow:0 2px 12px rgba(46,36,51,.05)}
 .note{font-size:12px;color:var(--soft);margin-top:22px}
 .copy{background:none;color:var(--soft);padding:0 0 0 6px;font-weight:500;font-size:12px;text-decoration:underline}
+.ov{position:fixed;inset:0;background:rgba(40,30,40,.45);display:flex;align-items:center;justify-content:center;padding:16px;z-index:50}
+.ov .box{background:#fff;border-radius:22px;padding:20px;width:min(520px,100%);max-height:92vh;overflow:auto;box-shadow:0 20px 50px rgba(0,0,0,.2)}
+.ov input,.ov textarea{width:100%;border:1.5px solid var(--line);border-radius:14px;padding:10px 12px;font:500 14px/1.5 Poppins,system-ui;color:var(--ink)}
 </style></head>
 <body><div class="wrap">
 <header><img src="../saku/logo.png" alt="littles noor"><div style="display:flex;gap:8px"><a href="../" class="light" style="font:600 13px Poppins,system-ui;border-radius:14px;padding:9px 14px;background:#fff;color:var(--ink);text-decoration:none;box-shadow:0 1px 6px rgba(0,0,0,.06)">‹ Aplikasi</a><button class="light" id="rf">↻ Muat ulang</button><button class="light" id="lo" style="display:none">Keluar</button></div></header>
@@ -134,6 +137,27 @@ async function load(){
   $("#lo").style.display="";
   draw(r);loadExtra(t);
 }
+/* ===== Kirim pesan yang muncul di aplikasi pembeli ===== */
+const DRAFTS={};
+function appBtn(email,title,body,kind){const id="d"+Math.random().toString(36).slice(2,9);DRAFTS[id]={email,title,body,kind};
+  return `<a class="p" href="#" data-app="${id}" style="--c:var(--plum);text-decoration:none">💌 Kirim di aplikasi</a>`;}
+document.addEventListener("click",e=>{const a=e.target.closest&&e.target.closest("[data-app]");if(!a)return;e.preventDefault();compose(DRAFTS[a.dataset.app]);});
+async function compose(d){if(!d)return;const o=document.createElement("div");o.className="ov";
+  o.innerHTML=`<div class="box"><b style="font-size:16px">💌 Kirim di aplikasi</b><p class="sub" style="margin:2px 0 10px">Ke <b>${esc(d.email)}</b>. Pesan muncul saat dia membuka aplikasi littles noor (setelah masuk pakai kode). Ubah dulu sesukamu.</p>
+  <label class="sub">Judul</label><input id="ct" value="${esc(d.title)}" maxlength="120">
+  <label class="sub" style="margin-top:8px;display:block">Isi pesan</label><textarea id="cb" rows="10">${esc(d.body)}</textarea>
+  <p class="sub" id="ch" style="margin:6px 0 0"></p>
+  <div style="display:flex;gap:8px;margin-top:12px"><button class="light" id="cx" style="flex:1">Batal</button><button id="cs" style="flex:2">Kirim ke aplikasinya</button></div></div>`;
+  document.body.appendChild(o);o.querySelector("#cx").onclick=()=>o.remove();o.onclick=e=>{if(e.target===o)o.remove();};
+  const cb=o.querySelector("#cb");cb.focus();cb.setSelectionRange(cb.value.length,cb.value.length);
+  try{const t=await token();const r=await fetch(CONFIG.url+"/rest/v1/rpc/admin_messages",{method:"POST",headers:{"Content-Type":"application/json",apikey:CONFIG.key,Authorization:"Bearer "+t},body:JSON.stringify({p_email:d.email})});
+    const L=r.ok?await r.json():[];if(L.length)o.querySelector("#ch").innerHTML="Sudah pernah dikirim: "+L.slice(0,3).map(m=>`${esc(m.title)} (${agoTxt(m.at)}${m.read?", sudah dibaca":", belum dibaca"})`).join(" · ");}catch(e){}
+  o.querySelector("#cs").onclick=async()=>{const b=o.querySelector("#cs"),title=o.querySelector("#ct").value.trim(),body=cb.value.trim();if(body.length<3){cb.focus();return;}
+    b.disabled=true;b.textContent="Mengirim...";
+    try{const t=await token();const r=await fetch(CONFIG.url+"/rest/v1/rpc/admin_send_message",{method:"POST",headers:{"Content-Type":"application/json",apikey:CONFIG.key,Authorization:"Bearer "+t},body:JSON.stringify({p_email:d.email,p_title:title,p_body:body,p_kind:d.kind})});
+      if(r.status===404){b.textContent="Fitur pesan belum dipasang (jalankan supabase/06-pesan-pembeli.sql)";return;}
+      const j=await r.json();if(!j.ok)throw 0;o.querySelector(".box").innerHTML=`<p style="font-size:40px;margin:0;text-align:center">✅</p><p style="text-align:center"><b>Terkirim ke ${esc(d.email)}</b><br><span class="sub">Muncul saat dia membuka aplikasi.</span></p><button id="ok2" style="width:100%">Tutup</button>`;o.querySelector("#ok2").onclick=()=>o.remove();}
+    catch(e){b.disabled=false;b.textContent="Coba kirim lagi";}};}
 /* tombol kirim email: Gmail di web (default) atau aplikasi email */
 function mailBtns(to,sub,body,label){
   const g="https://mail.google.com/mail/?authuser=littlesnoor@gmail.com&view=cm&fs=1&to="+encodeURIComponent(to)+"&su="+encodeURIComponent(sub)+"&body="+encodeURIComponent(body);
@@ -148,7 +172,7 @@ function nudge(U){
     const sub=kind==="belum"?"Yuk mulai pakai "+prod+" 🤍":"Kangen kamu di littles noor 🤍";
     const body=kind==="belum"?`Assalamu'alaikum,\n\nTerima kasih sudah membeli ${prod} dari littles noor 🤍\n\nAplikasinya sudah siap dipakai di HP atau laptop: buka app.littlesnoor.com, lalu masuk dengan email ini (${u.email}). Kode masuk akan dikirim ke email kamu.\n\nKalau ada kendala saat masuk atau belum tahu mulai dari mana, balas saja email ini ya, insyaAllah aku bantu.\n\nTumbuh pelan, bersinar perlahan.\nPlan with intention, grow with barakah.\nlittles noor`
       :`Assalamu'alaikum,\n\nSudah beberapa hari kamu belum membuka ${prod} di littles noor. Nggak apa-apa, pelan-pelan saja 🤍\n\nCoba buka app.littlesnoor.com hari ini dan isi satu halaman kecil. Semua isianmu masih tersimpan di akunmu.\n\nKalau ada yang bikin bingung, balas email ini ya.\n\nTumbuh pelan, bersinar perlahan.\nPlan with intention, grow with barakah.\nlittles noor`;
-    return mailBtns(u.email,sub,body,"✉️ Kirim sapaan");};
+    return appBtn(u.email,kind==="belum"?"Yuk mulai pakai "+prod+" 🤍":"Kangen kamu di littles noor 🤍",kind==="belum"?`Assalamu'alaikum 🤍\n\nTerima kasih sudah membeli ${prod}. Semua sudah siap dipakai di aplikasi ini.\n\nCoba mulai dari satu halaman kecil hari ini ya. Kalau ada yang bikin bingung, ketuk 💬 Balas di bawah, insyaAllah aku bantu.\n\nTumbuh pelan, bersinar perlahan.\nPlan with intention, grow with barakah.`:`Assalamu'alaikum 🤍\n\nSudah beberapa hari kamu belum mengisi ${prod}. Nggak apa-apa, pelan-pelan saja.\n\nSemua isianmu masih tersimpan. Yuk isi satu halaman kecil hari ini 🌱\n\nTumbuh pelan, bersinar perlahan.\nPlan with intention, grow with barakah.`,"sapaan")+mailBtns(u.email,sub,body,"✉️ Kirim sapaan");};
   const row=(u,kind)=>`<div class="user"><div class="urow"><div><span class="dot" style="background:${kind==="belum"?"#C9BFC4":"#E0A12E"}"></span><span class="em">${esc(u.email)}</span></div><div class="when">${kind==="belum"?(u.akun?"sudah login, belum mengisi":(u.perangkat?"login cara lama":"belum pernah login")):"terakhir aktif "+agoTxt(u.aktif_terakhir)}</div></div>
     <div class="ps">${names(u).map(n=>`<span class="p off">${esc(n)}</span>`).join("")}${mail(u,kind)}</div></div>`;
   return `<h2>🔔 Perlu disapa</h2>
@@ -173,7 +197,7 @@ function rewardsHtml(){
   const L=RW.list.filter(x=>(x.hari_bulan_ini>0||x.sekarang>0)&&x.email!=="littlesnoor@gmail.com"),bln=new Date(RW.today).toLocaleDateString("id-ID",{month:"long",year:"numeric"});
   const mail=x=>{const sub="Selamat, kamu dapat Traktiran littles noor 🎁";
     const body=`Assalamu'alaikum,\n\nMasyaAllah, kamu termasuk pembeli yang paling istiqamah mengisi aplikasi littles noor di bulan ${bln}: ${x.terbaik_bulan_ini} hari berturut-turut 🤍\n\nSebagai apresiasi, kami ingin memberimu Traktiran littles noor. Boleh balas email ini dengan nama e-wallet dan nomornya (GoPay/OVO/DANA/ShopeePay)?\n\nTerima kasih sudah tumbuh pelan bersama kami. Semoga Allah menjaga istiqamahmu.\n\nTumbuh pelan, bersinar perlahan.\nPlan with intention, grow with barakah.\nlittles noor`;
-    return mailBtns(x.email,sub,body,"🎁 Kirim ucapan");};
+    return appBtn(x.email,"Selamat, kamu dapat Traktiran littles noor 🎁",`Assalamu'alaikum 🤍\n\nMasyaAllah, kamu termasuk yang paling istiqamah mengisi aplikasi littles noor di bulan ${bln}: ${x.terbaik_bulan_ini} hari berturut-turut!\n\nSebagai apresiasi, kami ingin memberimu Traktiran littles noor. Ketuk 💬 Balas di bawah, lalu tulis nama e-wallet dan nomornya (GoPay/OVO/DANA/ShopeePay) ya.\n\nSemoga Allah menjaga istiqamahmu.\n\nTumbuh pelan, bersinar perlahan.\nPlan with intention, grow with barakah.`,"ucapan")+mailBtns(x.email,sub,body,"🎁 Kirim ucapan");};
   const medal=i=>["🥇","🥈","🥉"][i]||(i+1)+".";
   return `<h2>🏆 Paling istiqamah · ${bln}</h2><p class="sub" style="margin:-4px 0 10px">Diurutkan dari hari berturut-turut terpanjang bulan ini. Pilih beberapa untuk Traktiran, lalu ketuk <b>🎁 Kirim ucapan</b>.</p>
   ${L.length?L.slice(0,15).map((x,i)=>`<div class="user"><div class="urow"><div><b style="margin-right:6px">${medal(i)}</b><span class="em">${esc(x.email)}</span></div><div class="when">🔥 ${x.sekarang} hari sekarang</div></div>
@@ -278,7 +302,7 @@ function list(){
     const saku=(u.owned||[]).includes("saku")?`<span class="p off">Saku</span>`:"";
     return `<div class="user"><div class="urow"><div><span class="dot" style="background:${col}"></span><span class="em">${esc(u.email)}</span><button class="copy" data-cp="${esc(u.email)}">salin</button></div>
       <div class="when">aktif ${agoTxt(u.aktif_terakhir)}<br>${u.akun?"login "+agoTxt(u.login_terakhir):(u.perangkat?"login cara lama":"belum login")}</div></div>
-      <div class="ps">${ps}${saku}</div></div>`;}).join(""):`<p class="sub">Tidak ada pembeli di filter ini.</p>`;
+      <div class="ps">${ps}${saku}${appBtn(u.email,"Pesan dari littles noor","Assalamu'alaikum 🤍\n\n","pesan")}</div></div>`;}).join(""):`<p class="sub">Tidak ada pembeli di filter ini.</p>`;
   document.querySelectorAll("[data-cp]").forEach(b=>b.onclick=async()=>{try{await navigator.clipboard.writeText(b.dataset.cp);b.textContent="tersalin ✓";}catch(e){}});
 }
 $("#rf").onclick=load;$("#lo").onclick=logout;
