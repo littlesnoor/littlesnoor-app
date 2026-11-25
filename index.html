@@ -306,7 +306,7 @@ html,body{position:fixed;inset:0;width:100%;height:100%;overflow:hidden}
 .inked{position:fixed;inset:0;z-index:8;background:#F4F0F2;display:flex;flex-direction:column;font-family:Poppins,system-ui}
 .inkhd{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:calc(10px + env(safe-area-inset-top)) 14px 8px;background:#fff}
 .inkhd b{font-size:15px;color:var(--ink)}
-.inktools{display:flex;align-items:center;gap:8px;padding:8px 14px 10px;background:#fff;overflow-x:auto;border-bottom:1px solid var(--line)}
+.inktools{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:8px 14px 10px;background:#fff;border-bottom:1px solid var(--line)}
 .inktools .sep{width:1px;height:24px;background:var(--line);flex:none}
 .inktools .dot{flex:none;width:26px;height:26px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 1.5px var(--line);cursor:pointer}
 .inktools .dot.on{box-shadow:0 0 0 2.5px var(--ink)}
@@ -317,6 +317,11 @@ html,body{position:fixed;inset:0;width:100%;height:100%;overflow:hidden}
 .inkpaper{max-width:900px;margin:0 auto;background-color:#fff;background-image:repeating-linear-gradient(to bottom,transparent 0,transparent calc(100% - 1px),#E7DFE4 calc(100% - 1px),#E7DFE4 100%);border-radius:14px;box-shadow:0 4px 16px rgba(74,54,85,.08);overflow:hidden}
 .inkpaper canvas{display:block;touch-action:none}
 .inkhint{padding:8px 14px calc(8px + env(safe-area-inset-bottom));font-size:11.5px;color:#7A6E75;text-align:center;background:#fff}
+.inkpaper[data-bg=polos]{background-image:none}
+.inkpaper[data-bg=kotak]{background-image:linear-gradient(#ECE5E9 1px,transparent 1px),linear-gradient(90deg,#ECE5E9 1px,transparent 1px)}
+.paperpick{display:flex;flex:none;background:#F4F0F2;border-radius:12px;padding:3px;gap:2px}
+.paperpick .pp{border:0;background:transparent;border-radius:9px;padding:7px 10px;font:600 12px Poppins,sans-serif;color:var(--ink);cursor:pointer;white-space:nowrap}
+.paperpick .pp.on{background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.1)}
 </style>
 </head>
 <body>
@@ -2232,7 +2237,10 @@ var INK=(function(){
     if(p.length>2)ctx.lineTo(X(p.length-2),Y(p.length-1));ctx.stroke();}
   function paint(cv,ink,cssW){const dpr=Math.min(window.devicePixelRatio||1,2),k=cssW/W,h=ink.h*k;
     cv.style.width=cssW+"px";cv.style.height=h+"px";cv.width=Math.round(cssW*dpr);cv.height=Math.round(h*dpr);
-    const ctx=cv.getContext("2d");ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,cssW,h);(ink.s||[]).forEach(s=>drawStroke(ctx,s,k));}
+    const ctx=cv.getContext("2d");ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,cssW,h);
+    if(ink.bg!=="polos"){ctx.strokeStyle="#EEE7EB";ctx.lineWidth=1;ctx.beginPath();const st=Math.max(14,(ink.bg==="kotak"?30:38)*cssW/Math.max(320,Math.min(900,(document.querySelector(".wrap")||{}).clientWidth||420)));
+      for(let y=st;y<h;y+=st){ctx.moveTo(0,y+.5);ctx.lineTo(cssW,y+.5);}if(ink.bg==="kotak")for(let x=st;x<cssW;x+=st){ctx.moveTo(x+.5,0);ctx.lineTo(x+.5,h);}ctx.stroke();}
+    (ink.s||[]).forEach(s=>drawStroke(ctx,s,k));}
   /* ---- tampilan di bawah kolom ---- */
   function idsIn(ta){const ids=[];let m;RX.lastIndex=0;while((m=RX.exec(ta.value)))ids.push(m[1]);return ids;}
   async function refreshRow(ta){
@@ -2266,10 +2274,12 @@ var INK=(function(){
   function editor(ink,done){
     const strokes=ink?JSON.parse(JSON.stringify(ink.s||[])):[],redo=[];let H=Math.max(PAGE,ink?Math.ceil((ink.h+200)/PAGE)*PAGE:PAGE);
     let color=COLORS[0],size=SIZES[0],erase=false,penSeen=false,cur=null,changed=false;
+    let bg=(ink&&ink.bg)||(function(){try{return localStorage.getItem("ink.bg")||"garis";}catch(e){return "garis";}})();
     const e=document.createElement("div");e.className="inked";
     e.innerHTML=`<div class="inkhd"><button class="back" id="ix">Batal</button><b>✍️ Tulis tangan</b><button class="btn" id="iok" style="width:auto;padding:9px 18px;margin:0">Simpan</button></div>
     <div class="inktools">${COLORS.map((c,i)=>`<button class="dot ${i?"":"on"}" data-c="${c}" style="background:${c}"></button>`).join("")}<span class="sep"></span>
     ${SIZES.map((s,i)=>`<button class="sz ${i?"":"on"}" data-s="${s}"><i style="width:${s+3}px;height:${s+3}px"></i></button>`).join("")}<span class="sep"></span>
+    <span class="paperpick">${[["garis","Bergaris"],["polos","Polos"],["kotak","Kotak"]].map(([k,l])=>`<button class="pp" data-bg="${k}">${l}</button>`).join("")}</span><span class="sep"></span>
     <button class="tb" id="ier" title="Penghapus">🧽</button><button class="tb" id="iun" title="Urungkan">↶</button><button class="tb" id="ire" title="Ulangi">↷</button><button class="tb" id="icl" title="Bersihkan">🗑️</button></div>
     <div class="inkscroll"><div class="inkpaper"><canvas></canvas></div><button class="btn light" id="ipg" style="margin:12px auto 30px;width:auto;display:block;padding:10px 18px">＋ Tambah halaman</button>
     ${ink?`<button class="btn ghost" id="idel" style="margin:0 auto 40px;width:auto;display:block;padding:10px 18px">Hapus tulisan ini</button>`:""}</div>
@@ -2278,7 +2288,8 @@ var INK=(function(){
     const sc=e.querySelector(".inkscroll"),paper=e.querySelector(".inkpaper"),cv=e.querySelector("canvas");let k=1,ctx;
     const size_=()=>{const cw=Math.min(paper.clientWidth||sc.clientWidth-24,900);k=cw/W;const dpr=Math.min(window.devicePixelRatio||1,2);
       cv.style.width=cw+"px";cv.style.height=H*k+"px";cv.width=Math.round(cw*dpr);cv.height=Math.round(H*k*dpr);ctx=cv.getContext("2d");ctx.setTransform(dpr,0,0,dpr,0,0);
-      paper.style.backgroundSize="100% "+(48*k)+"px";redraw();};
+      paper.style.backgroundSize=bg==="kotak"?"30px 30px":"100% 38px";redraw();};
+    const setBg=v=>{bg=v;paper.dataset.bg=v;e.querySelectorAll(".pp").forEach(x=>x.classList.toggle("on",x.dataset.bg===v));try{localStorage.setItem("ink.bg",v);}catch(x){}if(ctx)size_();};
     const redraw=()=>{ctx.clearRect(0,0,cv.width,cv.height);strokes.forEach(s=>drawStroke(ctx,s,k));};
     const pt=ev=>{const r=cv.getBoundingClientRect();return [Math.round((ev.clientX-r.left)/k*10),Math.round((ev.clientY-r.top)/k*10)];};
     const hit=(x,y)=>{const R=(18/k)*10;for(let i=strokes.length-1;i>=0;i--){const p=strokes[i].p;for(let j=0;j<p.length;j+=2){if(Math.abs(p[j]-x)<R&&Math.abs(p[j+1]-y)<R){redo.length=0;const [s]=strokes.splice(i,1);hist.push({del:s,i});changed=true;redraw();return;}}}};
@@ -2301,6 +2312,7 @@ var INK=(function(){
     cv.addEventListener("pointerup",up);cv.addEventListener("pointercancel",up);
     e.querySelectorAll(".dot").forEach(b=>b.onclick=()=>{color=b.dataset.c;erase=false;e.querySelector("#ier").classList.remove("on");e.querySelectorAll(".dot").forEach(x=>x.classList.toggle("on",x===b));});
     e.querySelectorAll(".sz").forEach(b=>b.onclick=()=>{size=+b.dataset.s;e.querySelectorAll(".sz").forEach(x=>x.classList.toggle("on",x===b));});
+    e.querySelectorAll(".pp").forEach(b=>b.onclick=()=>{if(bg!==b.dataset.bg){setBg(b.dataset.bg);if(ink)changed=true;}});setBg(bg);
     e.querySelector("#ier").onclick=ev=>{erase=!erase;ev.currentTarget.classList.toggle("on",erase);};
     e.querySelector("#iun").onclick=()=>{const h=hist.pop();if(!h)return;if(h.add){strokes.splice(strokes.indexOf(h.add),1);}else if(h.del){strokes.splice(h.i,0,h.del);}else if(h.clear){strokes.push(...h.clear);}redo.push(h);changed=true;redraw();};
     e.querySelector("#ire").onclick=()=>{const h=redo.pop();if(!h)return;if(h.add)strokes.push(h.add);else if(h.del)strokes.splice(strokes.indexOf(h.del),1);else if(h.clear)strokes.length=0;hist.push(h);changed=true;redraw();};
@@ -2313,7 +2325,7 @@ var INK=(function(){
       if(ink&&!changed){close(null);return;}
       let maxY=0,minY=1e9;strokes.forEach(s=>{for(let i=1;i<s.p.length;i+=2){if(s.p[i]>maxY)maxY=s.p[i];if(s.p[i]<minY)minY=s.p[i];}});
       const top=Math.max(0,Math.floor(minY/10-30))*10;if(top){strokes.forEach(s=>{for(let i=1;i<s.p.length;i+=2)s.p[i]-=top;});maxY-=top;}
-      const n={id:newId(),v:1,w:W,h:Math.max(220,Math.ceil(maxY/10+40)),s:strokes,at:Date.now()};await put(n);close(n);};
+      const n={id:newId(),v:1,w:W,h:Math.max(220,Math.ceil(maxY/10+40)),bg,s:strokes,at:Date.now()};await put(n);close(n);};
     if(e.querySelector("#idel"))e.querySelector("#idel").onclick=()=>confirmBox("Hapus tulisan tangan ini?","Coretan ini akan dihapus dari kolom isian.",()=>close("delete"),"Hapus");
     window.addEventListener("resize",size_);requestAnimationFrame(size_);}
   const scan=()=>document.querySelectorAll("textarea:not([data-ink])").forEach(attach);
@@ -2323,7 +2335,7 @@ var INK=(function(){
 })();
 
 /* ===== Notifikasi pembaruan ===== */
-const APP_VERSION=67;
+const APP_VERSION=68;
 (function(){
   let shown=false;
   async function check(){
