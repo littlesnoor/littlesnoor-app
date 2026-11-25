@@ -134,8 +134,8 @@ function nudge(U){
   const names=u=>P.filter(p=>(u.owned||[]).includes(p.id)).map(p=>p.name);
   const mail=(u,kind)=>{const prod=names(u).join(", ")||"produk littles noor";
     const sub=kind==="belum"?"Yuk mulai pakai "+prod+" 🤍":"Kangen kamu di littles noor 🤍";
-    const body=kind==="belum"?`Assalamu'alaikum,\n\nTerima kasih sudah membeli ${prod} dari littles noor 🤍\n\nAplikasinya sudah siap dipakai di HP atau laptop: buka app.littlesnoor.com, lalu masuk dengan email ini (${u.email}). Kode masuk akan dikirim ke email kamu.\n\nKalau ada kendala saat masuk atau belum tahu mulai dari mana, balas saja email ini ya, insyaAllah aku bantu.\n\nTumbuh pelan, bersinar perlahan.\nlittles noor`
-      :`Assalamu'alaikum,\n\nSudah beberapa hari kamu belum membuka ${prod} di littles noor. Nggak apa-apa, pelan-pelan saja 🤍\n\nCoba buka app.littlesnoor.com hari ini dan isi satu halaman kecil. Semua isianmu masih tersimpan di akunmu.\n\nKalau ada yang bikin bingung, balas email ini ya.\n\nTumbuh pelan, bersinar perlahan.\nlittles noor`;
+    const body=kind==="belum"?`Assalamu'alaikum,\n\nTerima kasih sudah membeli ${prod} dari littles noor 🤍\n\nAplikasinya sudah siap dipakai di HP atau laptop: buka app.littlesnoor.com, lalu masuk dengan email ini (${u.email}). Kode masuk akan dikirim ke email kamu.\n\nKalau ada kendala saat masuk atau belum tahu mulai dari mana, balas saja email ini ya, insyaAllah aku bantu.\n\nTumbuh pelan, bersinar perlahan.\nPlan with intention, grow with barakah.\nlittles noor`
+      :`Assalamu'alaikum,\n\nSudah beberapa hari kamu belum membuka ${prod} di littles noor. Nggak apa-apa, pelan-pelan saja 🤍\n\nCoba buka app.littlesnoor.com hari ini dan isi satu halaman kecil. Semua isianmu masih tersimpan di akunmu.\n\nKalau ada yang bikin bingung, balas email ini ya.\n\nTumbuh pelan, bersinar perlahan.\nPlan with intention, grow with barakah.\nlittles noor`;
     return "mailto:"+encodeURIComponent(u.email)+"?subject="+encodeURIComponent(sub)+"&body="+encodeURIComponent(body);};
   const row=(u,kind)=>`<div class="user"><div class="urow"><div><span class="dot" style="background:${kind==="belum"?"#C9BFC4":"#E0A12E"}"></span><span class="em">${esc(u.email)}</span></div><div class="when">${kind==="belum"?(u.akun?"sudah login, belum mengisi":(u.perangkat?"login cara lama":"belum pernah login")):"terakhir aktif "+agoTxt(u.aktif_terakhir)}</div></div>
     <div class="ps">${names(u).map(n=>`<span class="p off">${esc(n)}</span>`).join("")}<a class="p" style="--c:var(--tc);text-decoration:none" href="${mail(u,kind)}">✉️ Kirim sapaan</a></div></div>`;
@@ -152,7 +152,21 @@ async function loadExtra(t){
   try{const res=await fetch(CONFIG.url+"/rest/v1/rpc/admin_extra",{method:"POST",headers:{"Content-Type":"application/json",apikey:CONFIG.key,Authorization:"Bearer "+t},body:"{}"});
     if(res.status===404){$("#extra").innerHTML=`<div class="msg"><b>Bagian penjualan & masukan belum dipasang.</b><p class="sub">Jalankan <code>supabase/04-dashboard-tambahan.sql</code> di Supabase → SQL Editor.</p></div>`;return;}
     EX=await res.json();}catch(e){return;}
-  if(!EX||!EX.ok)return;drawExtra();}
+  if(!EX||!EX.ok)return;
+  try{const r2=await fetch(CONFIG.url+"/rest/v1/rpc/admin_rewards",{method:"POST",headers:{"Content-Type":"application/json",apikey:CONFIG.key,Authorization:"Bearer "+t},body:"{}"});RW=r2.ok?await r2.json():null;}catch(e){RW=null;}
+  drawExtra();}
+let RW=null;
+function rewardsHtml(){
+  if(!RW||!RW.ok)return `<h2>🏆 Paling istiqamah</h2><div class="msg"><b>Bagian reward belum dipasang.</b><p class="sub">Jalankan <code>supabase/05-reward-istiqamah.sql</code> di Supabase → SQL Editor.</p></div>`;
+  const L=RW.list.filter(x=>x.hari_bulan_ini>0||x.sekarang>0),bln=new Date(RW.today).toLocaleDateString("id-ID",{month:"long",year:"numeric"});
+  const mail=x=>{const sub="Selamat, kamu dapat Traktiran littles noor 🎁";
+    const body=`Assalamu'alaikum,\n\nMasyaAllah, kamu termasuk pembeli yang paling istiqamah mengisi aplikasi littles noor di bulan ${bln}: ${x.terbaik_bulan_ini} hari berturut-turut 🤍\n\nSebagai apresiasi, kami ingin memberimu Traktiran littles noor. Boleh balas email ini dengan nama e-wallet dan nomornya (GoPay/OVO/DANA/ShopeePay)?\n\nTerima kasih sudah tumbuh pelan bersama kami. Semoga Allah menjaga istiqamahmu.\n\nTumbuh pelan, bersinar perlahan.\nPlan with intention, grow with barakah.\nlittles noor`;
+    return "mailto:"+encodeURIComponent(x.email)+"?subject="+encodeURIComponent(sub)+"&body="+encodeURIComponent(body);};
+  const medal=i=>["🥇","🥈","🥉"][i]||(i+1)+".";
+  return `<h2>🏆 Paling istiqamah · ${bln}</h2><p class="sub" style="margin:-4px 0 10px">Diurutkan dari hari berturut-turut terpanjang bulan ini. Pilih beberapa untuk Traktiran, lalu ketuk <b>🎁 Kirim ucapan</b>.</p>
+  ${L.length?L.slice(0,15).map((x,i)=>`<div class="user"><div class="urow"><div><b style="margin-right:6px">${medal(i)}</b><span class="em">${esc(x.email)}</span></div><div class="when">🔥 ${x.sekarang} hari sekarang</div></div>
+    <div class="ps"><span class="p" style="--c:var(--tc)">Terpanjang bulan ini: ${x.terbaik_bulan_ini} hari</span><span class="p off">Hari mengisi bulan ini: ${x.hari_bulan_ini}</span><span class="p off">Rekor: ${x.terbaik} hari</span><a class="p" style="--c:var(--sage);text-decoration:none" href="${mail(x)}">🎁 Kirim ucapan</a></div></div>`).join(""):`<p class="sub">Belum ada pembeli yang mengisi bulan ini.</p>`}
+  <p class="note">Dihitung dari tanggal isian di semua aplikasi (jurnal, catatan, mutaba'ah, transaksi, nota, hari Mulai Lagi), tanpa membaca isi tulisan. Hanya pembeli yang sudah masuk pakai kode yang terhitung.</p>`;}
 function txOf(S){ // gabungkan pembelian email yang sama dalam 15 menit = 1 transaksi
   const A=S.slice().sort((a,b)=>new Date(a.at)-new Date(b.at)),T=[];
   for(const x of A){const t=new Date(x.at).getTime(),l=T.find(y=>y.email===x.email&&Math.abs(t-y.t)<15*60e3);if(l)l.items.push(x.product);else T.push({email:x.email,t,items:[x.product]});}
@@ -167,7 +181,7 @@ function drawExtra(){
   const perProd={};tx30.forEach(x=>x.items.forEach(p=>perProd[p]=(perProd[p]||0)+1));
   const F=EX.feedback||[],open=F.filter(f=>!f.done);
   const fi=EX.fitur||{};
-  let h=`<h2>💰 Penjualan</h2><div class="tiles">
+  let h=rewardsHtml()+`<h2>💰 Penjualan</h2><div class="tiles">
     <div class="tile"><b>${tx7.length}</b><span>Transaksi 7 hari</span><small>pembelian (1 checkout = 1)</small></div>
     <div class="tile"><b>${tx30.length}</b><span>Transaksi 30 hari</span><small>${bundle30} di antaranya paket 5 produk</small></div>
     <div class="tile"><b>${items30}</b><span>Produk terjual 30 hari</span><small>dihitung per produk</small></div>

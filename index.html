@@ -328,6 +328,10 @@ html,body{position:fixed;inset:0;width:100%;height:100%;overflow:hidden}
 .sumrow{display:flex;align-items:center;gap:10px;width:100%;background:none;border:0;border-top:1px dashed var(--line);padding:10px 0;font-family:Poppins,system-ui;color:var(--ink);text-align:left;cursor:pointer}
 .sumic{font-size:22px;flex:none}.sumtx{flex:1;display:flex;flex-direction:column;gap:2px}.sumtx b{font-size:13.5px}.sumtx small{font-size:12.5px;color:#6E6470}
 .sumbar{display:block;height:6px;border-radius:9px;background:#EFE8EC;overflow:hidden;margin-top:4px}.sumbar i{display:block;height:100%;background:var(--sage);border-radius:9px}
+.badges{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 2px}
+.badge{display:flex;flex-direction:column;align-items:center;justify-content:center;width:54px;height:58px;border-radius:14px;background:#F3EFF1;opacity:.45;filter:grayscale(1)}
+.badge i{font-style:normal;font-size:22px;line-height:1.1}.badge small{font-size:10px;font-weight:600;color:var(--ink)}
+.badge.on{opacity:1;filter:none;background:#FFF4E0;box-shadow:0 2px 8px rgba(224,161,46,.25)}
 </style>
 </head>
 <body>
@@ -546,7 +550,7 @@ async function certCanvas(){
   x.fillStyle="#857882";x.font="400 36px Poppins, sans-serif";x.fillText(fmtDate(d),540,1120);
   const st=[["30","hari"],[String(stepsDone()),"langkah kecil"],[words().toLocaleString("id-ID"),"kata ditulis"]];
   st.forEach((s_,i)=>{const cx=240+i*300;x.fillStyle="#F6E6EA";rr(cx-130,1190,260,190,36);x.fill();x.fillStyle="#7C3F4E";x.font="700 70px Poppins, sans-serif";x.fillText(s_[0],cx,1290);x.fillStyle="#857882";x.font="500 30px Poppins, sans-serif";x.fillText(s_[1],cx,1345);});
-  x.fillStyle="#9A5262";x.font="italic 400 40px Poppins, sans-serif";x.fillText("tumbuh pelan, bersinar perlahan",540,1490);
+  x.fillStyle="#9A5262";x.font="italic 400 40px Poppins, sans-serif";x.fillText("tumbuh pelan, bersinar perlahan",540,1470);x.font="italic 400 32px Poppins, sans-serif";x.fillText("plan with intention, grow with barakah",540,1522);
   x.fillStyle="#9A5262";x.font="700 36px Poppins, sans-serif";x.fillText("littles noor",540,1600);
   x.fillStyle="#FFF9F3";x.font="500 36px Poppins, sans-serif";x.fillText("@littlesnoor · app.littlesnoor.com",540,1800);
   return c;
@@ -617,7 +621,7 @@ function more(){
   <div class="row"><button class="btn light" id="cp">Salin kode cadangan</button><button class="btn light" id="rs">Pulihkan</button></div>
   <textarea id="bk" class="hidden" rows="4" placeholder="Tempel kode cadangan di sini, lalu ketuk Pulihkan lagi" style="margin-top:10px"></textarea></details>
   <div class="card"><p class="small" style="margin:0 0 10px">Masuk sebagai <b>${esc((acc()||{}).email||"")}</b></p><button class="btn ghost" id="rst">Mulai dari awal (hapus semua)</button></div>
-  <p class="small" style="text-align:center;margin-top:18px">Mulai Lagi · littles noor<br>tumbuh pelan, bersinar perlahan</p></div>`;
+  <p class="small" style="text-align:center;margin-top:18px">Mulai Lagi · littles noor<br>tumbuh pelan, bersinar perlahan<br>plan with intention, grow with barakah</p></div>`;
   $("#nm").oninput=e=>{S.name=e.target.value;save();};
   if($("#cel"))$("#cel").onclick=()=>go("celebrate");
   bindReminder();
@@ -701,7 +705,7 @@ function notePrintHTML(n){const T=ntype(n);const F=[[T.tema[0],n.tema],["Tanggal
   ${T.areas.map(blk).join("")}
   <div class="pf"><h4>${T.list[0]}</h4><div class="pchk">${(n.amalan||[]).map(a=>(a.done?"☑ ":"☐ ")+esc(a.t)).join("<br>")||""}</div></div>
   ${T.after.map(blk).join("")}${blk(["extra","Catatan tambahan"])}
-  <div class="pfoot">app.littlesnoor.com · tumbuh pelan, bersinar perlahan</div></div>`;}
+  <div class="pfoot">app.littlesnoor.com · tumbuh pelan, bersinar perlahan · plan with intention, grow with barakah</div></div>`;}
 /* ---- PDF dari catatan (tanpa library) ---- */
 function noteBlocks(n){const T=ntype(n);const B=[];
   B.push({k:"head",s:"Catatan Majelis · "+T.lab});B.push({k:"title",s:n.tema||"(tanpa judul)"});
@@ -724,7 +728,7 @@ function makePDF(notes){
     else{font("600",23);need(90);cx.fillStyle=PUR;cx.fillText(b.h,M,y+23);y+=40;font("400",22);cx.fillStyle=INKC;
       const ls=wrap(b.s||" ",W-2*M-28);ls.forEach(l=>{if(y+36>BOT){newPage();font("400",22);cx.fillStyle=INKC;}cx.fillStyle="#E3D9F3";cx.fillRect(M,y,5,36);cx.fillStyle=INKC;cx.fillText(l,M+24,y+27);y+=36;});y+=26;}
   });});
-  pages.forEach((p,i)=>{const c=p.getContext("2d");c.font="400 18px "+FF;c.fillStyle="#9a8f98";c.textAlign="center";c.fillText("app.littlesnoor.com · tumbuh pelan, bersinar perlahan · "+(i+1)+"/"+pages.length,W/2,H-60);});
+  pages.forEach((p,i)=>{const c=p.getContext("2d");c.font="400 18px "+FF;c.fillStyle="#9a8f98";c.textAlign="center";c.fillText("app.littlesnoor.com · tumbuh pelan, bersinar perlahan · plan with intention, grow with barakah · "+(i+1)+"/"+pages.length,W/2,H-60);});
   const enc=new TextEncoder();const parts=[];let len=0;const offs=[];
   const add=x=>{const u=typeof x==="string"?enc.encode(x):x;parts.push(u);len+=u.length;};
   const obj=(i,body)=>{offs[i]=len;add(i+" 0 obj\n");body();add("\nendobj\n");};
@@ -1773,6 +1777,17 @@ function shelfGroups(P,SO){
   if(used.length<=1&&!pins.length)return [["",P]];
   const G=[];if(pins.length)G.push(["📌 Disematkan",pins]);
   used.forEach(c=>G.push([c[1]+" "+c[2],rest.filter(p=>catOf(p)===c[0])]));return G;}
+/* ===== Lencana istiqamah (hari berturut-turut mengisi) ===== */
+const BADGES=[[3,"🌱","Langkah Awal"],[7,"⭐","Seminggu Istiqamah"],[14,"🌙","Dua Pekan Konsisten"],[30,"✨","Sebulan Bersinar"],[60,"🌿","Dua Bulan Teguh"],[100,"🏅","Seratus Hari Bercahaya"]];
+function celebrate(got){
+  let seen=[];try{seen=JSON.parse(localStorage.getItem("ln.badgeSeen")||"[]");}catch(e){}
+  const fresh=got.filter(b=>!seen.includes(b[0]));if(!fresh.length||document.querySelector(".modal"))return;
+  const b=fresh[fresh.length-1];try{localStorage.setItem("ln.badgeSeen",JSON.stringify(got.map(x=>x[0])));}catch(e){}
+  const e=document.createElement("div");e.className="modal";
+  e.innerHTML=`<div class="sheet" style="text-align:center"><div style="font-size:64px;line-height:1.1">${b[1]}</div><h3 style="margin:8px 0 4px">MasyaAllah, lencana baru!</h3>
+  <p style="margin:0 0 6px;font-weight:600">${b[2]}</p><p class="small">Kamu sudah mengisi <b>${b[0]} hari berturut-turut</b>. Semoga Allah menjaga istiqamahmu 🤍</p>
+  <button class="btn" id="bgOk" style="margin-top:12px">Alhamdulillah</button></div>`;
+  document.body.appendChild(e);e.querySelector("#bgOk").onclick=()=>e.remove();e.onclick=ev=>{if(ev.target===e)e.remove();};}
 /* ===== Ringkasanku: progres semua produk milik pembeli dalam satu layar ===== */
 let sumOpen=(function(){try{return localStorage.getItem("ln.sumOpen")!=="0";}catch(e){return true;}})();
 function summaryCard(owned,P0){
@@ -1797,9 +1812,16 @@ function summaryCard(owned,P0){
   // hari berturut-turut ada isian (dari hari ini atau kemarin)
   const ymd=x=>x.getFullYear()+"-"+String(x.getMonth()+1).padStart(2,"0")+"-"+String(x.getDate()).padStart(2,"0");
   let st=0;const c=new Date();if(!days.has(ymd(c)))c.setDate(c.getDate()-1);while(days.has(ymd(c))){st++;c.setDate(c.getDate()-1);}
+  // rekor hari berturut-turut sepanjang waktu
+  let best=0,run=0,prev=null;[...days].filter(d=>d<=ymd(new Date())).sort().forEach(d=>{const t=Date.parse(d+"T00:00:00");run=(prev!=null&&Math.round((t-prev)/864e5)===1)?run+1:1;prev=t;if(run>best)best=run;});
+  best=Math.max(best,st);
+  const got=BADGES.filter(b=>best>=b[0]),nxt=BADGES.find(b=>best<b[0]);
+  setTimeout(()=>celebrate(got),400);
   const head=st>=2?`🔥 <b>${st} hari</b> berturut-turut kamu mengisi. MasyaAllah!`:days.has(ymd(new Date()))?"✅ Hari ini kamu sudah mengisi. Terus pelan-pelan ya.":"Belum ada isian hari ini. Satu langkah kecil saja cukup 🤍";
   return `<div class="card sumcard"><button class="sumhd" id="sumTg"><b>📊 Ringkasanku</b><span class="small">${sumOpen?"Tutup ⌃":"Buka ⌄"}</span></button>
-  ${sumOpen?`<p class="small" style="margin:4px 0 8px">${head}</p>${rows.map(([id,ic,nm,txt,pr])=>`<button class="sumrow" data-open="${id}"><span class="sumic">${ic}</span><span class="sumtx"><b>${nm}</b><small>${txt}</small>${pr!=null?`<i class="sumbar"><i style="width:${Math.round(Math.max(0,Math.min(1,pr))*100)}%"></i></i>`:""}</span><span class="small">›</span></button>`).join("")}`:""}</div>`;}
+  ${sumOpen?`<p class="small" style="margin:4px 0 8px">${head}</p>
+  <div class="badges">${BADGES.map(b=>`<span class="badge ${best>=b[0]?"on":""}" title="${b[2]}: ${b[0]} hari berturut-turut"><i>${b[1]}</i><small>${b[0]} hari</small></span>`).join("")}</div>
+  <p class="small" style="margin:6px 0 8px">${nxt?`Rekormu <b>${best} hari</b> berturut-turut. ${nxt[0]-Math.max(st,0)>0?`<b>${nxt[0]-st} hari lagi</b> mengisi tanpa bolong untuk lencana ${nxt[1]} <b>${nxt[2]}</b>.`:""}`:`MasyaAllah, semua lencana sudah kamu raih! 🏅`}<br>🎁 Tiap bulan, beberapa pembeli yang paling istiqamah mendapat <b>Traktiran littles noor</b>.</p>${rows.map(([id,ic,nm,txt,pr])=>`<button class="sumrow" data-open="${id}"><span class="sumic">${ic}</span><span class="sumtx"><b>${nm}</b><small>${txt}</small>${pr!=null?`<i class="sumbar"><i style="width:${Math.round(Math.max(0,Math.min(1,pr))*100)}%"></i></i>`:""}</span><span class="small">›</span></button>`).join("")}`:""}</div>`;}
 function bindSummary(){const t=$("#sumTg");if(t)t.onclick=()=>{sumOpen=!sumOpen;try{localStorage.setItem("ln.sumOpen",sumOpen?"1":"0");}catch(e){}shelf();};
   app.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>openProduct(b.dataset.open));}
 function shelf(){
@@ -2371,7 +2393,7 @@ var INK=(function(){
 })();
 
 /* ===== Notifikasi pembaruan ===== */
-const APP_VERSION=72;
+const APP_VERSION=73;
 (function(){
   let shown=false;
   async function check(){
