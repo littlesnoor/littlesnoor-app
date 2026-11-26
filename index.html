@@ -71,6 +71,10 @@ textarea.letter{min-height:260px;background:repeating-linear-gradient(#fff,#fff 
 .nstyle .blk.box{background:var(--np)}
 .nstyle .blk.box textarea,.nstyle .blk.box input[type=text],.nstyle .blk.box input[type=date]{background-color:var(--np);color:var(--ni)}
 .nstyle .blk.box textarea.letter{background:repeating-linear-gradient(var(--np),var(--np) 31px,var(--line) 32px)}
+.nstyle.nl-polos .blk.box textarea.letter{background:var(--np)}
+.nstyle.nl-kotak .blk.box textarea.letter{background-color:var(--np);background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:24px 24px}
+.nstyle.nl-titik .blk.box textarea.letter{background-color:var(--np);background-image:radial-gradient(circle,#C9BFC6 1.3px,transparent 1.6px);background-size:22px 22px}
+.nstyle textarea[data-k="isi"]{min-height:60vh}
 .npick summary{font-weight:700;font-size:14.5px;cursor:pointer}.npick label{display:block;font-size:13px;font-weight:600;margin:12px 0 6px}
 .nsw{display:flex;gap:8px;flex-wrap:wrap}.nsw .sw{width:34px;height:34px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 1.5px var(--line);cursor:pointer;padding:0}
 .nsw .sw.on{box-shadow:0 0 0 2.5px var(--ink)}
@@ -708,12 +712,14 @@ const NTYPE={
    list:["Tugas & penanggung jawab","misal: Sewa sound — Aisyah (Jumat)"],after:[["lanjut","Agenda berikutnya","Yang perlu dibahas di pertemuan berikutnya...",""]]},
  lain:{ic:"📝",lab:"Kegiatan lain",title:"Catatan kegiatan",tema:["Judul kegiatan","misal: Pelatihan, seminar, kelas..."],who:["Narasumber / penanggung jawab","Nama"],where:"Tempat / link",
    areas:[["poin","Poin-poin penting","Tulis hal penting yang kamu dapat...","letter"],["pelajaran","Hal yang ingin kuingat","Insight atau pelajaran untukku...",""]],
-   list:["Yang perlu ditindaklanjuti","Tambah tindak lanjut..."],after:[]}};
+   list:["Yang perlu ditindaklanjuti","Tambah tindak lanjut..."],after:[]},
+ kosong:{ic:"📄",lab:"Catatan kosong",title:"Catatan kosong",blank:true,tema:["Judul","Judul catatan (boleh dikosongkan)"],who:["",""],where:"",
+   areas:[["isi","Isi catatan","Tulis apa saja di sini...","letter"]],list:["",""],after:[]}};
 const ntype=n=>NTYPE[n.type]||NTYPE.kajian;
 const NMOOD=[["🤍","tersentuh"],["😊","senang"],["😌","tenang"],["🔥","semangat"],["🤔","merenung"],["😕","bingung"],["😴","lelah"],["😔","berat"]];
 const moodOf=n=>NMOOD.find(m=>m[0]===n.feel);
 function pickType(){const e=document.createElement("div");e.className="modal";e.innerHTML=`<div class="sheet"><h3>Catatan apa hari ini?</h3><p class="small">Pilih jenis catatan, isinya menyesuaikan.</p>
-  ${Object.entries(NTYPE).map(([k,t])=>`<button class="mjcard" data-t="${k}"><b>${t.ic} ${t.lab}</b><span>${k==="kajian"?"Kajian, taklim, halaqah ilmu":k==="rapat"?"Rapat, syuro, musyawarah, koordinasi":"Seminar, kelas, pelatihan, kegiatan apa pun"}</span></button>`).join("")}
+  ${Object.entries(NTYPE).map(([k,t])=>`<button class="mjcard" data-t="${k}"><b>${t.ic} ${t.lab}</b><span>${k==="kajian"?"Kajian, taklim, halaqah ilmu":k==="rapat"?"Rapat, syuro, musyawarah, koordinasi":k==="kosong"?"Halaman bebas. Pilih warna & jenis kertasmu sendiri":"Seminar, kelas, pelatihan, kegiatan apa pun"}</span></button>`).join("")}
   <button class="btn ghost" id="no" style="margin-top:12px">Batal</button></div>`;
   document.body.appendChild(e);e.querySelector("#no").onclick=()=>e.remove();e.onclick=x=>{if(x.target===e)e.remove();};
   e.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{e.remove();newNote(b.dataset.t);});}
@@ -721,16 +727,16 @@ function notePrintHTML(n){const T=ntype(n);const F=[[T.tema[0],n.tema],["Tanggal
   const blk=([k,lab])=>`<div class="pf"><h4>${lab}</h4><div>${esc(n[k]||"")}</div></div>`;
   return `<div class="pp"><div class="ph"><b>Catatan Majelis · ${T.lab}</b><span>littlesnoor</span></div>
   <div class="pt">${esc(n.tema||"(tanpa judul)")}</div><div class="pm">${[fmtD(n.tgl),n.pemateri,n.tempat,n.mode].filter(Boolean).map(esc).join(" · ")}${moodOf(n)?" · Perasaan: "+moodOf(n)[0]+" "+moodOf(n)[1]:""}</div>
-  ${T.areas.map(blk).join("")}
+  ${T.areas.map(blk).join("")}${T.blank?"":`
   <div class="pf"><h4>${T.list[0]}</h4><div class="pchk">${(n.amalan||[]).map(a=>(a.done?"☑ ":"☐ ")+esc(a.t)).join("<br>")||""}</div></div>
-  ${T.after.map(blk).join("")}${blk(["extra","Catatan tambahan"])}
+  ${T.after.map(blk).join("")}${blk(["extra","Catatan tambahan"])}`}
   <div class="pfoot">app.littlesnoor.com · tumbuh pelan, bersinar perlahan · plan with intention, grow with barakah</div></div>`;}
 /* ---- PDF dari catatan (tanpa library) ---- */
 function noteBlocks(n){const T=ntype(n);const B=[];
   B.push({k:"head",s:"Catatan Majelis · "+T.lab});B.push({k:"title",s:n.tema||"(tanpa judul)"});
   B.push({k:"meta",s:[fmtD(n.tgl),n.pemateri,n.tempat,n.mode].filter(Boolean).join(" · ")+(moodOf(n)?" · Perasaan: "+moodOf(n)[0]+" "+moodOf(n)[1]:"")});
   const sec=(lab,txt)=>B.push({k:"sec",h:lab,s:txt||""});
-  T.areas.forEach(([k,lab])=>sec(lab,n[k]));
+  T.areas.forEach(([k,lab])=>sec(lab,n[k]));if(T.blank)return B;
   sec(T.list[0],(n.amalan||[]).map(a=>(a.done?"☑ ":"☐ ")+a.t).join("\n"));
   T.after.forEach(([k,lab])=>sec(lab,n[k]));sec("Catatan tambahan",n.extra);return B;}
 function makePDF(notes,cov){const B=[];if(cov)B.push({k:"cover",t:cov.t,s:cov.s,sub2:pdfNow()});
@@ -1002,16 +1008,18 @@ const TB='<div class="tb"><button type="button" data-fmt="num">1. Nomor</button>
 const NPAPER=[["#FFFFFF","Putih"],["#FFF8EC","Krem"],["#FDEDF1","Pink"],["#F1ECFB","Lilac"],["#E9F6EE","Mint"],["#E8F3F8","Biru"],["#FFF6D6","Kuning"]];
 const NINK=[["#3A3238","Hitam"],["#6B3E7C","Ungu"],["#24507A","Biru"],["#2F6B47","Hijau"],["#7A4A2A","Cokelat"],["#B4566A","Mawar"]];
 const nStyle=n=>`--np:${n.paper||"#FFFFFF"};--ni:${n.ink||"#3A3238"}`;
+const NLINE=[["garis","Bergaris"],["polos","Polos"],["kotak","Kotak"],["titik","Titik"]];
+const nLine=n=>n.lines||"garis";
 const MJV={
 mjhome(){const M=mjLoad(), t=today(), pct=mutPct(t), [sal]=greet();
   const SECT=[["mjnotes","📖 Catatan",M.notes.length+" kajian, rapat & kegiatan","#FDEEF1","#B05A6E"],["mjmut","✅ Mutaba'ah",pct+"% hari ini","#EBF6F9","#3F8196"],["mjhal","🤝 Halaqah",M.hal.length+" pertemuan","#F3EFFB","#6E58A6"],["mjhaf","📗 Hafalan",M.haf.length+" target","#EEF7EE","#4A8A5C"],["mjbaca","📚 Bacaan",M.baca.length+" buku","#FFF5E3","#A0742A"],["mjdoa","🤲 Doa & Dzikir",M.doa.length+" doa","#FFEFE6","#B0613C"],["mjtanya","❓ Pertanyaan",M.tanya.filter(x=>!x.done).length+" belum terjawab","#EBF6F9","#3F8196"]];
   app.innerHTML=`<div class="wrap">${mjHead(sal+(S.name?", "+esc(S.name):"")+" 🤍","Ikat ilmumu dengan tulisan.")}
   <div class="card" style="padding:12px 14px"><input type="text" id="q" placeholder="🔍  Cari catatan... (misal: sabar)" value="${esc(mjQ)}"></div>
-  <button class="btn" id="new" style="margin-top:14px">＋ Catatan baru</button>
+  <div class="row" style="margin-top:14px"><button class="btn" id="new" style="flex:1.4">＋ Catatan baru</button><button class="btn light" id="newB" style="flex:1">📄 Catatan kosong</button></div>
   ${!(M.rem&&(M.rem.mut||M.rem.kajian))?`<div class="card" style="display:flex;gap:12px;align-items:center"><div style="font-size:30px">⏰</div><div style="flex:1"><b style="font-size:14px">Pasang pengingat</b><p class="small" style="margin:2px 0 0">Mutaba'ah harian & jadwal kajian.</p></div><button class="back" id="toRemind">Atur</button></div>`:""}
   <div class="tiles">${SECT.map(([v,t,s,bg,fg])=>`<button class="mtile" data-v="${v}" style="background:${bg};color:${fg}"><b>${t}</b><span>${s}</span></button>`).join("")}</div>
   ${M.notes.length?`<div class="sec"><h3>Catatan terbaru</h3></div>${M.notes.slice(0,3).map(noteCard).join("")}`:`<div class="card"><p class="small" style="margin:0">Belum ada catatan. Ketuk <b>＋ Catatan baru</b> untuk kajian, rapat, atau kegiatan apa pun 🌱</p></div>`}</div>`;
-  mjBind();$("#new").onclick=()=>newNote();if($("#toRemind"))$("#toRemind").onclick=()=>{go("mjmore");setTimeout(()=>{const r=$("#remind");if(r)r.scrollIntoView({behavior:"smooth",block:"center"});},50);};app.querySelectorAll(".mtile").forEach(b=>b.onclick=()=>go(b.dataset.v));bindNoteCards();
+  mjBind();$("#new").onclick=()=>newNote();$("#newB").onclick=()=>newNote("kosong");if($("#toRemind"))$("#toRemind").onclick=()=>{go("mjmore");setTimeout(()=>{const r=$("#remind");if(r)r.scrollIntoView({behavior:"smooth",block:"center"});},50);};app.querySelectorAll(".mtile").forEach(b=>b.onclick=()=>go(b.dataset.v));bindNoteCards();
   $("#q").onkeydown=e=>{if(e.key==="Enter"){mjQ=e.target.value;go("mjnotes");}};$("#q").onchange=e=>{mjQ=e.target.value;if(mjQ)go("mjnotes");};},
 mjnotes(){const M=mjLoad();const peme=[...new Set(M.notes.map(n=>(n.pemateri||"").trim()).filter(Boolean))];
   if(mjFolder&&mjFolder!=="_none"&&!mjFolderName(mjFolder))mjFolder="";
@@ -1025,9 +1033,9 @@ mjnotes(){const M=mjLoad();const peme=[...new Set(M.notes.map(n=>(n.pemateri||""
   ${mjFolder&&mjFolder!=="_none"?`<button class="mini" id="fm" style="margin-top:8px">⋯ Atur folder ini</button>`:""}
   <div class="card" style="padding:12px 14px"><input type="text" id="q" placeholder="🔍  Cari judul, nama, isi catatan..." value="${esc(mjQ)}"></div>
   <div class="chips"><button class="fchip ${!mjF?"on":""}" data-f="">Semua</button><button class="fchip ${mjF==="⭐"?"on":""}" data-f="⭐">⭐ Favorit</button>${Object.entries(NTYPE).map(([k,t])=>`<button class="fchip ${mjF==="t:"+k?"on":""}" data-f="t:${k}">${t.ic} ${t.lab}</button>`).join("")}${peme.map(p=>`<button class="fchip ${mjF===p?"on":""}" data-f="${esc(p)}">${esc(p)}</button>`).join("")}</div>
-  <button class="btn" id="new" style="margin-top:12px">＋ Catatan baru${mjFolder&&mjFolder!=="_none"?" di folder ini":""}</button><div id="list"></div>
+  <button class="btn" id="new" style="margin-top:12px">＋ Catatan baru${mjFolder&&mjFolder!=="_none"?" di folder ini":""}</button><button class="btn light" id="newB" style="margin-top:8px">📄 Catatan kosong</button><div id="list"></div>
   <button class="btn light" id="prAll" style="margin-top:14px">🖨️ Cetak semua catatan di daftar ini</button></div>`;
-  mjBind();draw();$("#new").onclick=()=>newNote();
+  mjBind();draw();$("#new").onclick=()=>newNote();$("#newB").onclick=()=>newNote("kosong");
   app.querySelectorAll("[data-fo]").forEach(b=>b.onclick=()=>{mjFolder=b.dataset.fo;MJV.mjnotes();});
   $("#nf").onclick=()=>mjFolderSheet(null,id=>{mjFolder=id;MJV.mjnotes();toast("Folder dibuat ✓");});
   if($("#fm"))$("#fm").onclick=()=>mjFolderMenu(mjFolder);
@@ -1035,30 +1043,32 @@ mjnotes(){const M=mjLoad();const peme=[...new Set(M.notes.map(n=>(n.pemateri||""
   app.querySelectorAll(".fchip").forEach(b=>b.onclick=()=>{mjF=b.dataset.f;app.querySelectorAll(".fchip").forEach(x=>x.classList.toggle("on",x===b));draw();});},
 mjnote(){const M=mjLoad(), n=M.notes.find(x=>x.id===mjOpen);if(!n)return go("mjnotes");const T=ntype(n);
   const ta=(k,lab,ph,cls="")=>`<div class="blk box"><label>${lab}</label>${TB}<textarea class="${cls}" data-k="${k}" rows="3" placeholder="${ph}">${esc(n[k]||"")}</textarea></div>`;
-  app.innerHTML=`<div class="wrap nstyle" style="${nStyle(n)}">${mjHead(T.title,"",["mjnotes","Catatan"])}
-  <details class="card npick"><summary>🎨 Warna kertas & teks</summary>
+  app.innerHTML=`<div class="wrap nstyle nl-${nLine(n)}" style="${nStyle(n)}">${mjHead(T.title,"",["mjnotes","Catatan"])}
+  <details class="card npick" ${T.blank?"open":""}><summary>🎨 Warna kertas & teks</summary>
   <label>Warna kertas</label><div class="nsw">${NPAPER.map(([c,l])=>`<button class="sw ${(n.paper||"#FFFFFF")===c?"on":""}" data-np="${c}" title="${l}" style="background:${c}"></button>`).join("")}</div>
   <label>Warna teks</label><div class="nsw">${NINK.map(([c,l])=>`<button class="sw ${(n.ink||"#3A3238")===c?"on":""}" data-ni="${c}" title="${l}" style="background:${c}"></button>`).join("")}</div>
+  <label>Jenis kertas</label><div class="seg nlseg">${NLINE.map(([k,l])=>`<button data-nl="${k}" class="${nLine(n)===k?"on":""}">${l}</button>`).join("")}</div>
   <p class="small" style="margin:8px 0 0">Berlaku untuk catatan ini saja. Contoh tulisan: <b style="color:var(--ni);background:var(--np);padding:2px 8px;border-radius:8px;border:1px solid var(--line)">Bismillah 🤍</b></p></details>
   <div class="chips" style="margin-top:0">${Object.entries(NTYPE).map(([k,t])=>`<button class="fchip ${(n.type||"kajian")===k?"on":""}" data-ty="${k}">${t.ic} ${t.lab}</button>`).join("")}</div>
   <div class="row" style="margin-top:10px;align-items:center"><label style="font-size:13px;margin:0;flex:none">📁 Folder</label><select id="nfo" style="flex:1;border:1.5px solid var(--line);border-radius:14px;padding:9px 10px;font:500 13.5px Poppins,system-ui;background:#fff;color:var(--ink)"><option value="">Tanpa folder</option>${(M.folders||[]).map(f=>`<option value="${f.id}" ${n.folder===f.id?"selected":""}>${esc(f.name)}</option>`).join("")}<option value="_new">＋ Folder baru…</option></select></div>
   <div class="blk box"><label>${T.tema[0]}</label><input type="text" data-k="tema" value="${esc(n.tema||"")}" placeholder="${T.tema[1]}">
-  <div class="row" style="margin-top:10px"><div style="flex:1"><label style="font-size:13px">Tanggal</label><input type="date" data-k="tgl" value="${esc(n.tgl||"")}"></div></div>
+  <div class="row" style="margin-top:10px"><div style="flex:1"><label style="font-size:13px">Tanggal</label><input type="date" data-k="tgl" value="${esc(n.tgl||"")}"></div></div>${T.blank?`</div>`:`
   <label style="font-size:13px;margin-top:10px">${T.who[0]}</label><input type="text" data-k="pemateri" value="${esc(n.pemateri||"")}" placeholder="${T.who[1]}" list="pml">
   <datalist id="pml">${[...new Set(M.notes.map(x=>x.pemateri).filter(Boolean))].map(p=>`<option value="${esc(p)}">`).join("")}</datalist>
   <label style="font-size:13px;margin-top:10px">Tempat</label><input type="text" data-k="tempat" value="${esc(n.tempat||"")}" placeholder="${T.where}">
-  <div class="seg" style="margin-top:10px">${["Offline","Online"].map(m=>`<button data-m="${m}" class="${n.mode===m?"on":""}">${m}</button>`).join("")}</div></div>
-  <div class="blk box"><label>Perasaanku saat ini</label><div class="moods" style="flex-wrap:wrap">${NMOOD.map(([e,l])=>`<button class="mood ${n.feel===e?"on":""}" data-feel="${e}" style="flex:0 0 calc(25% - 6px)">${e}<small>${l}</small></button>`).join("")}</div></div>
+  <div class="seg mseg" style="margin-top:10px">${["Offline","Online"].map(m=>`<button data-m="${m}" class="${n.mode===m?"on":""}">${m}</button>`).join("")}</div></div>
+  <div class="blk box"><label>Perasaanku saat ini</label><div class="moods" style="flex-wrap:wrap">${NMOOD.map(([e,l])=>`<button class="mood ${n.feel===e?"on":""}" data-feel="${e}" style="flex:0 0 calc(25% - 6px)">${e}<small>${l}</small></button>`).join("")}</div></div>`}
   ${T.areas.map(x=>ta(...x)).join("")}
-  <div class="blk box"><label>${T.list[0]}</label><div id="amalan"></div><div class="row" style="margin-top:8px"><input type="text" id="na" placeholder="${T.list[1]}"><button class="back" id="addA">＋</button></div></div>
+  ${T.blank?"":`<div class="blk box"><label>${T.list[0]}</label><div id="amalan"></div><div class="row" style="margin-top:8px"><input type="text" id="na" placeholder="${T.list[1]}"><button class="back" id="addA">＋</button></div></div>
   ${T.after.map(x=>ta(...x)).join("")}
-  ${ta("extra","Catatan tambahan","Halaman bebas, tulis sebanyak yang kamu mau...","letter")}
+  ${ta("extra","Catatan tambahan","Halaman bebas, tulis sebanyak yang kamu mau...","letter")}`}
   <button class="btn" id="saveN" style="margin-top:16px">💾 Simpan catatan</button>
   <button class="btn light" id="prN" style="margin-top:10px">🖨️ Cetak / simpan PDF</button>
   <div class="row" style="margin-top:10px"><button class="btn light" id="fav">${n.fav?"⭐ Favorit":"☆ Jadikan favorit"}</button><button class="btn ghost" id="del">Hapus</button></div>
   <div class="saved" id="sv"></div></div>`;
   bindFmt(app);
-  const wr=app.querySelector(".nstyle");window.INKPAPER=n.paper||"";
+  const wr=app.querySelector(".nstyle");window.INKPAPER=n.paper||"";window.INKBG=nLine(n)==="titik"?"polos":nLine(n);
+  app.querySelectorAll("[data-nl]").forEach(b=>b.onclick=()=>{n.lines=b.dataset.nl;if(n.lines==="garis")delete n.lines;window.INKBG=nLine(n)==="titik"?"polos":nLine(n);NLINE.forEach(([k])=>wr.classList.toggle("nl-"+k,nLine(n)===k));app.querySelectorAll("[data-nl]").forEach(x=>x.classList.toggle("on",x===b));mjSave();});
   app.querySelectorAll("[data-np]").forEach(b=>b.onclick=()=>{n.paper=b.dataset.np;if(n.paper==="#FFFFFF")delete n.paper;window.INKPAPER=n.paper||"";wr.style.cssText=nStyle(n);app.querySelectorAll("[data-np]").forEach(x=>x.classList.toggle("on",x===b));mjSave();});
   app.querySelectorAll("[data-ni]").forEach(b=>b.onclick=()=>{n.ink=b.dataset.ni;if(n.ink==="#3A3238")delete n.ink;wr.style.cssText=nStyle(n);app.querySelectorAll("[data-ni]").forEach(x=>x.classList.toggle("on",x===b));mjSave();});
   app.querySelectorAll("[data-ty]").forEach(b=>b.onclick=()=>{n.type=b.dataset.ty;mjSave();MJV.mjnote();});
@@ -1066,10 +1076,10 @@ mjnote(){const M=mjLoad(), n=M.notes.find(x=>x.id===mjOpen);if(!n)return go("mjn
   mjBind(["mjnotes","Catatan"]);
   $("#nfo").onchange=e=>{const v=e.target.value;if(v==="_new"){e.target.value=n.folder||"";mjFolderSheet(null,id=>{n.folder=id;mjSave();MJV.mjnote();toast("Folder dibuat ✓");});return;}if(v)n.folder=v;else delete n.folder;mjSave();toast(v?"Dipindah ke 📁 "+mjFolderName(v):"Dikeluarkan dari folder");};
   app.querySelectorAll("[data-k]").forEach(el=>{if(el.tagName==="TEXTAREA")auto(el);el.oninput=()=>{n[el.dataset.k]=el.value;if(el.tagName==="TEXTAREA")auto(el);mjFlash();};});
-  app.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>{n.mode=b.dataset.m;app.querySelectorAll(".seg button").forEach(x=>x.classList.toggle("on",x===b));mjFlash();});
+  app.querySelectorAll(".mseg button").forEach(b=>b.onclick=()=>{n.mode=b.dataset.m;app.querySelectorAll(".mseg button").forEach(x=>x.classList.toggle("on",x===b));mjFlash();});
   const drawA=()=>{$("#amalan").innerHTML=(n.amalan||[]).map((a,i)=>`<div class="amal ${a.done?"on":""}" data-i="${i}"><div class="check">${a.done?"✓":""}</div><span>${esc(a.t)}</span><button class="mini" data-x="${i}">✕</button></div>`).join("")||`<p class="small" style="margin:0">Belum ada. Tambahkan di bawah 🌱</p>`;
     $("#amalan").querySelectorAll(".amal").forEach(r=>r.onclick=e=>{const i=+r.dataset.i;if(e.target.dataset.x!==undefined){n.amalan.splice(i,1);}else n.amalan[i].done=!n.amalan[i].done;mjSave();drawA();});};
-  drawA();$("#addA").onclick=()=>{const v=$("#na").value.trim();if(!v)return;n.amalan=n.amalan||[];n.amalan.push({t:v,done:false});$("#na").value="";mjSave();drawA();};
+  if($("#amalan")){drawA();$("#addA").onclick=()=>{const v=$("#na").value.trim();if(!v)return;n.amalan=n.amalan||[];n.amalan.push({t:v,done:false});$("#na").value="";mjSave();drawA();};}
   $("#prN").onclick=()=>{clearTimeout(mjT);mjSave();exportNotes([n],n.tema||"catatan");};
   $("#saveN").onclick=()=>{clearTimeout(mjT);mjSave();toast("Catatan tersimpan ✓");go("mjnotes");};
   $("#fav").onclick=()=>{n.fav=!n.fav;mjSave();$("#fav").textContent=n.fav?"⭐ Favorit":"☆ Jadikan favorit";};
@@ -2691,7 +2701,7 @@ var INK=(function(){
   function editor(ink,done){
     const strokes=ink?JSON.parse(JSON.stringify(ink.s||[])):[],redo=[];let H=Math.max(PAGE,ink?Math.ceil((ink.h+200)/PAGE)*PAGE:PAGE);
     let color=COLORS[0],size=SIZES[0],erase=false,penSeen=false,cur=null,changed=false;
-    let bg=(ink&&ink.bg)||(function(){try{return localStorage.getItem("ink.bg")||"garis";}catch(e){return "garis";}})();
+    let bg=(ink&&ink.bg)||(window.INKBG&&view==="mjnote"?window.INKBG:null)||(function(){try{return localStorage.getItem("ink.bg")||"garis";}catch(e){return "garis";}})();
     const e=document.createElement("div");e.className="inked";
     e.innerHTML=`<div class="inkhd"><button class="back" id="ix">Batal</button><b>✍️ Tulis tangan</b><button class="btn" id="iok" style="width:auto;padding:9px 18px;margin:0">Simpan</button></div>
     <div class="inktools">${COLORS.map((c,i)=>`<button class="dot ${i?"":"on"}" data-c="${c}" style="background:${c}"></button>`).join("")}<span class="sep"></span>
@@ -2753,7 +2763,7 @@ var INK=(function(){
 })();
 
 /* ===== Notifikasi pembaruan ===== */
-const APP_VERSION=85;
+const APP_VERSION=86;
 (function(){
   let shown=false;
   async function check(){
