@@ -1015,11 +1015,11 @@ mjhome(){const M=mjLoad(), t=today(), pct=mutPct(t), [sal]=greet();
   const SECT=[["mjnotes","📖 Catatan",M.notes.length+" kajian, rapat & kegiatan","#FDEEF1","#B05A6E"],["mjmut","✅ Mutaba'ah",pct+"% hari ini","#EBF6F9","#3F8196"],["mjhal","🤝 Halaqah",M.hal.length+" pertemuan","#F3EFFB","#6E58A6"],["mjhaf","📗 Hafalan",M.haf.length+" target","#EEF7EE","#4A8A5C"],["mjbaca","📚 Bacaan",M.baca.length+" buku","#FFF5E3","#A0742A"],["mjdoa","🤲 Doa & Dzikir",M.doa.length+" doa","#FFEFE6","#B0613C"],["mjtanya","❓ Pertanyaan",M.tanya.filter(x=>!x.done).length+" belum terjawab","#EBF6F9","#3F8196"]];
   app.innerHTML=`<div class="wrap">${mjHead(sal+(S.name?", "+esc(S.name):"")+" 🤍","Ikat ilmumu dengan tulisan.")}
   <div class="card" style="padding:12px 14px"><input type="text" id="q" placeholder="🔍  Cari catatan... (misal: sabar)" value="${esc(mjQ)}"></div>
-  <div class="row" style="margin-top:14px"><button class="btn" id="new" style="flex:1.4">＋ Catatan baru</button><button class="btn light" id="newB" style="flex:1">📄 Catatan kosong</button></div>
+  <button class="btn" id="new" style="margin-top:14px">＋ Catatan baru</button>
   ${!(M.rem&&(M.rem.mut||M.rem.kajian))?`<div class="card" style="display:flex;gap:12px;align-items:center"><div style="font-size:30px">⏰</div><div style="flex:1"><b style="font-size:14px">Pasang pengingat</b><p class="small" style="margin:2px 0 0">Mutaba'ah harian & jadwal kajian.</p></div><button class="back" id="toRemind">Atur</button></div>`:""}
   <div class="tiles">${SECT.map(([v,t,s,bg,fg])=>`<button class="mtile" data-v="${v}" style="background:${bg};color:${fg}"><b>${t}</b><span>${s}</span></button>`).join("")}</div>
   ${M.notes.length?`<div class="sec"><h3>Catatan terbaru</h3></div>${M.notes.slice(0,3).map(noteCard).join("")}`:`<div class="card"><p class="small" style="margin:0">Belum ada catatan. Ketuk <b>＋ Catatan baru</b> untuk kajian, rapat, atau kegiatan apa pun 🌱</p></div>`}</div>`;
-  mjBind();$("#new").onclick=()=>newNote();$("#newB").onclick=()=>newNote("kosong");if($("#toRemind"))$("#toRemind").onclick=()=>{go("mjmore");setTimeout(()=>{const r=$("#remind");if(r)r.scrollIntoView({behavior:"smooth",block:"center"});},50);};app.querySelectorAll(".mtile").forEach(b=>b.onclick=()=>go(b.dataset.v));bindNoteCards();
+  mjBind();$("#new").onclick=()=>newNote();if($("#toRemind"))$("#toRemind").onclick=()=>{go("mjmore");setTimeout(()=>{const r=$("#remind");if(r)r.scrollIntoView({behavior:"smooth",block:"center"});},50);};app.querySelectorAll(".mtile").forEach(b=>b.onclick=()=>go(b.dataset.v));bindNoteCards();
   $("#q").onkeydown=e=>{if(e.key==="Enter"){mjQ=e.target.value;go("mjnotes");}};$("#q").onchange=e=>{mjQ=e.target.value;if(mjQ)go("mjnotes");};},
 mjnotes(){const M=mjLoad();const peme=[...new Set(M.notes.map(n=>(n.pemateri||"").trim()).filter(Boolean))];
   if(mjFolder&&mjFolder!=="_none"&&!mjFolderName(mjFolder))mjFolder="";
@@ -1033,9 +1033,9 @@ mjnotes(){const M=mjLoad();const peme=[...new Set(M.notes.map(n=>(n.pemateri||""
   ${mjFolder&&mjFolder!=="_none"?`<button class="mini" id="fm" style="margin-top:8px">⋯ Atur folder ini</button>`:""}
   <div class="card" style="padding:12px 14px"><input type="text" id="q" placeholder="🔍  Cari judul, nama, isi catatan..." value="${esc(mjQ)}"></div>
   <div class="chips"><button class="fchip ${!mjF?"on":""}" data-f="">Semua</button><button class="fchip ${mjF==="⭐"?"on":""}" data-f="⭐">⭐ Favorit</button>${Object.entries(NTYPE).map(([k,t])=>`<button class="fchip ${mjF==="t:"+k?"on":""}" data-f="t:${k}">${t.ic} ${t.lab}</button>`).join("")}${peme.map(p=>`<button class="fchip ${mjF===p?"on":""}" data-f="${esc(p)}">${esc(p)}</button>`).join("")}</div>
-  <button class="btn" id="new" style="margin-top:12px">＋ Catatan baru${mjFolder&&mjFolder!=="_none"?" di folder ini":""}</button><button class="btn light" id="newB" style="margin-top:8px">📄 Catatan kosong</button><div id="list"></div>
+  <button class="btn" id="new" style="margin-top:12px">＋ Catatan baru${mjFolder&&mjFolder!=="_none"?" di folder ini":""}</button><div id="list"></div>
   <button class="btn light" id="prAll" style="margin-top:14px">🖨️ Cetak semua catatan di daftar ini</button></div>`;
-  mjBind();draw();$("#new").onclick=()=>newNote();$("#newB").onclick=()=>newNote("kosong");
+  mjBind();draw();$("#new").onclick=()=>newNote();
   app.querySelectorAll("[data-fo]").forEach(b=>b.onclick=()=>{mjFolder=b.dataset.fo;MJV.mjnotes();});
   $("#nf").onclick=()=>mjFolderSheet(null,id=>{mjFolder=id;MJV.mjnotes();toast("Folder dibuat ✓");});
   if($("#fm"))$("#fm").onclick=()=>mjFolderMenu(mjFolder);
@@ -2763,7 +2763,7 @@ var INK=(function(){
 })();
 
 /* ===== Notifikasi pembaruan ===== */
-const APP_VERSION=86;
+const APP_VERSION=87;
 (function(){
   let shown=false;
   async function check(){
