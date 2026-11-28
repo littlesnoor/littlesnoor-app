@@ -271,6 +271,16 @@ html,body{position:fixed;inset:0;width:100%;height:100%;overflow:hidden}
  .hello{font-size:30px}
 }
 @media (min-width:1400px){.wrap{max-width:1100px}.shelf{grid-template-columns:repeat(4,1fr)}}
+/* tampilan: tema warna & latar pilihan user */
+body.wp-on{background-image:none!important;background-color:transparent!important}
+body.wp-on::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background-image:var(--wpimg);background-size:cover;background-position:center bottom;background-repeat:no-repeat}
+.lkh{font-size:14px;font-weight:700;margin:16px 0 8px}
+.lkgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px 8px}
+.lkopt{border:0;background:none;padding:0;font:500 11px/1.25 Poppins,system-ui;color:var(--ink);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.lkopt i{display:block;width:100%;aspect-ratio:1;border-radius:16px;box-shadow:0 0 0 1.5px var(--line);background-size:cover;background-position:center bottom;position:relative;overflow:hidden}
+.lkopt.wp i{aspect-ratio:3/4}
+.lkopt.on i{box-shadow:0 0 0 3px var(--ink)}
+.lkopt.on i:after{content:"✓";position:absolute;right:5px;top:4px;width:18px;height:18px;border-radius:50%;background:var(--ink);color:#fff;font-size:11px;font-style:normal;display:grid;place-items:center}
 .fbcard{display:flex;align-items:center;gap:12px;width:100%;border:1.5px dashed #E7B9A5;background:#FFF8F4;font-family:Poppins,system-ui;cursor:pointer;color:var(--ink)}.fbcard b{display:block;font-size:14.5px}.fbcard small{font-size:12.5px;color:var(--muted)}
 .scanbox{position:relative;border-radius:18px;overflow:hidden;background:#111;aspect-ratio:4/3;margin-top:10px}.scanbox video{width:100%;height:100%;object-fit:cover;display:block}.scanbox i{position:absolute;left:12%;right:12%;top:50%;height:2px;background:#E8C15A;box-shadow:0 0 12px #E8C15A}
 .scflash{position:absolute;left:50%;top:14px;transform:translateX(-50%) translateY(-10px);background:#2EAA64;color:#fff;font:700 14px Poppins;padding:8px 14px;border-radius:20px;opacity:0;white-space:nowrap;pointer-events:none}.scflash.on{animation:scf 1.8s ease}@keyframes scf{0%{opacity:0;transform:translateX(-50%) translateY(-10px)}12%{opacity:1;transform:translateX(-50%) translateY(0)}80%{opacity:1}100%{opacity:0}}
@@ -424,8 +434,47 @@ ck:{"--sage":"#3A5A4A","--sagel":"#E6EFE8","--pc":"#8FB5A0","--pl":"#E6EFE8","--
 pl:{"--sage":"#226A7A","--sagel":"#E1F0F2","--pc":"#6FB2C0","--pl":"#E2F1F4","--pd":"#17505C",bg:"#F3F9FA",gl:"rgba(34,106,122,.07)"},
 mj:{"--sage":"#4A3452","--sagel":"#F0E8F1","--pc":"#B392B8","--pl":"#F6EFF6","--pd":"#33223A",bg:"#FAF5F9",gl:"rgba(74,52,82,.07)"},
 ml:{"--sage":"#9A5262","--sagel":"#F6E6EA","--pc":"#D49AA8","--pl":"#F8EAED","--pd":"#7C3F4E",bg:"#FFF6F6",gl:"rgba(154,82,98,.07)"}};
-const T=P[kind]||P.ml;for(const k in T)if(k.startsWith("--"))r.setProperty(k,T[k]);r.setProperty("--cream",T.bg);const bs=document.body.style;bs.setProperty("--bg",T.bg);bs.setProperty("--gl",T.gl);
-const m=document.querySelector('meta[name="theme-color"]');if(m)m.content=T.bg;}
+const L=look();const T=(L.c!=="asli"&&LOOKC[L.c])?LOOKC[L.c]:(P[kind]||P.ml);for(const k in T)if(k.startsWith("--"))r.setProperty(k,T[k]);r.setProperty("--cream",T.bg);const bs=document.body.style;bs.setProperty("--bg",T.bg);bs.setProperty("--gl",T.gl);
+const m=document.querySelector('meta[name="theme-color"]');if(m)m.content=T.bg;applyWp();}
+/* ===== Tampilan: tema warna & latar pilihan user (tersimpan di perangkat ini) ===== */
+const LOOKC={
+terra:{n:"Terracotta","--sage":"#9C5238","--sagel":"#F6E5DE","--pc":"#E0A48A","--pl":"#FBEFE9","--pd":"#7A3E28",bg:"#FFF9F3",gl:"rgba(156,82,56,.06)"},
+teal:{n:"Teal","--sage":"#226A7A","--sagel":"#E1F0F2","--pc":"#6FB2C0","--pl":"#E2F1F4","--pd":"#17505C",bg:"#F3F9FA",gl:"rgba(34,106,122,.07)"},
+sage:{n:"Sage","--sage":"#3A5A4A","--sagel":"#E6EFE8","--pc":"#8FB5A0","--pl":"#E6EFE8","--pd":"#2C4638",bg:"#F6F9F5",gl:"rgba(58,90,74,.07)"},
+rose:{n:"Dusty rose","--sage":"#9A5262","--sagel":"#F6E6EA","--pc":"#D49AA8","--pl":"#F8EAED","--pd":"#7C3F4E",bg:"#FFF6F6",gl:"rgba(154,82,98,.07)"},
+plum:{n:"Plum","--sage":"#4A3452","--sagel":"#F0E8F1","--pc":"#B392B8","--pl":"#F6EFF6","--pd":"#33223A",bg:"#FAF5F9",gl:"rgba(74,52,82,.07)"},
+butter:{n:"Butter","--sage":"#8C6A1C","--sagel":"#F7EFD9","--pc":"#DDB65E","--pl":"#FBF4E2","--pd":"#664C10",bg:"#FFFBF2",gl:"rgba(140,106,28,.07)"},
+langit:{n:"Biru langit","--sage":"#3B6A96","--sagel":"#E4EEF7","--pc":"#8DB4D9","--pl":"#EAF2FA","--pd":"#284D70",bg:"#F5F9FD",gl:"rgba(59,106,150,.07)"}};
+const SV=(b)=>`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMax slice">${b}</svg>`;
+const LOOKW={
+grid:{n:"Grid halus"},polos:{n:"Polos"},titik:{n:"Titik-titik"},
+senja:{n:"Senja",svg:SV(`<defs><linearGradient id="a" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFF7EE"/><stop offset=".55" stop-color="#FDE6D6"/><stop offset="1" stop-color="#F5D3DA"/></linearGradient></defs><rect width="390" height="844" fill="url(#a)"/><circle cx="290" cy="640" r="70" fill="#FFD9AE" opacity=".8"/><path d="M0 700 Q100 660 200 690 T390 680 V844 H0Z" fill="#F2C7C9" opacity=".7"/><path d="M0 750 Q120 715 230 745 T390 735 V844 H0Z" fill="#E9B5BD" opacity=".7"/><g fill="#fff" opacity=".7"><ellipse cx="80" cy="520" rx="46" ry="12"/><ellipse cx="300" cy="470" rx="38" ry="10"/></g>`)},
+gunung:{n:"Pegunungan",svg:SV(`<defs><linearGradient id="a" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F6FAFA"/><stop offset="1" stop-color="#E3EFEF"/></linearGradient></defs><rect width="390" height="844" fill="url(#a)"/><circle cx="300" cy="560" r="34" fill="#FBE7C2" opacity=".9"/><path d="M0 640 L80 560 L150 620 L240 530 L330 610 L390 570 V844 H0Z" fill="#D3E3DC"/><path d="M0 700 Q90 640 170 690 T330 670 T390 660 V844 H0Z" fill="#B9D2C4"/><path d="M0 760 Q110 720 210 755 T390 740 V844 H0Z" fill="#9EC0AE"/>`)},
+laut:{n:"Laut",svg:SV(`<defs><linearGradient id="a" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F4F9FC"/><stop offset="1" stop-color="#E3EFF6"/></linearGradient></defs><rect width="390" height="844" fill="url(#a)"/><circle cx="90" cy="600" r="30" fill="#FFE6C4" opacity=".9"/><path d="M0 660 Q50 645 100 660 T200 660 T300 660 T390 660 V844 H0Z" fill="#CFE3EE"/><path d="M0 705 Q50 690 100 705 T200 705 T300 705 T390 705 V844 H0Z" fill="#B5D4E5"/><path d="M0 760 Q60 745 120 760 T240 760 T390 755 V844 H0Z" fill="#9CC4DA"/><path d="M0 805 Q130 785 260 800 T390 795 V844 H0Z" fill="#F2E4CF"/>`)},
+daun:{n:"Dedaunan",svg:SV(`<rect width="390" height="844" fill="#F7F8F2"/><g fill="#C9DBC0" opacity=".75"><path d="M-10 700 C60 640 120 650 150 700 C100 740 40 740 -10 700Z"/><path d="M20 790 C80 730 150 735 180 790 C120 830 60 830 20 790Z"/><path d="M400 640 C330 590 270 600 240 650 C290 690 350 690 400 640Z"/><path d="M400 760 C340 710 290 720 260 770 C310 805 360 805 400 760Z"/></g><g fill="#B3CDA8" opacity=".6"><path d="M330 60 C360 20 400 20 410 60 C380 90 350 90 330 60Z"/><path d="M-20 120 C20 90 60 95 70 130 C40 155 0 150 -20 120Z"/></g><g stroke="#A9C49D" stroke-width="2" fill="none" opacity=".6"><path d="M-10 700 Q70 690 150 700"/><path d="M400 640 Q320 640 240 650"/></g>`)},
+bunga:{n:"Bunga",svg:SV(`<rect width="390" height="844" fill="#FFF7F6"/><g opacity=".7">${[[40,720,1],[110,790,.8],[330,690,1],[280,780,.7],[360,90,.7],[30,140,.6]].map(([x,y,k])=>`<g transform="translate(${x} ${y}) scale(${k})" fill="#F3C9CF"><circle cx="0" cy="-16" r="12"/><circle cx="15" cy="-5" r="12"/><circle cx="9" cy="13" r="12"/><circle cx="-9" cy="13" r="12"/><circle cx="-15" cy="-5" r="12"/><circle r="7" fill="#F8DFA8"/></g>`).join("")}</g>`)},
+bulan:{n:"Langit bulan",svg:SV(`<defs><linearGradient id="a" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F8F5FC"/><stop offset="1" stop-color="#ECE6F6"/></linearGradient></defs><rect width="390" height="844" fill="url(#a)"/><path d="M330 600 a52 52 0 1 0 0 90 a42 42 0 1 1 0-90Z" fill="#F4D99C" opacity=".85"/><g fill="#D9CDEE">${[[60,560],[150,640],[220,580],[40,700],[260,720],[120,760],[350,780],[300,520]].map(([x,y])=>`<path d="M${x} ${y-7} L${x+2} ${y-2} L${x+7} ${y} L${x+2} ${y+2} L${x} ${y+7} L${x-2} ${y+2} L${x-7} ${y} L${x-2} ${y-2}Z"/>`).join("")}</g><path d="M0 790 Q130 760 260 785 T390 775 V844 H0Z" fill="#E1D7F0"/>`)}};
+function look(){let o;try{o=JSON.parse(lsGet("ln.look")||"null");}catch(e){}return Object.assign({c:"asli",w:"grid"},o||{});}
+function wpUrl(w){const x=LOOKW[w];return x&&x.svg?`url('data:image/svg+xml,${encodeURIComponent(x.svg).replace(/'/g,"%27")}')`:"";}
+function applyWp(){const w=look().w,b=document.body;if(!b)return;const bs=b.style;
+  b.classList.toggle("wp-on",!!(LOOKW[w]&&LOOKW[w].svg));bs.removeProperty("--wpimg");bs.removeProperty("background-image");bs.removeProperty("background-size");
+  if(LOOKW[w]&&LOOKW[w].svg)bs.setProperty("--wpimg",wpUrl(w));
+  else if(w==="polos")bs.setProperty("background-image","none");
+  else if(w==="titik"){bs.setProperty("background-image","radial-gradient(circle,rgba(60,50,55,.13) 1.3px,transparent 1.7px)");bs.setProperty("background-size","22px 22px");}}
+function lookSheet(){const e=document.createElement("div");e.className="modal";let L=look();
+  const save=()=>{lsSet("ln.look",JSON.stringify(L));render();};
+  const draw=()=>{e.innerHTML=`<div class="sheet" style="max-height:88vh;overflow:auto"><h3>🎨 Tampilan aplikasi</h3><p class="small" style="margin:4px 0 0">Pilih warna dan latar yang kamu suka. Langsung berubah, dan berlaku untuk semua produkmu di perangkat ini.</p>
+  <div class="lkh">Warna tema</div><div class="lkgrid">
+  <button class="lkopt ${L.c==="asli"?"on":""}" data-c="asli"><i style="background:conic-gradient(#9C5238 0 60deg,#226A7A 0 120deg,#3A5A4A 0 180deg,#9A5262 0 240deg,#4A3452 0 300deg,#A65A3C 0)"></i>Asli tiap produk</button>
+  ${Object.entries(LOOKC).map(([k,t])=>`<button class="lkopt ${L.c===k?"on":""}" data-c="${k}"><i style="background:linear-gradient(135deg,${t["--sage"]} 0 50%,${t["--pc"]} 50% 75%,${t.bg} 75%)"></i>${t.n}</button>`).join("")}</div>
+  <div class="lkh">Latar</div><div class="lkgrid">
+  ${Object.entries(LOOKW).map(([k,w])=>{const bg=w.svg?`background-image:${wpUrl(k)}`:k==="polos"?"background:#fff":k==="titik"?"background:#fff radial-gradient(circle,rgba(60,50,55,.2) 1.3px,transparent 1.7px) 0 0/12px 12px":"background:#fff linear-gradient(rgba(60,50,55,.15) 1px,transparent 1px) 0 0/12px 12px,linear-gradient(90deg,rgba(60,50,55,.15) 1px,transparent 1px) 0 0/12px 12px";return `<button class="lkopt wp ${L.w===k?"on":""}" data-w="${k}"><i style="${bg}"></i>${w.n}</button>`;}).join("")}</div>
+  <div style="display:flex;gap:10px;margin-top:18px"><button class="btn ghost" id="lkReset" style="flex:1">Kembalikan ke awal</button><button class="btn" id="lkDone" style="flex:1">Selesai</button></div></div>`;
+  e.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>{L.c=b.dataset.c;save();draw();});
+  e.querySelectorAll("[data-w]").forEach(b=>b.onclick=()=>{L.w=b.dataset.w;save();draw();});
+  e.querySelector("#lkReset").onclick=()=>{L={c:"asli",w:"grid"};save();draw();};
+  e.querySelector("#lkDone").onclick=()=>e.remove();};
+  draw();e.onclick=x=>{if(x.target===e)e.remove();};document.body.appendChild(e);}
 
 function render(){
   const nav=$("#nav");
@@ -2216,13 +2265,14 @@ function shelf(){
      <img src="covers/${p.id}.jpg" alt=""><b>${esc(p.name)}</b><span>${esc(!live?p.tagline:(own?p.tagline:"Dapatkan di lynk.id/littlesnoor"))}</span></button>`}).join("")}</div>`).join("")}
   ${pushCard()}
   ${["littlesnoor@gmail.com"].includes((A.email||"").toLowerCase())?`<a class="card fbcard" href="adminwildhard/" style="text-decoration:none;color:inherit"><span style="font-size:28px">🛠️</span><span style="flex:1;text-align:left"><b>Dashboard admin</b><small>Progres user, penjualan, masukan & reward. Hanya terlihat olehmu</small></span><span class="small">›</span></a>`:""}
+  <button class="card fbcard" id="lookOpen" style="border-style:solid"><span style="font-size:28px">🎨</span><span style="flex:1;text-align:left"><b>Tampilan aplikasi</b><small>Ganti warna tema dan latar sesukamu</small></span><span class="small">›</span></button>
   <button class="card fbcard" id="fbOpen"><span style="font-size:28px">💌</span><span style="flex:1;text-align:left"><b>Tulis pesan dan kesanmu di sini ❤️</b><small>Kesan, masukan, ide produk baru, atau kalau ada yang error</small></span><span class="small">›</span></button>
   <div class="card" style="margin-top:18px;display:flex;align-items:center;gap:10px"><p class="small" style="margin:0;flex:1">Masuk sebagai <b>${esc(A.email||"")}</b></p><button class="mini" id="logoutBtn">Keluar</button></div>
   <p class="small" style="text-align:center;margin-top:16px">Butuh bantuan? DM Instagram <a href='https://instagram.com/littlesnoor' target='_blank' rel='noopener' style='color:var(--sage);font-weight:700'>@littlesnoor</a></p>
 </div>`;
   $("#editShelf").onclick=()=>{shelfEdit=!shelfEdit;shelf();};bindSummary();bindMsgCard();
   bindPushCard();
-  $("#logoutTop").onclick=logout;$("#logoutBtn").onclick=logout;$("#fbOpen").onclick=feedbackSheet;if($("#tsOpen"))$("#tsOpen").onclick=()=>testiSheet(owned,P0);
+  $("#logoutTop").onclick=logout;$("#logoutBtn").onclick=logout;$("#fbOpen").onclick=feedbackSheet;$("#lookOpen").onclick=lookSheet;if($("#tsOpen"))$("#tsOpen").onclick=()=>testiSheet(owned,P0);
   app.querySelectorAll("[data-cat]").forEach(b=>b.onclick=()=>{shelfCat=b.dataset.cat;shelf();});
   setTimeout(()=>{const on=app.querySelector("[data-cat].on");if(on)on.scrollIntoView({inline:"center",block:"nearest"});},0);
   app.querySelectorAll(".prod").forEach(el=>el.onclick=e=>{
@@ -2309,7 +2359,7 @@ async function boot(){
 }
 /* ===== Akun aman (kode OTP) + sinkron antar-perangkat =====
    Tambah aplikasi baru? Daftarkan key localStorage-nya di LNS_KEYS supaya ikut tersimpan di akun pembeli. */
-var LNS_KEYS=["mulailagi.v1","majelis.v1","planner.v1","cukup.v1","catatusaha.v1","saku.fav","littlesnoor.shelf"];
+var LNS_KEYS=["mulailagi.v1","majelis.v1","planner.v1","cukup.v1","catatusaha.v1","saku.fav","littlesnoor.shelf","ln.look"];
 var LNS=(function(){
 const KEYS=LNS_KEYS, SK="ln.sess", TK="ln.trust", OWN="ln.owner", MT="ln.mt", PEND="ln.otp", IMGQ="cu.imgq", SEEN="cu.imgseen";
 const J=JSON.stringify;
@@ -2763,7 +2813,7 @@ var INK=(function(){
 })();
 
 /* ===== Notifikasi pembaruan ===== */
-const APP_VERSION=87;
+const APP_VERSION=88;
 (function(){
   let shown=false;
   async function check(){
